@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  achiever:
+    build: .
+    image: lotto
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    volumes:
+      - ~:/root
+      - .:/root/src/github.com/CBarraford/lotto
+    working_dir: /root/src/github.com/CBarraford/lotto
+    environment:
+      GOPATH: /root
+      PGUSER: postgres
+      PGPASSWORD: password
+      PGDATABASE: db
+      PGHOST: postgres
+
+  postgres:
+    image: postgres:9.6.3
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
