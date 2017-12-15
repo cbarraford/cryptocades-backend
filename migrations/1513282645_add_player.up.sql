@@ -1,0 +1,27 @@
+CREATE TABLE players(
+    id SERIAL PRIMARY KEY,
+    username CHAR(12) NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    btc_address CHAR(35) NOT NULL UNIQUE,
+    total_hashes bigint NOT NULL,
+    bonus_hashes bigint NOT NULL,
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE jackpots(
+    id SERIAL PRIMARY KEY,
+    jackpot NUMERIC(precision) NOT NULL DEFAULT 100.00,
+    end_time TIMESTAMPTZ NOT NULL,
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE entries(
+    id BIGSERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    jackpot_id INTEGER NOT NULL,
+    amount INTEGER NOT NULL,
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);

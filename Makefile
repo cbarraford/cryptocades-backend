@@ -54,7 +54,7 @@ build:
 
 # this leave postgres running
 start:
-	@docker-compose run --rm -p 7777:7777 -e ENVIRONMENT=$$ENVIRONMENT -e NEW_RELIC_LICENSE_KEY=$$NEW_RELIC_LICENSE_KEY -e ACHIEVER_ADDRESS=$$ACHIEVER_ADDRESS -e SLACK_VERIFICATION_TOKEN=$$SLACK_VERIFICATION_TOKEN -e SLACK_CLIENT_ID=$$SLACK_CLIENT_ID -e SLACK_CLIENT_SECRET=$$SLACK_CLIENT_SECRET -e SLACK_TOKEN=$$SLACK_TOKEN -e REBUILD=$$REBUILD lotto make wait-for-postgres start-internal
+	@docker-compose run --rm -p 7777:7777 -e ENVIRONMENT=$$ENVIRONMENT lotto make wait-for-postgres start-internal
 
 run: build start
 
