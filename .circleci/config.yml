@@ -14,7 +14,8 @@ jobs:
       - checkout
 
       # specify any bash command here prefixed with `run: `
-      - run: make lint-internal
-      - run: make build-internal
-      - run: make test-cover-internal
-      - run: make codecov
+      - run: go get -t -d -v ./...
+      - run: go vet -t -d -v ./...
+      - run: go fmt -t -d -v ./...
+      - run: go build -v
+      - run: go test -v
