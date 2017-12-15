@@ -67,5 +67,8 @@ test:
 test-cover:
 	@./scripts/run.sh lotto make wait-for-postgres test-cover-internal
 
+lint-internal:
+	make fmt-check-internal vet-internal
+
 lint:
-	@docker-compose run --rm -e TARGET="${TARGET}" --no-deps lotto make fmt-check-internal vet-internal
+	@docker-compose run --rm -e TARGET="${TARGET}" --no-deps lotto make lint-internal 
