@@ -73,6 +73,23 @@ func (s *DBSuite) TestCreate(c *C) {
 	c.Check(CheckPasswordHash("password", record.Password), Equals, true)
 }
 
+func (s *DBSuite) TestGet(c *C) {
+	record := Record{
+		Username: "bob",
+		Email:    "bob@lotto.com",
+		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		Password: "password",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	r, err := s.store.Get(record.Id)
+	c.Assert(err, IsNil)
+	c.Check(r.Username, Equals, "bob")
+	c.Check(r.Email, Equals, "bob@lotto.com")
+	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
+	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
+}
+
 func (s *DBSuite) TestGetByUsername(c *C) {
 	record := Record{
 		Username: "bob",
@@ -89,7 +106,7 @@ func (s *DBSuite) TestGetByUsername(c *C) {
 	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
 	c.Check(r.TotalHashes, Equals, 0)
 	c.Check(r.BonusHashes, Equals, 0)
-	c.Check(CheckPasswordHash("password", record.Password), Equals, true)
+	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }
 
 func (s *DBSuite) TestGetByBTCAddress(c *C) {
@@ -106,7 +123,7 @@ func (s *DBSuite) TestGetByBTCAddress(c *C) {
 	c.Check(r.Username, Equals, "bob")
 	c.Check(r.Email, Equals, "bob@lotto.com")
 	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
-	c.Check(CheckPasswordHash("password", record.Password), Equals, true)
+	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }
 
 func (s *DBSuite) TestUpdate(c *C) {
@@ -154,5 +171,5 @@ func (s *DBSuite) TestList(c *C) {
 	c.Check(r.Username, Equals, "bob")
 	c.Check(r.Email, Equals, "bob@lotto.com")
 	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
-	c.Check(CheckPasswordHash("password", record.Password), Equals, true)
+	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }

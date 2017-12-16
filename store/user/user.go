@@ -9,6 +9,7 @@ import (
 
 type Store interface {
 	Create(record *Record) error
+	Get(id int64) (Record, error)
 	GetByUsername(username string) (Record, error)
 	GetByBTCAddress(btc_address string) (Record, error)
 	Update(record *Record) error
@@ -73,6 +74,13 @@ func (db *store) Create(record *Record) error {
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
 	return err
+}
+
+func (db *store) Get(id int64) (Record, error) {
+	record := Record{}
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE id = ?", table))
+	err := db.sqlx.Get(&record, query, id)
+	return record, err
 }
 
 func (db *store) GetByUsername(username string) (record Record, err error) {
