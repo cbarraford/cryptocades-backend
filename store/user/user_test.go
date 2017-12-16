@@ -66,7 +66,6 @@ func (s *DBSuite) TestCreate(c *C) {
 		Password: "password",
 	}
 	c.Assert(s.store.Create(&record), IsNil)
-	c.Check(record.Id, Equals, int64(1))
 	c.Check(record.Username, Equals, "bob")
 	c.Check(record.Email, Equals, "bob@lotto.com")
 	c.Check(record.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
@@ -172,4 +171,30 @@ func (s *DBSuite) TestList(c *C) {
 	c.Check(r.Email, Equals, "bob@lotto.com")
 	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
 	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
+}
+
+func (s *DBSuite) TestAuthenticate(c *C) {
+	var err error
+	record := Record{
+		Username: "bob",
+		Email:    "bob@lotto.com",
+		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		Password: "password",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	// happy path
+	record, err = s.store.Authenticate("bob", "password")
+	c.Assert(err, IsNil)
+	c.Check(record.Username, Equals, "bob")
+
+	// bad password
+	record, err = s.store.Authenticate("bob", "bad password")
+	c.Assert(err, ErrorMatches, "Incorrect username or password")
+	record, err = s.store.Authenticate("bob", "")
+	c.Assert(err, ErrorMatches, "Incorrect username or password")
+
+	// bad username
+	record, err = s.store.Authenticate("bad username", "bad password")
+	c.Assert(err, ErrorMatches, "Incorrect username or password")
 }

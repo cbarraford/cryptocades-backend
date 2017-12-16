@@ -12,3 +12,4 @@ func (*Dummy) Get(i int64) (Record, error)              { return Record{}, kaboo
 func (*Dummy) GetByBTCAddress(u string) (Record, error) { return Record{}, kaboom }
 func (*Dummy) GetByUsername(u string) (Record, error)   { return Record{}, kaboom }
 func (*Dummy) List() ([]Record, error)                  { return nil, kaboom }
+func (*Dummy) Authenticate(u, p string) (Record, error) { return Record{}, kaboom }

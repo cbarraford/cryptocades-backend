@@ -14,6 +14,7 @@ type Store interface {
 	GetByBTCAddress(btc_address string) (Record, error)
 	Update(record *Record) error
 	List() ([]Record, error)
+	Authenticate(username, password string) (Record, error)
 }
 
 type store struct {
@@ -117,5 +118,19 @@ func (db *store) Update(record *Record) error {
 func (db *store) List() (records []Record, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s", table)
 	err = db.sqlx.Select(&records, query)
+	return
+}
+
+func (db *store) Authenticate(username, password string) (record Record, err error) {
+	incorrect := fmt.Errorf("Incorrect username or password")
+	record, err = db.GetByUsername(username)
+	if err != nil {
+		return Record{}, incorrect
+	}
+
+	if !CheckPasswordHash(password, record.Password) {
+		return Record{}, incorrect
+	}
+
 	return
 }
