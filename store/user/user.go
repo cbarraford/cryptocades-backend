@@ -9,7 +9,6 @@ import (
 
 type Store interface {
 	Create(record *Record) error
-	Get(id int64) (Record, error)
 	GetByUsername(username string) (Record, error)
 	GetByBTCAddress(btc_address string) (Record, error)
 	Update(record *Record) error
