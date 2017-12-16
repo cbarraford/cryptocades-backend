@@ -37,7 +37,7 @@ fmt-check-internal:
 
 codecov:
 	curl -s https://codecov.io/bash > /tmp/codecov.bash
-	bash /tmp/codecov.bash -t 5c59d3e0-5dab-4a82-9531-a10b1281f99e -f coverage.txt -X fix
+	bash /tmp/codecov.bash -t 154e8023-2188-4fde-b714-99967c6ead80 -f coverage.txt -X fix
 
 wait-for-postgres:
 	@./scripts/wait-for-postgres.sh
