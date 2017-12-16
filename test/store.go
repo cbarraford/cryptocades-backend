@@ -28,7 +28,7 @@ func EphemeralURLStore(c *check.C) string {
 	log.Printf("CI: %+v", ci)
 	var dbURL string
 	if ci == "1" {
-		dbURL = "postgres://ubuntu@localhost:5432/test"
+		dbURL = "postgres://ubuntu@localhost:5432/test?sslmode=disable"
 	} else {
 		dbURL = "postgres://postgres:password@postgres:5432/db?sslmode=disable"
 	}
