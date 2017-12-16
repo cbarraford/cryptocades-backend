@@ -34,3 +34,4 @@ jobs:
           command: go test -v ./...
           environment:
             DATABASE_URL: "postgres://ubuntu@localhost:5432/test"
+            CI: true

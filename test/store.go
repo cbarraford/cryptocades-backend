@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"go/build"
@@ -22,9 +23,14 @@ func EphemeralURLStore(c *check.C) string {
 		return ""
 	}
 
-	// TODO: variables are hard coded here for testing. Add support for env var overrides.
-
-	dbx, err := sqlx.Connect("postgres", "postgres://postgres:password@postgres:5432/db?sslmode=disable")
+	ci := os.Getenv("CI")
+	var dbURL string
+	if ci == "true" {
+		dbURL = "postgres://ubuntu@localhost:5432/test"
+	} else {
+		dbURL = "postgres://postgres:password@postgres:5432/db?sslmode=disable"
+	}
+	dbx, err := sqlx.Connect("postgres", dbURL)
 	c.Assert(err, check.IsNil)
 
 	// create database and select
@@ -33,7 +39,11 @@ func EphemeralURLStore(c *check.C) string {
 
 	dbx.Close()
 
-	url := fmt.Sprintf("postgres://postgres:password@postgres:5432/%s?sslmode=disable", dbname)
+	if ci == "true" {
+		dbURL = fmt.Sprintf("postgres://ubuntu@localhost:5432/%s?sslmode=disable", dbname)
+	} else {
+		dbURL = fmt.Sprintf("postgres://postgres:password@postgres:5432/%s?sslmode=disable", dbname)
+	}
 
 	migrateDir := fmt.Sprintf("file://%s/src/github.com/CBarraford/lotto/migrations", build.Default.GOPATH)
 	err = context.MigrateDB(url, migrateDir)
