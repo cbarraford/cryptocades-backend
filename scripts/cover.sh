@@ -2,9 +2,6 @@
 
 set -e
 
-#export GOPATH=${HOME}/go
-echo $GOPATH
-
 echo "" > coverage.txt
 
 for d in $(go list ./... | grep -v vendor); do

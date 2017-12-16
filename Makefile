@@ -1,5 +1,5 @@
 PWD=$(shell pwd)
-export GOPATH=${HOME}/go
+export GOPATH=${HOME}
 
 ifndef TARGET
 	TARGET=$(shell go list ./... | grep -v /vendor/)
