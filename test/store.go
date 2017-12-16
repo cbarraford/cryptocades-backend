@@ -27,7 +27,7 @@ func EphemeralURLStore(c *check.C) string {
 	ci := os.Getenv("CI")
 	log.Printf("CI: %+v", ci)
 	var dbURL string
-	if ci {
+	if ci == "1" {
 		dbURL = "postgres://ubuntu@localhost:5432/test"
 	} else {
 		dbURL = "postgres://postgres:password@postgres:5432/db?sslmode=disable"
@@ -41,7 +41,7 @@ func EphemeralURLStore(c *check.C) string {
 
 	dbx.Close()
 
-	if ci {
+	if ci == "1" {
 		dbURL = fmt.Sprintf("postgres://ubuntu@localhost:5432/%s?sslmode=disable", dbname)
 	} else {
 		dbURL = fmt.Sprintf("postgres://postgres:password@postgres:5432/%s?sslmode=disable", dbname)
