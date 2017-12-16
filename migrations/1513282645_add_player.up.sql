@@ -1,10 +1,13 @@
+CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
+
 CREATE TABLE players(
     id SERIAL PRIMARY KEY,
-    username CHAR(12) NOT NULL UNIQUE,
+    username VARCHAR(12) NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    btc_address CHAR(35) NOT NULL UNIQUE,
-    total_hashes bigint NOT NULL,
-    bonus_hashes bigint NOT NULL,
+    btc_address CHAR(34) NOT NULL UNIQUE,
+    total_hashes bigint NOT NULL DEFAULT 0,
+    bonus_hashes bigint NOT NULL DEFAULT 0,
+    email CITEXT NOT NULL UNIQUE,
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
