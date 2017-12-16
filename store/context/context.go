@@ -32,6 +32,7 @@ func MigrateDB(url string, migrationDir string) error {
 	err = m.Up()
 	if err != nil {
 		log.Printf("Error migrating DB: %+v", err)
+		return err
 	}
 	return nil
 }
