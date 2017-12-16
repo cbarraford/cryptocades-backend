@@ -31,7 +31,10 @@ jobs:
           command: go build -v ./...
       - run: 
           name: tests
-          command: go test -v ./...
+          command: ./scripts/cover.sh
           environment:
             DATABASE_URL: "postgres://ubuntu@localhost:5432/test"
             CI: true
+      - run:
+          name: Report CodeCov
+          command: make codecov
