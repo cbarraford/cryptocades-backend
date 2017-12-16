@@ -46,10 +46,10 @@ func EphemeralURLStore(c *check.C) string {
 	}
 
 	migrateDir := fmt.Sprintf("file://%s/src/github.com/CBarraford/lotto/migrations", build.Default.GOPATH)
-	err = context.MigrateDB(url, migrateDir)
+	err = context.MigrateDB(dbURL, migrateDir)
 	c.Assert(err, check.IsNil)
 
-	return url
+	return dbURL
 }
 
 // EphemeralPostgresStore returns a connection to a randomly generated database
