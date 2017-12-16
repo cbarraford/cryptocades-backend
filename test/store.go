@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
@@ -24,6 +25,7 @@ func EphemeralURLStore(c *check.C) string {
 	}
 
 	ci := os.Getenv("CI")
+	log.Printf("CI: %+v", ci)
 	var dbURL string
 	if ci == "true" {
 		dbURL = "postgres://ubuntu@localhost:5432/test"
