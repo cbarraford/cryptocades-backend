@@ -2,7 +2,7 @@
 
 set -e
 
-export GOPATH=${HOME}/go
+#export GOPATH=${HOME}/go
 echo $GOPATH
 
 echo "" > coverage.txt
