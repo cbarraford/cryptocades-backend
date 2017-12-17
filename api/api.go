@@ -17,6 +17,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 	// Global middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(middleware.Authenticate(store.Sessions))
 
 	// CORS
 	corsConfig := cors.DefaultConfig()

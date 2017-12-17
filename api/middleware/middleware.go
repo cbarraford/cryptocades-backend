@@ -2,9 +2,12 @@ package middleware
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/CBarraford/lotto/store/session"
 )
 
 // Allow api request to masquerade as any user. This is intended only for
@@ -26,6 +29,20 @@ func AuthRequired() gin.HandlerFunc {
 		if !ok {
 			c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("unauthorized"))
 			return
+		}
+	}
+}
+
+func Authenticate(store session.Store) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Header["Session"] != nil {
+			token := c.Request.Header["Session"][0]
+			id, err := store.Authenticate(token)
+			if err != nil {
+				log.Printf("Unable to authorize given token: %+v", token)
+				return
+			}
+			c.Set("userId", id)
 		}
 	}
 }
