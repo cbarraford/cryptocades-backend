@@ -12,6 +12,7 @@ func init() {
 var LowerLetters = []rune("abcdefghijklmnopqrstuvwxyz")
 var Letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 var AlphaNumeric = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+var LowerAlphaNumeric = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
 
 func RandSeq(n int, seq []rune) string {
 	b := make([]rune, n)

@@ -18,7 +18,7 @@ build-internal:
 	go get -t ${BUILD_ARGS} ${TARGET}
 
 start-internal:
-	~/bin/lotto --config development.toml
+	~/bin/lotto
 
 test-short-internal:
 	go test -short ${TARGET}

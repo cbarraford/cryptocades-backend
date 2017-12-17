@@ -26,7 +26,7 @@ func NewStore(db *sqlx.DB) Store {
 	return &store{sqlx: db}
 }
 
-const table string = "players"
+const table string = "users"
 
 type Record struct {
 	Id          int64     `json:"id" db:"id"`

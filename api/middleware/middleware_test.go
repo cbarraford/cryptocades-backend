@@ -22,8 +22,8 @@ func (s *MiddlewareSuite) TestMasquerade(c *C) {
 
 	masqueradeId := "myId"
 	r.GET("/test", func(context *gin.Context) {
-		playerId, _ := context.Get("playerId")
-		c.Check(playerId, Equals, masqueradeId, Commentf("PlayerId: %s", playerId))
+		userId, _ := context.Get("userId")
+		c.Check(userId, Equals, masqueradeId, Commentf("UserId: %s", userId))
 		context.String(200, "OK")
 	})
 

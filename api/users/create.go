@@ -30,5 +30,7 @@ func Create(store user.Store) func(*gin.Context) {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+
+		c.JSON(http.StatusOK, record)
 	}
 }

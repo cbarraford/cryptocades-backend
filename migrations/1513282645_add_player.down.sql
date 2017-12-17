@@ -1,3 +1,3 @@
-DROP players;
+DROP users;
 DROP jackpots;
 DROP entries;

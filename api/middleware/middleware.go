@@ -7,16 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var httpClient = "httpClient"
-
 // Allow api request to masquerade as any user. This is intended only for
 // development purposes
 func Masquerade() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		playerId := c.Request.Header.Get("Masquerade")
+		userId := c.Request.Header.Get("Masquerade")
 
-		if playerId != "" {
-			c.Set("playerId", playerId)
+		if userId != "" {
+			c.Set("userId", userId)
 		}
 	}
 }
@@ -24,7 +22,7 @@ func Masquerade() gin.HandlerFunc {
 // Check that the request has been authorized
 func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_, ok := c.Get("playerId")
+		_, ok := c.Get("userId")
 		if !ok {
 			c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("unauthorized"))
 			return

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/CBarraford/lotto/api/middleware"
+	"github.com/CBarraford/lotto/api/users"
 	"github.com/CBarraford/lotto/store"
 )
 
@@ -32,10 +33,13 @@ func GetAPIService(store store.Store) *gin.Engine {
 
 	r.GET("/ping", ping())
 
+	r.POST("/login", users.Login(store.Users, store.Sessions))
+	//r.DELETE("/logout", users.Logout(store.Sessions))
+
 	usersGroup := r.Group("/users", middleware.AuthRequired())
 	{
-		//usersGroup.GET("/", users.List(store.Users))
-		//usersGroup.GET("/:id", users.Get(store.Users))
+		usersGroup.POST("/", users.Create(store.Users))
+		usersGroup.GET("/:id", users.Get(store.Users))
 	}
 	_ = usersGroup
 
