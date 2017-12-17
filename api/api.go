@@ -34,14 +34,13 @@ func GetAPIService(store store.Store) *gin.Engine {
 	r.GET("/ping", ping())
 
 	r.POST("/login", users.Login(store.Users, store.Sessions))
-	//r.DELETE("/logout", users.Logout(store.Sessions))
+	r.DELETE("/logout", users.Logout(store.Sessions))
+	r.POST("/users", users.Create(store.Users))
 
 	usersGroup := r.Group("/users", middleware.AuthRequired())
 	{
-		usersGroup.POST("/", users.Create(store.Users))
 		usersGroup.GET("/:id", users.Get(store.Users))
 	}
-	_ = usersGroup
 
 	return r
 }

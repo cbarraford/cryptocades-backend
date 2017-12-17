@@ -18,6 +18,7 @@ services:
       PGPASSWORD: password
       PGDATABASE: db
       PGHOST: postgres
+      DATABASE_URL: postgres://postgres:password@postgres:5432/db?sslmode=disable
 
   postgres:
     image: postgres:9.6.3

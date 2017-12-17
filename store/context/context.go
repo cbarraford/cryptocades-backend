@@ -2,7 +2,6 @@ package context
 
 import (
 	"database/sql"
-	"log"
 
 	_ "github.com/lib/pq"
 	"github.com/mattes/migrate"
@@ -29,10 +28,7 @@ func MigrateDB(url string, migrationDir string) error {
 		return err
 	}
 
-	err = m.Up()
-	if err != nil {
-		log.Printf("Error migrating DB: %+v", err)
-		return err
-	}
+	// we ignore the error because we get an error if we're already up to date
+	m.Up()
 	return nil
 }

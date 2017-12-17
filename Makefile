@@ -54,7 +54,7 @@ build:
 
 # this leave postgres running
 start:
-	@docker-compose run --rm -p 7777:7777 -e ENVIRONMENT=$$ENVIRONMENT lotto make wait-for-postgres start-internal
+	@docker-compose run --rm -p 8080:8080 -e ENVIRONMENT=$$ENVIRONMENT lotto make wait-for-postgres start-internal
 
 run: build start
 

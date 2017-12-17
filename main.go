@@ -12,7 +12,7 @@ import (
 func main() {
 	var err error
 
-	err = context.MigrateDB(os.Getenv("DATABASE_URL"), "./migrations")
+	err = context.MigrateDB(os.Getenv("DATABASE_URL"), "file://./migrations")
 	if err != nil {
 		log.Fatal(err)
 	}
