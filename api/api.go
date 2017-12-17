@@ -3,9 +3,11 @@ package api
 import (
 	"time"
 
-	"github.com/CBarraford/lotto/store"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	"github.com/CBarraford/lotto/api/middleware"
+	"github.com/CBarraford/lotto/store"
 )
 
 func GetAPIService(store store.Store) *gin.Engine {
@@ -29,6 +31,13 @@ func GetAPIService(store store.Store) *gin.Engine {
 	}))
 
 	r.GET("/ping", ping())
+
+	usersGroup := r.Group("/users", middleware.AuthRequired())
+	{
+		//usersGroup.GET("/", users.List(store.Users))
+		//usersGroup.GET("/:id", users.Get(store.Users))
+	}
+	_ = usersGroup
 
 	return r
 }
