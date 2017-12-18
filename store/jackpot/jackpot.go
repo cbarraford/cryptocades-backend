@@ -12,6 +12,7 @@ type Store interface {
 	Get(id int64) (Record, error)
 	Update(record *Record) error
 	List() ([]Record, error)
+	GetActiveJackpots() ([]Record, error)
 }
 
 type store struct {
@@ -79,6 +80,12 @@ func (db *store) Update(record *Record) error {
 
 func (db *store) List() (records []Record, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s", table)
+	err = db.sqlx.Select(&records, query)
+	return
+}
+
+func (db *store) GetActiveJackpots() (records []Record, err error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE end_time >= now()", table)
 	err = db.sqlx.Select(&records, query)
 	return
 }

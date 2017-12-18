@@ -90,3 +90,22 @@ func (s *DBSuite) TestList(c *C) {
 	r := records[0]
 	c.Check(r.Jackpot, Equals, 200)
 }
+
+func (s *DBSuite) TestGetActiveJackpots(c *C) {
+	record := Record{
+		Jackpot: 500,
+		EndTime: time.Now().UTC().AddDate(0, 0, 1),
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record = Record{
+		Jackpot: 300,
+		EndTime: time.Now().UTC().AddDate(0, 0, -1),
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	records, err := s.store.GetActiveJackpots()
+	c.Assert(err, IsNil)
+	c.Assert(records, HasLen, 1)
+	c.Check(records[0].Jackpot, Equals, 500)
+}
