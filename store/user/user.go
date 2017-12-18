@@ -34,7 +34,7 @@ type Record struct {
 	Username    string    `json:"username" db:"username"`
 	Password    string    `json:"-" db:"password"`
 	Email       string    `json:"email" db:"email"`
-	TotalHashes int       `json:"total_hashes" db:"total_hashes"`
+	MinedHashes int       `json:"mined_hashes" db:"mined_hashes"`
 	BonusHashes int       `json:"bonus_hashes" db:"bonus_hashes"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
@@ -107,7 +107,7 @@ func (db *store) Update(record *Record) error {
             username        = :username,
             email           = :email,
             updated_time    = :updated_time,
-			total_hashes	= :total_hashes,
+			mined_hashes	= :mined_hashes,
 			bonus_hashes	= :bonus_hashes,
 			btc_address		= :btc_address
         WHERE id = :id`, table)

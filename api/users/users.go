@@ -9,7 +9,7 @@ type input struct {
 	Username    string    `json:"username"`
 	Password    string    `json:"password"`
 	Email       string    `json:"email"`
-	TotalHashes int       `json:"total_hashes"`
+	MinedHashes int       `json:"mined_hashes"`
 	BonusHashes int       `json:"bonus_hashes"`
 	CreatedTime time.Time `json:"created_time"`
 	UpdatedTime time.Time `json:"updated_time"`

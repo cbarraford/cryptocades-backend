@@ -103,7 +103,7 @@ func (s *DBSuite) TestGetByUsername(c *C) {
 	c.Check(r.Username, Equals, "bob")
 	c.Check(r.Email, Equals, "bob@lotto.com")
 	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
-	c.Check(r.TotalHashes, Equals, 0)
+	c.Check(r.MinedHashes, Equals, 0)
 	c.Check(r.BonusHashes, Equals, 0)
 	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }
@@ -138,7 +138,7 @@ func (s *DBSuite) TestUpdate(c *C) {
 	c.Assert(err, IsNil)
 	r.Username = "bobby"
 	r.Email = "bobby@lotto.com"
-	r.TotalHashes = 101
+	r.MinedHashes = 101
 	r.BonusHashes = 10
 	r.BTCAddr = "NMiJFQvupX5kSZcUtfSoD9NtLevUgjv3ur"
 
@@ -148,7 +148,7 @@ func (s *DBSuite) TestUpdate(c *C) {
 	c.Assert(err, IsNil)
 	c.Check(r.Username, Equals, "bobby")
 	c.Check(r.Email, Equals, "bobby@lotto.com")
-	c.Check(r.TotalHashes, Equals, 101)
+	c.Check(r.MinedHashes, Equals, 101)
 	c.Check(r.BonusHashes, Equals, 10)
 	c.Check(r.BTCAddr, Equals, "NMiJFQvupX5kSZcUtfSoD9NtLevUgjv3ur")
 	c.Check(r.UpdatedTime, Not(Equals), record.UpdatedTime)

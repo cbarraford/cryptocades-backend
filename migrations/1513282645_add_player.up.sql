@@ -5,7 +5,7 @@ CREATE TABLE users(
     username VARCHAR(12) NOT NULL UNIQUE,
     password TEXT NOT NULL,
     btc_address CHAR(34) NOT NULL UNIQUE,
-    total_hashes bigint NOT NULL DEFAULT 0,
+    mined_hashes bigint NOT NULL DEFAULT 0,
     bonus_hashes bigint NOT NULL DEFAULT 0,
     email CITEXT NOT NULL UNIQUE,
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
