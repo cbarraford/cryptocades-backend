@@ -33,7 +33,7 @@ type Record struct {
 	BTCAddr     string    `json:"btc_address" db:"btc_address"`
 	Username    string    `json:"username" db:"username"`
 	Password    string    `json:"-" db:"password"`
-	Email       string    `json:"email" db:"email"`
+	Email       string    `json:"-" db:"email"`
 	MinedHashes int       `json:"mined_hashes" db:"mined_hashes"`
 	BonusHashes int       `json:"bonus_hashes" db:"bonus_hashes"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`

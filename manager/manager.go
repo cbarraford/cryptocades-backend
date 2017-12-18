@@ -37,8 +37,8 @@ func ManageJackpots(store jackpot.Store) error {
 		return fmt.Errorf("Error getting active jackpots: %+v", err)
 	}
 	if len(jackpots) == 0 {
-		log.Printf("Creating jackpot...")
 		jackpot := jackpot.Record{
+			Jackpot: 100,
 			EndTime: time.Now().UTC().AddDate(0, 0, 7),
 		}
 		err = store.Create(&jackpot)
@@ -46,7 +46,6 @@ func ManageJackpots(store jackpot.Store) error {
 			return fmt.Errorf("Unable to create new jackpot: %+v", err)
 		}
 	} else {
-		log.Print("Jackpot OK!")
 	}
 	return nil
 }
