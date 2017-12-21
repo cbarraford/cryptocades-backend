@@ -2,8 +2,10 @@ package user
 
 import (
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,15 +17,17 @@ type Store interface {
 	Update(record *Record) error
 	List() ([]Record, error)
 	Authenticate(username, password string) (Record, error)
+	AppendScore(scores []score) error
 }
 
 type store struct {
 	Store
-	sqlx *sqlx.DB
+	sqlx  *sqlx.DB
+	redis redis.Conn
 }
 
-func NewStore(db *sqlx.DB) Store {
-	return &store{sqlx: db}
+func NewStore(db *sqlx.DB, redis redis.Conn) Store {
+	return &store{sqlx: db, redis: redis}
 }
 
 const table string = "users"
@@ -133,4 +137,16 @@ func (db *store) Authenticate(username, password string) (record Record, err err
 	}
 
 	return
+}
+
+func (db *store) AppendScore(scores []score) error {
+	tx, err := db.sqlx.Begin()
+	for _, s := range scores {
+		query := fmt.Sprintf("UPDATE %s SET mined_hashes = mined_hashes + $1 WHERE btc_address = $2;", table)
+		_, err = tx.Exec(query, s.score, s.addr)
+		if err != nil {
+			log.Printf("Error Appending Score (%s: %+v): %+v", s.addr, s.score, err)
+		}
+	}
+	return tx.Commit()
 }

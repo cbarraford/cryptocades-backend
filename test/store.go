@@ -9,6 +9,7 @@ import (
 
 	check "gopkg.in/check.v1"
 
+	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/CBarraford/lotto/store/context"
@@ -59,4 +60,10 @@ func EphemeralPostgresStore(c *check.C) *sqlx.DB {
 	db, err := sqlx.Connect("postgres", url)
 	c.Assert(err, check.IsNil)
 	return db
+}
+
+func EphemeralRedisStore(c *check.C) redis.Conn {
+	red, err := redis.Dial("tcp", os.Getenv("REDIS_URL"))
+	c.Assert(err, check.IsNil)
+	return red
 }

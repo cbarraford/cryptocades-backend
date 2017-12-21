@@ -1,6 +1,7 @@
 package store
 
 import (
+	"os"
 	"testing"
 
 	. "gopkg.in/check.v1"
@@ -21,7 +22,10 @@ func (s *StoreSuite) TestEphemeralPostgres(c *C) {
 	db, err := GetDB(url)
 	c.Assert(err, IsNil)
 
-	cstore := GetStore(db)
+	red, err := GetRedis(os.Getenv("REDIS_URL"))
+	c.Assert(err, IsNil)
+
+	cstore := GetStore(db, red)
 
 	record := user.Record{
 		Username: "bob",

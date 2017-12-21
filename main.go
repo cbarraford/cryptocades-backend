@@ -26,7 +26,13 @@ func main() {
 	}
 	db.SetMaxOpenConns(116)
 	db.SetMaxIdleConns(5)
-	cstore := store.GetStore(db)
+
+	red, err := store.GetRedis(os.Getenv("REDIS_URL"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cstore := store.GetStore(db, red)
 
 	manager.Start(cstore)
 

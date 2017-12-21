@@ -19,12 +19,16 @@ var _ = Suite(&DBSuite{})
 
 func (s *DBSuite) SetUpSuite(c *C) {
 	db := test.EphemeralPostgresStore(c)
-	s.store = store{sqlx: db}
+	red := test.EphemeralRedisStore(c)
+	s.store = store{sqlx: db, redis: red}
 }
 
 func (s *DBSuite) TearDownTest(c *C) {
 	query := fmt.Sprintf("Truncate %s", table)
 	_, err := s.store.sqlx.Exec(query)
+	c.Assert(err, IsNil)
+
+	_, err = s.store.redis.Do("FLUSHALL")
 	c.Assert(err, IsNil)
 }
 
@@ -197,4 +201,36 @@ func (s *DBSuite) TestAuthenticate(c *C) {
 	// bad username
 	record, err = s.store.Authenticate("bad username", "bad password")
 	c.Assert(err, ErrorMatches, "Incorrect username or password")
+}
+
+func (s *DBSuite) TestAppendScore(c *C) {
+	var err error
+	record := Record{
+		Username: "bob",
+		Email:    "bob@lotto.com",
+		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		Password: "password",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	scores := []score{
+		{record.BTCAddr, 12},
+		{record.BTCAddr, 12},
+	}
+	err = s.store.AppendScore(scores)
+	c.Assert(err, IsNil)
+
+	record, err = s.store.Get(record.Id)
+	c.Assert(err, IsNil)
+	c.Check(record.MinedHashes, Equals, 24)
+
+	// bad address
+	scores = []score{{"bad address", 12}}
+	err = s.store.AppendScore(scores)
+	c.Assert(err, IsNil)
+
+	record, err = s.store.Get(record.Id)
+	c.Assert(err, IsNil)
+	c.Check(record.MinedHashes, Equals, 24)
+
 }

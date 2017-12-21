@@ -6,8 +6,10 @@ services:
     image: lotto
     links:
       - postgres
+      - redis
     depends_on:
       - postgres
+      - redis 
     volumes:
       - ~:/root
       - .:/root/src/github.com/CBarraford/lotto
@@ -19,6 +21,12 @@ services:
       PGDATABASE: db
       PGHOST: postgres
       DATABASE_URL: postgres://postgres:password@postgres:5432/db?sslmode=disable
+      REDIS_URL: redis:6379
+
+  redis:
+    image: redis
+    expose:
+      - "6379"
 
   postgres:
     image: postgres:9.6.3
