@@ -14,9 +14,7 @@ jobs:
         environment:
         - POSTGRES_USER=ubuntu
         - POSTGRES_DB=test
-      - image: bitnami/redis
-        environment:
-        - ALLOW_EMPTY_PASSWORD=yes
+      - image: redis
 
 
     working_directory: /go/src/github.com/CBarraford/lotto
