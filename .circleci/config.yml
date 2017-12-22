@@ -36,7 +36,7 @@ jobs:
           command: ./scripts/cover.sh
           environment:
             DATABASE_URL: "postgres://ubuntu@localhost:5432/test"
-            REDIS_URL: "redis://localhost:6391"
+            REDIS_URL: "localhost:6391"
             CI: true
       - run:
           name: Report CodeCov
