@@ -26,9 +26,9 @@ CREATE TABLE entries(
     user_id INTEGER NOT NULL,
     jackpot_id INTEGER NOT NULL,
     amount INTEGER NOT NULL,
-    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+CREATE UNIQUE INDEX entries_userId_jackpotId ON entries (user_id, jackpot_id);
 
 CREATE TABLE sessions(
     id BIGSERIAL PRIMARY KEY,
@@ -36,4 +36,4 @@ CREATE TABLE sessions(
     token TEXT NOT NULL UNIQUE,
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     expire_time TIMESTAMPTZ NOT NULL
-)
+);

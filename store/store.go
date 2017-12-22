@@ -4,6 +4,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 
+	"github.com/CBarraford/lotto/store/entry"
 	"github.com/CBarraford/lotto/store/jackpot"
 	"github.com/CBarraford/lotto/store/session"
 	"github.com/CBarraford/lotto/store/user"
@@ -13,6 +14,7 @@ type Store struct {
 	Users    user.Store
 	Sessions session.Store
 	Jackpots jackpot.Store
+	Entries  entry.Store
 }
 
 // Get a database connection
@@ -30,5 +32,6 @@ func GetStore(db *sqlx.DB, red redis.Conn) Store {
 		Users:    user.NewStore(db, red),
 		Sessions: session.NewStore(db),
 		Jackpots: jackpot.NewStore(db),
+		Entries:  entry.NewStore(db),
 	}
 }
