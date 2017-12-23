@@ -108,3 +108,30 @@ func (s *DBSuite) TestList(c *C) {
 	c.Check(r.UserId, Equals, int64(6))
 	c.Check(r.Amount, Equals, 40)
 }
+
+func (s *DBSuite) TestUserSpent(c *C) {
+	record := Record{
+		JackpotId: 4,
+		UserId:    5,
+		Amount:    60,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record = Record{
+		JackpotId: 4,
+		UserId:    5,
+		Amount:    50,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record = Record{
+		JackpotId: 4,
+		UserId:    6,
+		Amount:    40,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	spent, err := s.store.UserSpent(5)
+	c.Assert(err, IsNil)
+	c.Check(spent, Equals, 110)
+}

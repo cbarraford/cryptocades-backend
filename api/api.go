@@ -48,6 +48,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 	{
 		jackpotsGroup.GET("/", jackpots.List(store.Jackpots))
 		jackpotsGroup.GET("/:id/odds", jackpots.Odds(store.Entries))
+		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Users, store.Entries))
 	}
 
 	return r
