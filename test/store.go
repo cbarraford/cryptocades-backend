@@ -63,7 +63,7 @@ func EphemeralPostgresStore(c *check.C) *sqlx.DB {
 }
 
 func EphemeralRedisStore(c *check.C) redis.Conn {
-	red, err := redis.Dial("tcp", os.Getenv("REDIS_URL"))
+	red, err := redis.DialURL(os.Getenv("REDIS_URL"))
 	c.Assert(err, check.IsNil)
 	return red
 }

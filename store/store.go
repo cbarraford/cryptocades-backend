@@ -23,7 +23,7 @@ func GetDB(url string) (*sqlx.DB, error) {
 }
 
 func GetRedis(url string) (redis.Conn, error) {
-	return redis.Dial("tcp", url)
+	return redis.DialURL(url)
 }
 
 // Get a Store object from DB connection
