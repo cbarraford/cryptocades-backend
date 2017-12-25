@@ -28,15 +28,9 @@ func MigrateDB(url string, migrationDir string) error {
 		return err
 	}
 
-	version, dirty, err := m.Version()
-	if version > 0 && err != nil {
-		return err
+	err = m.Up()
+	if err == migrate.ErrNoChange {
+		return nil
 	}
-	if !dirty {
-		err = m.Up()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return err
 }

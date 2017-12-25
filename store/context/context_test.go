@@ -50,6 +50,8 @@ func (s *ContextSuite) TestMigrate(c *C) {
 	}
 
 	migrateDir := fmt.Sprintf("file://%s/src/github.com/CBarraford/lotto/migrations", build.Default.GOPATH)
-	err = MigrateDB(dbURL, migrateDir)
-	c.Assert(err, IsNil)
+	c.Assert(MigrateDB(dbURL, migrateDir), IsNil)
+
+	// do a second time so that no change does not create an error
+	c.Assert(MigrateDB(dbURL, migrateDir), IsNil)
 }
