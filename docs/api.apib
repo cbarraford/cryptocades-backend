@@ -1,0 +1,135 @@
+FORMAT: 1A
+HOST: https://localhost:8080
+
+# Lotto API
+
+## Authentication
+To authenticate on the API, you must get a session token via hitting the `/login` endpoint and authenticating with a username and password. Once you have a token, you canauthenticate by passing the token in a http request header, `Session`. Sessions expire after 30 days.
+
+# Group Ping
+Ping the API to validate its up
+
+## Ping [/ping]
+
+### Ping [GET]
+No authentication is required for this endpoint.
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes
+        + message (string)
+
+# Group Login
+Log into the API and create a session token.
+
+## Login [/login]
+
+### Login [POST]
+Log into the API and receive a session token
+
++ Request (application/json; charset=utf-8)
+    + Attributes
+        + username: user's username (required)
+        + password: user's password (required)
++ Response 200 (application/json; charset=utf-8)
+
+# Group Logout
+Logout of the API (destroying the session token)
+
+## Logout [/logout]
+
+### Logout [DELETE]
+Logout of the API.
+
++ Response 200 (application/json; charset=utf-8)
+
+
+# Group Me
+Get the user object of the currently logged in user
+
+## Me [/me]
+
+### Me [GET]
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (User)
+
+
+# Group Users
+Get and manage users
+
+## Create [/users]
+
+### Create [POST]
+
++ Request (application/json; charset=utf-8)
+    + Attributes 
+        + username: username (required)
+        + password: password (required)
+        + btc_address: bitcoin address (required)
+        + email: email (required)
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (User)
+
+
+# Group Jackpots
+
+## Jackpots [/jackpots]
+
+### List Jackpot [GET]
+List jackpots
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (array[Jackpot])
+
+## Jackpot [/jackpots/{jackpot_id}/odds]
+
++ Parameters
+    + jackpot_id: 1 (number, required) - The id of a specific jackpot
+
+### Odds [GET]
+Retrieve the odds of a specific jackpot
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (Odds)
+
+## Jackpot [/jackpots/{jackpot_id}/enter]
+
++ Parameters
+    + jackpot_id: 1 (number, required) - The id of a specific jackpot
+
+### Enter [POST]
+Enter a jackpot
+
++ Request (application/json; charset=utf-8)
+    + Attributes 
+        + amount: amount (required)
++ Response 200 (application/json; charset=utf-8)
+    + Attributes
+        + message (string)
+
+
+## Data Structures
+
+### Jackpot
++ id: 1 (number) - {LONG} unique identifier
++ jackpot: 100 (number) - Amount of money to win (in USD)
++ winner_id: 4857 (number) - {LONG} the id of the winning user
++ end_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of when the jackpot is ending.
++ created_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of jackpot creation
++ updated_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of jackpot updated
+
+### Odds
+
++ jackpot_id: 1 (number) - {LONG} the unique identifier for a jackpot
++ total: 13 (number) - {LONG} the total number of entries into the jackpot
++ entries: 2 (number) - {LONG} the number of entries the authenticating user has
+
+### User
++ id: 1 (number) - {LONG} unique identifier
++ btc_address: 1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq (string) - Bitcoin Address
++ username: cbarraford (string) - Username
++ email: chad@rstudio.com (string) - email address
++ mined_hases: 7847 number - {LONG} Number of mined hashes. This increases the more a person mines.
++ bonus_hashes: 72 number - {LONG} Number of bonus hashes. This is hashes awarded to a user by accomplishing something.
++ created_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of user creation
++ updated_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of user updated

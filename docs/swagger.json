@@ -1,0 +1,454 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "",
+    "title": "Lotto API",
+    "description": "TODO: Add a description",
+    "license": {
+      "name": "MIT",
+      "url": "http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "securityDefinitions": {},
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/ping": {
+      "get": {
+        "description": "No authentication is required for this endpoint.",
+        "tags": [
+          "Ping"
+        ],
+        "operationId": "Get_Ping_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ping_response"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "description": "Log into the API and receive a session token",
+        "tags": [
+          "Login"
+        ],
+        "operationId": "Create_Login_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/definitions/Loginrequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/logout": {
+      "delete": {
+        "description": "Logout of the API.",
+        "tags": [
+          "Logout"
+        ],
+        "operationId": "Delete_Logout_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "description": "",
+        "tags": [
+          "Me"
+        ],
+        "operationId": "Get_Me_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "Create_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/definitions/Createrequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/jackpots": {
+      "get": {
+        "description": "List jackpots",
+        "tags": [
+          "Jackpots"
+        ],
+        "operationId": "List Jackpot_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Jackpot"
+              }
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/jackpots/{jackpot_id}/odds": {
+      "get": {
+        "description": "Retrieve the odds of a specific jackpot",
+        "tags": [
+          "Jackpots"
+        ],
+        "operationId": "Get_Odds_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "jackpot_id",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "number",
+            "format": "double",
+            "description": "The id of a specific jackpot"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Odds"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/jackpots/{jackpot_id}/enter": {
+      "post": {
+        "description": "Enter a jackpot",
+        "tags": [
+          "Jackpots"
+        ],
+        "operationId": "Create_Enter_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "jackpot_id",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "number",
+            "format": "double",
+            "description": "The id of a specific jackpot"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/definitions/Enterrequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ping_response"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Jackpot": {
+      "title": "Jackpot",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "jackpot": {
+          "description": "Amount of money to win (in USD)",
+          "type": "number",
+          "format": "double"
+        },
+        "winner_id": {
+          "description": "the id of the winning user",
+          "type": "integer",
+          "format": "int64"
+        },
+        "end_time": {
+          "description": "timestamp of when the jackpot is ending.",
+          "type": "string"
+        },
+        "created_time": {
+          "description": "timestamp of jackpot creation",
+          "type": "string"
+        },
+        "updated_time": {
+          "description": "timestamp of jackpot updated",
+          "type": "string"
+        }
+      }
+    },
+    "Odds": {
+      "title": "Odds",
+      "type": "object",
+      "properties": {
+        "jackpot_id": {
+          "description": "the unique identifier for a jackpot",
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "description": "the total number of entries into the jackpot",
+          "type": "integer",
+          "format": "int64"
+        },
+        "entries": {
+          "description": "the number of entries the authenticating user has",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "User": {
+      "title": "User",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "btc_address": {
+          "description": "Bitcoin Address",
+          "type": "string"
+        },
+        "username": {
+          "description": "Username",
+          "type": "string"
+        },
+        "email": {
+          "description": "email address",
+          "type": "string"
+        },
+        "mined_hases": {
+          "description": "Number of mined hashes. This increases the more a person mines.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "bonus_hashes": {
+          "description": "Number of bonus hashes. This is hashes awarded to a user by accomplishing something.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "created_time": {
+          "description": "timestamp of user creation",
+          "type": "string"
+        },
+        "updated_time": {
+          "description": "timestamp of user updated",
+          "type": "string"
+        }
+      }
+    },
+    "Ping_response": {
+      "title": "Ping_response",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "Loginrequest": {
+      "title": "Login request",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ]
+    },
+    "Createrequest": {
+      "title": "Create request",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "btc_address": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password",
+        "btc_address",
+        "email"
+      ]
+    },
+    "Enterrequest": {
+      "title": "Enter request",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount"
+      ]
+    }
+  }
+}
