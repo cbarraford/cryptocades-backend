@@ -1,0 +1,145 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "XeZ0s/EYoIORsoatbSOJQzIDLgU=",
+			"path": "github.com/gin-contrib/cors",
+			"revision": "51f0ef8b07e973afb8b6c192bf90d5c3e575c01a",
+			"revisionTime": "2017-09-17T02:20:32Z"
+		},
+		{
+			"checksumSHA1": "QeKwBtN2df+j+4stw3bQJ6yO4EY=",
+			"path": "github.com/gin-contrib/sse",
+			"revision": "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae",
+			"revisionTime": "2017-01-09T09:34:21Z"
+		},
+		{
+			"checksumSHA1": "DO80dyitv1WTCtwivY+CA3j68og=",
+			"path": "github.com/gin-gonic/gin",
+			"revision": "13a40fcd2c2807e872768b725d1abe32ecd4712f",
+			"revisionTime": "2017-12-16T16:52:07Z"
+		},
+		{
+			"checksumSHA1": "3Ttl4CxOEl+NCstutCFyECv0CWs=",
+			"path": "github.com/gin-gonic/gin/binding",
+			"revision": "13a40fcd2c2807e872768b725d1abe32ecd4712f",
+			"revisionTime": "2017-12-16T16:52:07Z"
+		},
+		{
+			"checksumSHA1": "woO1qIxIeQ1bcbPSiMfAKk3r4xg=",
+			"path": "github.com/gin-gonic/gin/json",
+			"revision": "13a40fcd2c2807e872768b725d1abe32ecd4712f",
+			"revisionTime": "2017-12-16T16:52:07Z"
+		},
+		{
+			"checksumSHA1": "O+2Q4Uc9Vidvc/ctORliL315ZVI=",
+			"path": "github.com/gin-gonic/gin/render",
+			"revision": "13a40fcd2c2807e872768b725d1abe32ecd4712f",
+			"revisionTime": "2017-12-16T16:52:07Z"
+		},
+		{
+			"checksumSHA1": "yqF125xVSkmfLpIVGrLlfE05IUk=",
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "1e59b77b52bf8e4b449a57e6f79f21226d571845",
+			"revisionTime": "2017-11-13T18:07:20Z"
+		},
+		{
+			"checksumSHA1": "QmAzbypFddS3Tl/HDca0X0zXZ/M=",
+			"path": "github.com/jmoiron/sqlx",
+			"revision": "de8647470aafe4854c976707c431dbe1eb2822c6",
+			"revisionTime": "2017-12-11T23:49:05Z"
+		},
+		{
+			"checksumSHA1": "bXFrevmVL5Q2EwYlRHlPihxvAJA=",
+			"path": "github.com/jmoiron/sqlx/reflectx",
+			"revision": "de8647470aafe4854c976707c431dbe1eb2822c6",
+			"revisionTime": "2017-12-11T23:49:05Z"
+		},
+		{
+			"checksumSHA1": "IfZcD4U1dtllJKlPNeD2aU4Jn98=",
+			"path": "github.com/lib/pq",
+			"revision": "83612a56d3dd153a94a629cd64925371c9adad78",
+			"revisionTime": "2017-11-26T05:04:59Z"
+		},
+		{
+			"checksumSHA1": "ATnwV0POluBNQEMjPdylodz0oK0=",
+			"path": "github.com/lib/pq/oid",
+			"revision": "83612a56d3dd153a94a629cd64925371c9adad78",
+			"revisionTime": "2017-11-26T05:04:59Z"
+		},
+		{
+			"checksumSHA1": "nIjbNvV01ItNwBdptsLON0aSzGw=",
+			"path": "github.com/mattes/migrate",
+			"revision": "d23f71b03c4a439b81ccccb2ac5090032ec5c735",
+			"revisionTime": "2017-12-08T21:48:26Z"
+		},
+		{
+			"checksumSHA1": "6QePtWUFN9x9U/Y6OzcENUUudmM=",
+			"path": "github.com/mattes/migrate/database",
+			"revision": "d23f71b03c4a439b81ccccb2ac5090032ec5c735",
+			"revisionTime": "2017-12-08T21:48:26Z"
+		},
+		{
+			"checksumSHA1": "Q9IScpP6lp1CaPqYoFGVrJjmZcE=",
+			"path": "github.com/mattes/migrate/database/postgres",
+			"revision": "d23f71b03c4a439b81ccccb2ac5090032ec5c735",
+			"revisionTime": "2017-12-08T21:48:26Z"
+		},
+		{
+			"checksumSHA1": "kIHQkF+Nm0LBPppYbchll3njidY=",
+			"path": "github.com/mattes/migrate/source",
+			"revision": "d23f71b03c4a439b81ccccb2ac5090032ec5c735",
+			"revisionTime": "2017-12-08T21:48:26Z"
+		},
+		{
+			"checksumSHA1": "8uIdYxIjjUB1z65ejfpumt7oAFY=",
+			"path": "github.com/mattes/migrate/source/file",
+			"revision": "d23f71b03c4a439b81ccccb2ac5090032ec5c735",
+			"revisionTime": "2017-12-08T21:48:26Z"
+		},
+		{
+			"checksumSHA1": "w5RcOnfv5YDr3j2bd1YydkPiZx4=",
+			"path": "github.com/mattn/go-isatty",
+			"revision": "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c",
+			"revisionTime": "2017-11-07T05:05:31Z"
+		},
+		{
+			"checksumSHA1": "EptrQv3dNCLx7QkLn/7kE1JBzrA=",
+			"path": "github.com/ugorji/go/codec",
+			"revision": "0e0d6e869525973a9b36093f6ddc9d91b9fc2d71",
+			"revisionTime": "2017-12-14T03:59:52Z"
+		},
+		{
+			"checksumSHA1": "oCH3J96RWvO8W4xjix47PModpio=",
+			"path": "golang.org/x/crypto/bcrypt",
+			"revision": "94eea52f7b742c7cbe0b03b22f0c4c8631ece122",
+			"revisionTime": "2017-11-28T01:43:40Z"
+		},
+		{
+			"checksumSHA1": "oVPHWesOmZ02vLq2fglGvf+AMgk=",
+			"path": "golang.org/x/crypto/blowfish",
+			"revision": "94eea52f7b742c7cbe0b03b22f0c4c8631ece122",
+			"revisionTime": "2017-11-28T01:43:40Z"
+		},
+		{
+			"checksumSHA1": "CEFTYXtWmgSh+3Ik1NmDaJcz4E0=",
+			"path": "gopkg.in/check.v1",
+			"revision": "20d25e2804050c1cd24a7eea1e7a6447dd0e74ec",
+			"revisionTime": "2016-12-08T18:13:25Z"
+		},
+		{
+			"checksumSHA1": "P/k5ZGf0lEBgpKgkwy++F7K1PSg=",
+			"path": "gopkg.in/go-playground/validator.v8",
+			"revision": "5f1438d3fca68893a817e4a66806cea46a9e4ebf",
+			"revisionTime": "2017-07-30T05:02:35Z"
+		},
+		{
+			"checksumSHA1": "fRgp9UZPllOlkPssv7frzQx4z9A=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "287cf08546ab5e7e37d55a84f7ed3fd1db036de5",
+			"revisionTime": "2017-11-16T09:02:43Z"
+		}
+	],
+	"rootPath": "github.com/CBarraford/lotto"
+}
