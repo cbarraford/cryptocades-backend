@@ -2,7 +2,6 @@ package users
 
 import (
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,12 +24,10 @@ func Login(store user.Store, sessionStore session.Store) func(*gin.Context) {
 		if err == nil {
 			record, err = store.Authenticate(json.Username, json.Password)
 			if err != nil {
-				log.Printf("ErrA: %+v", err)
 				c.AbortWithError(http.StatusBadRequest, err)
 				return
 			}
 		} else {
-			log.Printf("ErrA: parse json")
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
 			return
 		}
@@ -40,7 +37,6 @@ func Login(store user.Store, sessionStore session.Store) func(*gin.Context) {
 		}
 		err = sessionStore.Create(&sessionRecord, 30)
 		if err != nil {
-			log.Printf("ErrB: %+v", err)
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
