@@ -33,6 +33,9 @@ func GetAPIService(store store.Store) *gin.Engine {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	//r.StaticFile("/docs", "./api.html")
+	r.Static("/docs", "./docs")
+
 	r.GET("/ping", ping())
 	r.GET("/me", users.Me(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))
