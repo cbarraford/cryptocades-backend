@@ -47,6 +47,6 @@ false by default).
 curl localhost:8080/users/<id>
 {"error":"unauthorized"}
 
-curl -H "Masquerade: <id>" localhost:7777/users/<id>
+curl -H "Masquerade: <id>" localhost:8080/users/<id>
 Success!
 ```
