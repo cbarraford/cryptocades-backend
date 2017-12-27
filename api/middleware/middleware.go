@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -42,7 +43,7 @@ func Authenticate(store session.Store) gin.HandlerFunc {
 				log.Printf("Unable to authorize given token: %+v", token)
 				return
 			}
-			c.Set("userId", id)
+			c.Set("userId", strconv.FormatInt(id, 10))
 		}
 	}
 }

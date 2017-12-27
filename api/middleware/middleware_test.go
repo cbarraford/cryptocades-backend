@@ -61,7 +61,7 @@ func (s *MiddlewareSuite) TestAuthenticate(c *C) {
 
 	r.GET("/test", func(context *gin.Context) {
 		userId, _ := context.Get("userId")
-		c.Check(userId, Equals, int64(5), Commentf("UserId: %s", userId))
+		c.Check(userId, Equals, "5", Commentf("UserId: %s", userId))
 		context.String(200, "OK")
 	})
 
