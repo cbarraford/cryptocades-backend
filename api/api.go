@@ -25,15 +25,14 @@ func GetAPIService(store store.Store) *gin.Engine {
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowCredentials = true
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowOrigins:     []string{"*", "http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "Session"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
 
-	//r.StaticFile("/docs", "./api.html")
 	r.Static("/docs", "./docs")
 
 	r.GET("/ping", ping())

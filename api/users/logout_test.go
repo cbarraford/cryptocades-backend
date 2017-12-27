@@ -1,10 +1,8 @@
 package users
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	. "gopkg.in/check.v1"
@@ -37,10 +35,9 @@ func (s *UserLogoutSuite) TestLogout(c *C) {
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
 	r.DELETE("/logout", Logout(store))
-	input := fmt.Sprintf(`{"token":"12345"}`)
-	body := strings.NewReader(input)
-	req, _ := http.NewRequest("DELETE", "/logout", body)
+	req, _ := http.NewRequest("DELETE", "/logout", nil)
 	req.Header.Set("Masquerade", "5")
+	req.Header.Set("Session", "123456789")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	c.Assert(w.Code, Equals, 200, Commentf("Response: %+v", w))
