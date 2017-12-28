@@ -37,6 +37,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 
 	r.GET("/ping", ping())
 	r.GET("/me", users.Me(store.Users))
+	r.PUT("/me", users.Update(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))
 	r.DELETE("/logout", users.Logout(store.Sessions))
 	r.POST("/users", users.Create(store.Users))

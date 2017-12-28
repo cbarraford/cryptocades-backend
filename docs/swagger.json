@@ -136,6 +136,42 @@
           "AllowDynamicFormParameters": false,
           "IsMultiContentStreaming": false
         }
+      },
+      "put": {
+        "description": "",
+        "tags": [
+          "Me"
+        ],
+        "operationId": "Update_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/definitions/Updaterequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
       }
     },
     "/users": {
@@ -412,6 +448,26 @@
       "required": [
         "username",
         "password"
+      ]
+    },
+    "Updaterequest": {
+      "title": "Update request",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "btc_address": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "btc_address",
+        "email"
       ]
     },
     "Createrequest": {
