@@ -172,6 +172,29 @@
           "AllowDynamicFormParameters": false,
           "IsMultiContentStreaming": false
         }
+      },
+      "delete": {
+        "description": "Delete the authenticated user",
+        "tags": [
+          "Me"
+        ],
+        "operationId": "Delete Me_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
       }
     },
     "/users": {

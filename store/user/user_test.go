@@ -234,3 +234,23 @@ func (s *DBSuite) TestAppendScore(c *C) {
 	c.Check(record.MinedHashes, Equals, 24)
 
 }
+
+func (s *DBSuite) TestDelete(c *C) {
+	var err error
+	record := Record{
+		Username: "bob",
+		Email:    "bob@lotto.com",
+		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		Password: "password",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record, err = s.store.Get(record.Id)
+	c.Assert(err, IsNil)
+
+	c.Assert(s.store.Delete(record.Id), IsNil)
+
+	record, err = s.store.Get(record.Id)
+	c.Assert(err, NotNil)
+
+}

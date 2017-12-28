@@ -5,7 +5,7 @@ ifndef TARGET
 	TARGET=$(shell go list ./... | grep -v /vendor/)
 endif
 
-.PHONY: create-migration get build run test-short test test-cli lint
+.PHONY: create-migration get build start run test-short test test-cli lint docs
 
 get:
 	go get -v ${TARGET}
@@ -34,6 +34,9 @@ vet-internal:
 
 fmt-check-internal:
 	go fmt ${TARGET}
+
+docs:
+	$(MAKE) -C docs build-html build-swagger
 
 codecov:
 	curl -s https://codecov.io/bash > /tmp/codecov.bash

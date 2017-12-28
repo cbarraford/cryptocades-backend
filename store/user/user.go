@@ -18,6 +18,7 @@ type Store interface {
 	List() ([]Record, error)
 	Authenticate(username, password string) (Record, error)
 	AppendScore(scores []score) error
+	Delete(id int64) error
 }
 
 type store struct {
@@ -149,4 +150,10 @@ func (db *store) AppendScore(scores []score) error {
 		}
 	}
 	return tx.Commit()
+}
+
+func (db *store) Delete(id int64) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", table)
+	_, err := db.sqlx.Exec(db.sqlx.Rebind(query), id)
+	return err
 }
