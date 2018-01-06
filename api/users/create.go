@@ -12,6 +12,7 @@ import (
 	"github.com/CBarraford/lotto/store/user"
 	"github.com/CBarraford/lotto/util"
 	"github.com/CBarraford/lotto/util/email"
+	"github.com/CBarraford/lotto/util/url"
 )
 
 func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context) {
@@ -48,12 +49,14 @@ func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context
 			return
 		}
 		// TODO: Update language once we have an official company name
-		// TODO: Update code URL once the frontend supports it
+		// TODO: support mobile url
+		u := url.Get(fmt.Sprintf("/users/confirmation/%s", confirm.Code))
 		emailer := email.DefaultEmailer()
 		err = emailer.SendMessage(
 			record.Email,
 			"me@lotto.com",
-			"Please confirm your email address", fmt.Sprintf("Hello! \nThanks for signing up for lotto. You must confirm your email address before you can start playing!\n\n%s", confirm.Code),
+			"Please confirm your email address",
+			fmt.Sprintf("Hello! \nThanks for signing up for lotto. You must confirm your email address before you can start playing!\n\n%s", u.String()),
 		)
 		if err != nil {
 			log.Printf("Failed to send email confirmation: %s", err)
