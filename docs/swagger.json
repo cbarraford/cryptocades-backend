@@ -235,6 +235,43 @@
         }
       }
     },
+    "/users/confirmation/{code}": {
+      "post": {
+        "description": "Confirm a user's email address via given confirmation code",
+        "tags": [
+          "Confirmations"
+        ],
+        "operationId": "Create_Confirm_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "The confirmation code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ping_response"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
     "/jackpots": {
       "get": {
         "description": "List jackpots",

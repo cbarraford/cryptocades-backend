@@ -4,6 +4,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 
+	"github.com/CBarraford/lotto/store/confirmation"
 	"github.com/CBarraford/lotto/store/entry"
 	"github.com/CBarraford/lotto/store/jackpot"
 	"github.com/CBarraford/lotto/store/session"
@@ -11,10 +12,11 @@ import (
 )
 
 type Store struct {
-	Users    user.Store
-	Sessions session.Store
-	Jackpots jackpot.Store
-	Entries  entry.Store
+	Users         user.Store
+	Sessions      session.Store
+	Jackpots      jackpot.Store
+	Entries       entry.Store
+	Confirmations confirmation.Store
 }
 
 // Get a database connection
@@ -29,9 +31,10 @@ func GetRedis(url string) (redis.Conn, error) {
 // Get a Store object from DB connection
 func GetStore(db *sqlx.DB, red redis.Conn) Store {
 	return Store{
-		Users:    user.NewStore(db, red),
-		Sessions: session.NewStore(db),
-		Jackpots: jackpot.NewStore(db),
-		Entries:  entry.NewStore(db),
+		Users:         user.NewStore(db, red),
+		Sessions:      session.NewStore(db),
+		Jackpots:      jackpot.NewStore(db),
+		Entries:       entry.NewStore(db),
+		Confirmations: confirmation.NewStore(db),
 	}
 }

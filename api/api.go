@@ -41,7 +41,10 @@ func GetAPIService(store store.Store) *gin.Engine {
 	r.DELETE("/me", users.Delete(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))
 	r.DELETE("/logout", users.Logout(store.Sessions))
-	r.POST("/users", users.Create(store.Users))
+	r.POST("/users", users.Create(store.Users, store.Confirmations))
+	r.POST("/users/confirmation/:code",
+		users.Confirm(store.Confirmations, store.Users),
+	)
 
 	usersGroup := r.Group("/users", middleware.AuthRequired())
 	{
