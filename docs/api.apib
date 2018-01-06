@@ -85,6 +85,21 @@ Get and manage users
     + Attributes (User)
 
 
+# Group Confirmations
+Confirm a user
+
+## Confirm [/users/confirmation/{code}]
+
++ Parameters
+    + code: anbh892hg70h (string, required) - The confirmation code
+
+### Confirm [POST]
+Confirm a user's email address via given confirmation code
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes
+        + message (string)
+
 # Group Jackpots
 
 ## Jackpots [/jackpots]
