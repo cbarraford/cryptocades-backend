@@ -21,7 +21,7 @@ func (s *RedisSuite) SetUpSuite(c *C) {
 }
 
 func (s *RedisSuite) TearDownTest(c *C) {
-	query := fmt.Sprintf("Truncate %s", table)
+	query := fmt.Sprintf("Truncate %s CASCADE", table)
 	_, err := s.store.sqlx.Exec(query)
 	c.Assert(err, IsNil)
 

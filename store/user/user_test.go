@@ -24,7 +24,7 @@ func (s *DBSuite) SetUpSuite(c *C) {
 }
 
 func (s *DBSuite) TearDownTest(c *C) {
-	query := fmt.Sprintf("Truncate %s", table)
+	query := fmt.Sprintf("Truncate %s CASCADE", table)
 	_, err := s.store.sqlx.Exec(query)
 	c.Assert(err, IsNil)
 
@@ -186,6 +186,12 @@ func (s *DBSuite) TestAuthenticate(c *C) {
 		Password: "password",
 	}
 	c.Assert(s.store.Create(&record), IsNil)
+
+	// failure because the user isn't confirmed yet
+	_, err = s.store.Authenticate("bob", "password")
+	c.Assert(err, NotNil)
+
+	c.Assert(s.store.MarkAsConfirmed(&record), IsNil)
 
 	// happy path
 	record, err = s.store.Authenticate("bob", "password")

@@ -16,6 +16,7 @@ type Store interface {
 	GetByBTCAddress(btc_address string) (Record, error)
 	Update(record *Record) error
 	List() ([]Record, error)
+	MarkAsConfirmed(record *Record) error
 	Authenticate(username, password string) (Record, error)
 	AppendScore(scores []score) error
 	Delete(id int64) error
@@ -41,6 +42,7 @@ type Record struct {
 	Email       string    `json:"-" db:"email"`
 	MinedHashes int       `json:"mined_hashes" db:"mined_hashes"`
 	BonusHashes int       `json:"bonus_hashes" db:"bonus_hashes"`
+	Confirmed   bool      `json:"confirmed" db:"confirmed"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
 }
@@ -126,10 +128,24 @@ func (db *store) List() (records []Record, err error) {
 	return
 }
 
+func (db *store) MarkAsConfirmed(record *Record) error {
+	// touch updated time
+	record.UpdatedTime = time.Now()
+	record.Confirmed = true
+
+	query := fmt.Sprintf(`
+        UPDATE %s SET
+            confirmed       = :confirmed,
+            updated_time    = :updated_time
+        WHERE id = :id`, table)
+	_, err := db.sqlx.NamedExec(query, record)
+	return err
+}
+
 func (db *store) Authenticate(username, password string) (record Record, err error) {
 	incorrect := fmt.Errorf("Incorrect username or password")
 	record, err = db.GetByUsername(username)
-	if err != nil {
+	if err != nil || !record.Confirmed {
 		return Record{}, incorrect
 	}
 
