@@ -3,6 +3,7 @@ package confirmation
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	. "gopkg.in/check.v1"
 
@@ -101,6 +102,18 @@ func (s *DBSuite) TestGetByCode(c *C) {
 	c.Check(record.Code, Equals, r.Code)
 	c.Check(record.Email, Equals, r.Email)
 	c.Check(record.UserId, Equals, r.UserId)
+
+	// should not find this record before creation time was long ago
+	record = Record{
+		Code:        "123456888",
+		Email:       "bob@lotto.com",
+		UserId:      1,
+		CreatedTime: time.Now().Add(-24 * time.Hour),
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	_, err = s.store.GetByCode(record.Code)
+	c.Assert(err, NotNil)
 }
 
 func (s *DBSuite) TestDelete(c *C) {

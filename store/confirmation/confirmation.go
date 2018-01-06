@@ -50,11 +50,16 @@ func (db *store) Create(record *Record) error {
 		return fmt.Errorf("UserId must not be zero")
 	}
 
+	now := time.Now()
+	if record.CreatedTime.IsZero() {
+		record.CreatedTime = now
+	}
+
 	query := fmt.Sprintf(`
         INSERT INTO %s
-			(code, email, user_id)
+			(code, email, user_id, created_time)
         VALUES
-			(:code, :email, :user_id) RETURNING id`, table)
+			(:code, :email, :user_id, :created_time) RETURNING id`, table)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
@@ -69,7 +74,7 @@ func (db *store) Get(id int64) (Record, error) {
 }
 
 func (db *store) GetByCode(code string) (record Record, err error) {
-	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE code = ?", table))
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE code = ? AND created_time > NOW() - INTERVAL '12 hours'", table))
 	err = db.sqlx.Get(&record, query, code)
 	return
 }
