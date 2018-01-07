@@ -45,6 +45,12 @@ func GetAPIService(store store.Store) *gin.Engine {
 	r.POST("/users/confirmation/:code",
 		users.Confirm(store.Confirmations, store.Users),
 	)
+	r.POST("/users/password_reset",
+		users.PasswordResetInit(store.Confirmations, store.Users),
+	)
+	r.POST("/users/password_reset/:code",
+		users.PasswordReset(store.Confirmations, store.Users),
+	)
 
 	usersGroup := r.Group("/users", middleware.AuthRequired())
 	{

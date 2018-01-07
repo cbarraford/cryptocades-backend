@@ -40,10 +40,10 @@ type mockUserConfirmStore struct {
 	confirmed bool
 }
 
-func (*mockUserConfirmStore) Get(id int64) (user.Record, error) {
+func (*mockUserConfirmStore) GetByEmail(email string) (user.Record, error) {
 	return user.Record{
 		Id:        5,
-		Email:     "bob@lotto.com",
+		Email:     email,
 		Confirmed: false,
 	}, nil
 }
@@ -68,13 +68,4 @@ func (s *UserConfirmSuite) TestConfirm(c *C) {
 	c.Assert(w.Code, Equals, 200)
 	c.Check(userStore.confirmed, Equals, true)
 	c.Check(confirmStore.deleted, Equals, true)
-
-	// email mismatch
-	confirmStore.email = "notbob@lotto.com"
-	r = gin.New()
-	r.POST("/users/confirmation/:code", Confirm(confirmStore, userStore))
-	req, _ = http.NewRequest("POST", "/users/confirmation/abcderf", nil)
-	w = httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	c.Assert(w.Code, Equals, 403)
 }
