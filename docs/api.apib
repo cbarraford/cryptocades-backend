@@ -100,6 +100,38 @@ Confirm a user's email address via given confirmation code
     + Attributes
         + message (string)
 
+
+# Group Password Reset
+Reset a user password
+
+## Trigger Password Reset [/users/password_reset]
+
+### Trigger Password Reset [POST]
+Send a password reset email address to given email address
+
++ Request (application/json; charset=utf-8)
+    + Attributes 
+        + email: email (required)
++ Response 200 (application/json; charset=utf-8)
+    + Attributes
+        + message (string)
+
+## Reset Password [/users/password_reset/{code}]
+
++ Parameters
+    + code: anbh892hg70h (string, required) - The password reset code
+
+### Reset Password [POST]
+Change the password to given password in body
+
++ Request (application/json; charset=utf-8)
+    + Attributes 
+        + password: password (required)
++ Response 200 (application/json; charset=utf-8)
+    + Attributes
+        + message (string)
+
+
 # Group Jackpots
 
 ## Jackpots [/jackpots]
