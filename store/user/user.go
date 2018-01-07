@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -13,12 +14,14 @@ type Store interface {
 	Create(record *Record) error
 	Get(id int64) (Record, error)
 	GetByUsername(username string) (Record, error)
+	GetByEmail(email string) (Record, error)
 	GetByBTCAddress(btc_address string) (Record, error)
 	Update(record *Record) error
 	List() ([]Record, error)
 	MarkAsConfirmed(record *Record) error
 	Authenticate(username, password string) (Record, error)
 	AppendScore(scores []score) error
+	PasswordSet(record *Record) error
 	Delete(id int64) error
 }
 
@@ -67,6 +70,11 @@ func (db *store) Create(record *Record) error {
 		return fmt.Errorf("Password must not be blank")
 	}
 
+	// all users are auto-confirmed in development environment
+	if os.Getenv("ENVIRONMENT") == "development" {
+		record.Confirmed = true
+	}
+
 	// always store password hashed and salted
 	record.Password, err = HashPassword(record.Password)
 	if err != nil {
@@ -75,9 +83,9 @@ func (db *store) Create(record *Record) error {
 
 	query := fmt.Sprintf(`
         INSERT INTO %s
-			(username, password, btc_address, email)
+			(username, password, btc_address, email, confirmed)
         VALUES
-			(:username, :password, :btc_address, :email) RETURNING id`, table)
+			(:username, :password, :btc_address, :email, :confirmed) RETURNING id`, table)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
@@ -103,7 +111,11 @@ func (db *store) GetByBTCAddress(btc string) (record Record, err error) {
 	return
 }
 
-// TODO: change password function
+func (db *store) GetByEmail(email string) (record Record, err error) {
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE email = ?", table))
+	err = db.sqlx.Get(&record, query, email)
+	return
+}
 
 func (db *store) Update(record *Record) error {
 	// touch updated time
@@ -126,6 +138,31 @@ func (db *store) List() (records []Record, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s", table)
 	err = db.sqlx.Select(&records, query)
 	return
+}
+
+func (db *store) PasswordSet(record *Record) error {
+	var err error
+
+	// touch updated time
+	record.UpdatedTime = time.Now()
+	// since password reset utilizes email address, we are inherently
+	// confirming the account.
+	record.Confirmed = true
+
+	// always store password hashed and salted
+	record.Password, err = HashPassword(record.Password)
+	if err != nil {
+		return err
+	}
+
+	query := fmt.Sprintf(`
+        UPDATE %s SET
+            confirmed       = :confirmed,
+            updated_time    = :updated_time,
+			password		= :password
+        WHERE id = :id`, table)
+	_, err = db.sqlx.NamedExec(query, record)
+	return err
 }
 
 func (db *store) MarkAsConfirmed(record *Record) error {
