@@ -98,7 +98,6 @@ func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*
 		}
 		err = confirmStore.Create(&confirm)
 		if err != nil {
-			log.Printf("FOOOOOO: %+v", err)
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
