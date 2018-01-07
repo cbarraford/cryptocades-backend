@@ -129,6 +129,25 @@ func (s *DBSuite) TestGetByBTCAddress(c *C) {
 	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }
 
+func (s *DBSuite) TestGetByEmail(c *C) {
+	record := Record{
+		Username: "bob",
+		Email:    "bob@lotto.com",
+		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		Password: "password",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	r, err := s.store.GetByEmail(record.Email)
+	c.Assert(err, IsNil)
+	c.Check(r.Username, Equals, "bob")
+	c.Check(r.Email, Equals, "bob@lotto.com")
+	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
+	c.Check(r.MinedHashes, Equals, 0)
+	c.Check(r.BonusHashes, Equals, 0)
+	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
+}
+
 func (s *DBSuite) TestUpdate(c *C) {
 	record := Record{
 		Username: "bob",
@@ -207,6 +226,25 @@ func (s *DBSuite) TestAuthenticate(c *C) {
 	// bad username
 	record, err = s.store.Authenticate("bad username", "bad password")
 	c.Assert(err, ErrorMatches, "Incorrect username or password")
+}
+
+func (s *DBSuite) TestPasswordSet(c *C) {
+	var err error
+	record := Record{
+		Username: "bob",
+		Email:    "bob@lotto.com",
+		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		Password: "password",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record.Password = "another passwd"
+	c.Assert(s.store.PasswordSet(&record), IsNil)
+
+	// happy path
+	record, err = s.store.Authenticate("bob", "another passwd")
+	c.Assert(err, IsNil)
+	c.Check(record.Username, Equals, "bob")
 }
 
 func (s *DBSuite) TestAppendScore(c *C) {

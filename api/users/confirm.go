@@ -1,7 +1,6 @@
 package users
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,15 +22,9 @@ func Confirm(confirmStore confirmation.Store, store user.Store) func(*gin.Contex
 			return
 		}
 
-		user, err := store.Get(confirm.UserId)
+		user, err := store.GetByEmail(confirm.Email)
 		if err != nil {
 			c.AbortWithError(http.StatusNotFound, err)
-			return
-		}
-
-		// make sure the email address receiving the code is the same as the user.
-		if confirm.Email != user.Email {
-			c.AbortWithError(http.StatusForbidden, fmt.Errorf("Incorrect email address"))
 			return
 		}
 

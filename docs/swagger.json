@@ -272,6 +272,90 @@
         }
       }
     },
+    "/users/password_reset": {
+      "post": {
+        "description": "Send a password reset email address to given email address",
+        "tags": [
+          "Password Reset"
+        ],
+        "operationId": "Create_Trigger Password Reset_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/definitions/TriggerPasswordResetrequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ping_response"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/users/password_reset/{code}": {
+      "post": {
+        "description": "Change the password to given password in body",
+        "tags": [
+          "Password Reset"
+        ],
+        "operationId": "Create_Reset Password_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "x-is-map": false,
+            "type": "string",
+            "description": "The password reset code"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/definitions/ResetPasswordrequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ping_response"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
     "/jackpots": {
       "get": {
         "description": "List jackpots",
@@ -552,6 +636,30 @@
         "password",
         "btc_address",
         "email"
+      ]
+    },
+    "TriggerPasswordResetrequest": {
+      "title": "Trigger Password Reset request",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email"
+      ]
+    },
+    "ResetPasswordrequest": {
+      "title": "Reset Password request",
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "password"
       ]
     },
     "Enterrequest": {
