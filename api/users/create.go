@@ -50,7 +50,7 @@ func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context
 		}
 		// TODO: Update language once we have an official company name
 		// TODO: support mobile url
-		u := url.Get(fmt.Sprintf("/users/confirmation/%s", confirm.Code))
+		u := url.Get(fmt.Sprintf("/confirmation/%s", confirm.Code))
 		emailer := email.DefaultEmailer()
 		err = emailer.SendMessage(
 			record.Email,

@@ -22,7 +22,7 @@ services:
       PGHOST: postgres
       DATABASE_URL: postgres://postgres:password@postgres:5432/db?sslmode=disable
       REDIS_URL: redis://redis:6379
-      BASE_URL: http://localhost:8080
+      BASE_URL: http://localhost:3000
 
   redis:
     image: redis

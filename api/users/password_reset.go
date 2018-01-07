@@ -103,7 +103,7 @@ func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*
 		}
 		// TODO: Update language once we have an official company name
 		// TODO: support mobile url
-		u := url.Get(fmt.Sprintf("/users/password_reset/%s", confirm.Code))
+		u := url.Get(fmt.Sprintf("/password/reset/%s", confirm.Code))
 		mailer := emailer.DefaultEmailer()
 		err = mailer.SendMessage(
 			json.Email,
