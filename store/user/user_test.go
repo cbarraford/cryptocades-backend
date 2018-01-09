@@ -36,28 +36,18 @@ func (s *DBSuite) TestCreateRequirements(c *C) {
 	record := Record{
 		Username: "bob",
 		Password: "password",
-		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
 	}
 	c.Assert(s.store.Create(&record), NotNil)
 
 	record = Record{
 		Email:    "bob@lotto.com",
 		Password: "password",
-		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
 	}
 	c.Assert(s.store.Create(&record), NotNil)
 
 	record = Record{
 		Email:    "bob@lotto.com",
 		Username: "bob",
-		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
-	}
-	c.Assert(s.store.Create(&record), NotNil)
-
-	record = Record{
-		Email:    "bob@lotto.com",
-		Username: "bob",
-		Password: "password",
 	}
 	c.Assert(s.store.Create(&record), NotNil)
 }

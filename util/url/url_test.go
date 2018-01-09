@@ -14,5 +14,5 @@ var _ = Suite(&URLSuite{})
 
 func (s *URLSuite) TestGet(c *C) {
 	u := Get("/hello")
-	c.Assert(u.String(), Equals, "http://localhost:8080/hello")
+	c.Assert(u.String(), Equals, "http://localhost:3000/hello")
 }

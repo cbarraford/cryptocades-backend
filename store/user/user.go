@@ -63,9 +63,6 @@ func (db *store) Create(record *Record) error {
 	if record.Email == "" {
 		return fmt.Errorf("Email must not be blank")
 	}
-	if record.BTCAddr == "" {
-		return fmt.Errorf("Bitcoin Address must not be blank")
-	}
 	if record.Password == "" {
 		return fmt.Errorf("Password must not be blank")
 	}

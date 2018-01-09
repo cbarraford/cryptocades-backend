@@ -624,9 +624,6 @@
         "password": {
           "type": "string"
         },
-        "btc_address": {
-          "type": "string"
-        },
         "email": {
           "type": "string"
         }
@@ -634,7 +631,6 @@
       "required": [
         "username",
         "password",
-        "btc_address",
         "email"
       ]
     },
