@@ -517,6 +517,10 @@
         "name": {
           "description": "Name of the game",
           "type": "string"
+        },
+        "description": {
+          "description": "Description of the game",
+          "type": "string"
         }
       }
     },

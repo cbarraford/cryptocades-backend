@@ -1,8 +1,9 @@
 package game
 
 type Record struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type Store interface {
@@ -19,7 +20,15 @@ func NewStore() Store {
 
 func (db *store) List() []Record {
 	return []Record{
-		{Id: 1, Name: "Goblin Stacks"},
-		{Id: 2, Name: "Asteroid Tycoon"},
+		{
+			Id:          1,
+			Name:        "Goblin Stacks",
+			Description: "Earn lotto tickets as your goblin builds your tower. Hit tower milestones to receive bonuses!",
+		},
+		{
+			Id:          2,
+			Name:        "Asteroid Tycoon",
+			Description: "Mine asteroids to earn iron ore which can be used to buy lotto tickets or upgrade your mining rig.",
+		},
 	}
 }
