@@ -131,11 +131,22 @@ Change the password to given password in body
         + message (string)
 
 
+# Group Games
+
+## Games [/games]
+
+### List Games [GET]
+List games
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (array[Game])
+
+
 # Group Jackpots
 
 ## Jackpots [/jackpots]
 
-### List Jackpot [GET]
+### List Jackpots [GET]
 List jackpots
 
 + Response 200 (application/json; charset=utf-8)
@@ -169,6 +180,9 @@ Enter a jackpot
 
 
 ## Data Structures
+### Game
++ id: 1 (number) - {LONG} unique identifier
++ name: funtime (string) - Name of the game
 
 ### Jackpot
 + id: 1 (number) - {LONG} unique identifier

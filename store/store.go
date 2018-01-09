@@ -6,6 +6,7 @@ import (
 
 	"github.com/CBarraford/lotto/store/confirmation"
 	"github.com/CBarraford/lotto/store/entry"
+	"github.com/CBarraford/lotto/store/game"
 	"github.com/CBarraford/lotto/store/jackpot"
 	"github.com/CBarraford/lotto/store/session"
 	"github.com/CBarraford/lotto/store/user"
@@ -17,6 +18,7 @@ type Store struct {
 	Jackpots      jackpot.Store
 	Entries       entry.Store
 	Confirmations confirmation.Store
+	Games         game.Store
 }
 
 // Get a database connection
@@ -36,5 +38,6 @@ func GetStore(db *sqlx.DB, red redis.Conn) Store {
 		Jackpots:      jackpot.NewStore(db),
 		Entries:       entry.NewStore(db),
 		Confirmations: confirmation.NewStore(db),
+		Games:         game.NewStore(),
 	}
 }

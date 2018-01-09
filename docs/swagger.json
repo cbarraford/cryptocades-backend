@@ -356,13 +356,44 @@
         }
       }
     },
+    "/games": {
+      "get": {
+        "description": "List games",
+        "tags": [
+          "Games"
+        ],
+        "operationId": "List Games_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Game"
+              }
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
     "/jackpots": {
       "get": {
         "description": "List jackpots",
         "tags": [
           "Jackpots"
         ],
-        "operationId": "List Jackpot_",
+        "operationId": "List Jackpots_",
         "produces": [
           "application/json"
         ],
@@ -474,6 +505,21 @@
     }
   },
   "definitions": {
+    "Game": {
+      "title": "Game",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "Name of the game",
+          "type": "string"
+        }
+      }
+    },
     "Jackpot": {
       "title": "Jackpot",
       "type": "object",
