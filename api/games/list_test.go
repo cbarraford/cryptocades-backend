@@ -1,4 +1,4 @@
-package jackpots
+package games
 
 import (
 	"encoding/json"

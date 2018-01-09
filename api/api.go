@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/CBarraford/lotto/api/games"
 	"github.com/CBarraford/lotto/api/jackpots"
 	"github.com/CBarraford/lotto/api/middleware"
 	"github.com/CBarraford/lotto/api/users"
@@ -56,6 +57,8 @@ func GetAPIService(store store.Store) *gin.Engine {
 	{
 		usersGroup.GET("/:id", users.Get(store.Users))
 	}
+
+	r.GET("/games", games.List(store.Games))
 
 	jackpotsGroup := r.Group("/jackpots")
 	{
