@@ -7,9 +7,11 @@ services:
     links:
       - postgres
       - redis
+      - cryptonoter
     depends_on:
       - postgres
       - redis 
+      - cryptonoter
     volumes:
       - ~:/root
       - .:/root/src/github.com/CBarraford/lotto
@@ -23,6 +25,25 @@ services:
       DATABASE_URL: postgres://postgres:password@postgres:5432/db?sslmode=disable
       REDIS_URL: redis://redis:6379
       BASE_URL: http://localhost:3000
+
+  cryptonoter:
+    build: ./docker/CryptoNoter
+    image: cryptonoter-redis
+    ports:
+      - "7878:7878"
+    expose:
+      - "7878"
+    links:
+      - redis
+    depends_on:
+      - redis
+    environment:
+      LPORT: 7878
+      PORT: 7878
+      POOL: pool.cryptonoter.com:1111
+      DOMAIN: localhost
+      ADDR: 462MheUMhNeAZviZkaJmQr2HXXxRXdQQMSx4LMEPXLqELKbMCJwnFtr1aSwXNZ9rGuQZzhJMtvkCHj9tdT1imyzc4XZdvmw
+      REDIS_URL: redis://redis:6379
 
   redis:
     image: redis
