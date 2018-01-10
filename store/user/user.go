@@ -23,6 +23,7 @@ type Store interface {
 	AppendScore(scores []score) error
 	PasswordSet(record *Record) error
 	Delete(id int64) error
+	UpdateScores() error
 }
 
 type store struct {
@@ -193,10 +194,10 @@ func (db *store) Authenticate(username, password string) (record Record, err err
 func (db *store) AppendScore(scores []score) error {
 	tx, err := db.sqlx.Begin()
 	for _, s := range scores {
-		query := fmt.Sprintf("UPDATE %s SET mined_hashes = mined_hashes + $1 WHERE btc_address = $2;", table)
-		_, err = tx.Exec(query, s.score, s.addr)
+		query := fmt.Sprintf("UPDATE %s SET mined_hashes = mined_hashes + $1 WHERE id = $2;", table)
+		_, err = tx.Exec(query, s.score, s.id)
 		if err != nil {
-			log.Printf("Error Appending Score (%s: %+v): %+v", s.addr, s.score, err)
+			log.Printf("Error Appending Score (%s: %+v): %+v", s.id, s.score, err)
 		}
 	}
 	return tx.Commit()

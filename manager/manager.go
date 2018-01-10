@@ -13,18 +13,25 @@ const MAX_JACKPOTS = 1
 
 func Start(store store.Store) {
 	// spawn jackpot(s)
-	ticker := time.NewTicker(5 * time.Second)
+	tickJack := time.NewTicker(5 * time.Second)
+	tickScores := time.NewTicker(10 * time.Second)
 	quit := make(chan struct{})
 	go func() {
 		for {
 			select {
-			case <-ticker.C:
+			case <-tickJack.C:
 				if err := ManageJackpots(store.Jackpots); err != nil {
 					// TODO: we should alert on this error
-					log.Printf("%+v", err)
+					log.Printf("Manage Jackpot Error: %+v", err)
+				}
+			case <-tickScores.C:
+				if err := store.Users.UpdateScores(); err != nil {
+					// TODO: we should alert on this error
+					log.Printf("Update Scores Error: %+v", err)
 				}
 			case <-quit:
-				ticker.Stop()
+				tickJack.Stop()
+				tickScores.Stop()
 				return
 			}
 		}

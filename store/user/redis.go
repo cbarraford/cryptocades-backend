@@ -1,13 +1,15 @@
 package user
 
 import (
+	"log"
 	"strconv"
+	"strings"
 
 	"github.com/garyburd/redigo/redis"
 )
 
 type score struct {
-	addr  string
+	id    int64
 	score int
 }
 
@@ -36,11 +38,19 @@ func (db *store) zpop(key string) (scores []score, err error) {
 			if (i % 2) == 1 {
 				continue
 			}
+
+			parts := strings.Split(members[i], "@")
+			if len(parts) != 2 {
+				log.Printf("Malformed redis key: %s", members[i])
+				continue
+			}
+			id, _ := strconv.ParseInt(parts[1], 10, 64)
+
 			v, err := strconv.Atoi(members[i+1])
 			if err != nil {
 				return nil, err
 			}
-			scores = append(scores, score{members[i], v})
+			scores = append(scores, score{id, v})
 
 			db.redis.Send("ZREM", key, members[i])
 		}
@@ -58,7 +68,7 @@ func (db *store) zpop(key string) (scores []score, err error) {
 }
 
 func (db *store) UpdateScores() error {
-	scores, err := db.zpop("hashes")
+	scores, err := db.zpop("shares")
 	if err != nil {
 		return err
 	}

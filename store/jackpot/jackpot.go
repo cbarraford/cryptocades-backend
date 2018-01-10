@@ -79,7 +79,7 @@ func (db *store) Update(record *Record) error {
 }
 
 func (db *store) List() (records []Record, err error) {
-	query := fmt.Sprintf("SELECT * FROM %s", table)
+	query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC", table)
 	err = db.sqlx.Select(&records, query)
 	return
 }

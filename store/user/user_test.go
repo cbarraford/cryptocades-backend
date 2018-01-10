@@ -248,8 +248,8 @@ func (s *DBSuite) TestAppendScore(c *C) {
 	c.Assert(s.store.Create(&record), IsNil)
 
 	scores := []score{
-		{record.BTCAddr, 12},
-		{record.BTCAddr, 12},
+		{record.Id, 12},
+		{record.Id, 12},
 	}
 	err = s.store.AppendScore(scores)
 	c.Assert(err, IsNil)
@@ -259,7 +259,7 @@ func (s *DBSuite) TestAppendScore(c *C) {
 	c.Check(record.MinedHashes, Equals, 24)
 
 	// bad address
-	scores = []score{{"bad address", 12}}
+	scores = []score{{48, 12}}
 	err = s.store.AppendScore(scores)
 	c.Assert(err, IsNil)
 
