@@ -68,6 +68,19 @@ func (s *DBSuite) TestCreate(c *C) {
 	c.Check(r.JackpotId, Equals, int64(4))
 	c.Check(r.UserId, Equals, int64(5))
 	c.Check(r.Amount, Equals, 100)
+
+	record3 := Record{
+		JackpotId: 8,
+		UserId:    9,
+		Amount:    120,
+	}
+	c.Assert(s.store.Create(&record3), IsNil)
+
+	r, err = s.store.Get(record3.Id)
+	c.Assert(err, IsNil)
+	c.Check(r.JackpotId, Equals, int64(8))
+	c.Check(r.UserId, Equals, int64(9))
+	c.Check(r.Amount, Equals, 120)
 }
 
 func (s *DBSuite) TestGetOdds(c *C) {
@@ -90,6 +103,12 @@ func (s *DBSuite) TestGetOdds(c *C) {
 	c.Check(odd.Total, Equals, int64(100))
 	c.Check(odd.JackpotId, Equals, int64(4))
 	c.Check(odd.Entries, Equals, int64(40))
+
+	odd, err = s.store.GetOdds(500, 600)
+	c.Assert(err, IsNil)
+	c.Check(odd.Total, Equals, int64(0))
+	c.Check(odd.JackpotId, Equals, int64(500))
+	c.Check(odd.Entries, Equals, int64(0))
 }
 
 func (s *DBSuite) TestList(c *C) {
@@ -134,4 +153,8 @@ func (s *DBSuite) TestUserSpent(c *C) {
 	spent, err := s.store.UserSpent(5)
 	c.Assert(err, IsNil)
 	c.Check(spent, Equals, 110)
+
+	spent, err = s.store.UserSpent(9999)
+	c.Assert(err, IsNil)
+	c.Check(spent, Equals, 0)
 }

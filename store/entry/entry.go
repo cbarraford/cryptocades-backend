@@ -58,16 +58,16 @@ func (db *store) Create(record *Record) error {
 	}
 
 	var count int64
-	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COUNT(id) FROM %s WHERE user_id = ?", table))
-	err = db.sqlx.Get(&count, query, record.UserId)
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COUNT(id) FROM %s WHERE user_id = ? AND jackpot_id = ?", table))
+	err = db.sqlx.Get(&count, query, record.UserId, record.JackpotId)
 	if err != nil {
 		return err
 	}
 
 	if count > 0 {
 		query := db.sqlx.Rebind(
-			fmt.Sprintf("UPDATE %s SET amount = amount + ? WHERE user_id = ?", table))
-		_, err = db.sqlx.Exec(query, record.Amount, record.UserId)
+			fmt.Sprintf("UPDATE %s SET amount = amount + ? WHERE user_id = ? AND jackpot_id = ?", table))
+		_, err = db.sqlx.Exec(query, record.Amount, record.UserId, record.JackpotId)
 	} else {
 
 		query := fmt.Sprintf(`
@@ -94,13 +94,13 @@ func (db *store) Get(id int64) (Record, error) {
 
 func (db *store) GetOdds(jackpotId, userId int64) (odd Odds, err error) {
 	odd.JackpotId = jackpotId
-	query := db.sqlx.Rebind(fmt.Sprintf("SELECT SUM(amount) FROM %s WHERE jackpot_id = ?", table))
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COALESCE(SUM(amount),0) FROM %s WHERE jackpot_id = ?", table))
 	err = db.sqlx.Get(&odd.Total, query, jackpotId)
 	if err != nil {
 		return
 	}
 
-	query = db.sqlx.Rebind(fmt.Sprintf("SELECT amount FROM %s WHERE jackpot_id = ? AND user_id = ?", table))
+	query = db.sqlx.Rebind(fmt.Sprintf("SELECT COALESCE(SUM(amount),0) FROM %s WHERE jackpot_id = ? AND user_id = ?", table))
 	err = db.sqlx.Get(&odd.Entries, query, jackpotId, userId)
 	return
 }
@@ -112,7 +112,7 @@ func (db *store) List() (records []Record, err error) {
 }
 
 func (db *store) UserSpent(userId int64) (spent int, err error) {
-	query := db.sqlx.Rebind(fmt.Sprintf("SELECT SUM(amount) FROM %s WHERE user_id = ?", table))
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COALESCE(SUM(amount),0) FROM %s WHERE user_id = ?", table))
 	err = db.sqlx.Get(&spent, query, userId)
 	return
 }
