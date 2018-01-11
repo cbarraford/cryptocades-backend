@@ -197,6 +197,65 @@
         }
       }
     },
+    "/me/balance": {
+      "get": {
+        "description": "",
+        "tags": [
+          "Me"
+        ],
+        "operationId": "Get_Balance_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Balance_response"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/me/expenses": {
+      "get": {
+        "description": "",
+        "tags": [
+          "Me"
+        ],
+        "operationId": "Get_Expenses_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Entry"
+              }
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
     "/users": {
       "post": {
         "description": "",
@@ -578,6 +637,32 @@
         }
       }
     },
+    "Entry": {
+      "title": "Entry",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "jackpot_id": {
+          "description": "jackpot unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "description": "user unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "amount": {
+          "description": "total amount spent on this specific jackpot",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "User": {
       "title": "User",
       "type": "object",
@@ -662,6 +747,18 @@
         "username",
         "btc_address",
         "email"
+      ]
+    },
+    "Balance_response": {
+      "title": "Balance_response",
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "balance"
       ]
     },
     "Createrequest": {

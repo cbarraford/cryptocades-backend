@@ -68,6 +68,21 @@ Delete the authenticated user
 
 + Response 200 (application/json; charset=utf-8)
 
+## My Balance [/me/balance]
+
+### Balance [GET]
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes 
+        + balance: account balance (required)
+
+## My Expenses [/me/expenses]
+
+### Expenses [GET]
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (array[Entry])
+
 # Group Users
 Get and manage users
 
@@ -199,6 +214,12 @@ Enter a jackpot
 + jackpot_id: 1 (number) - {LONG} the unique identifier for a jackpot
 + total: 13 (number) - {LONG} the total number of entries into the jackpot
 + entries: 2 (number) - {LONG} the number of entries the authenticating user has
+
+### Entry
++ id: 1 (number) - {LONG} unique identifier
++ jackpot_id: 4 (number) - {LONG} jackpot unique identifier
++ user_id: 5 (number) - {LONG} user unique identifier
++ amount: 44 (number) - {LONG} total amount spent on this specific jackpot
 
 ### User
 + id: 1 (number) - {LONG} unique identifier

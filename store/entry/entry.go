@@ -12,6 +12,7 @@ type Store interface {
 	Get(id int64) (Record, error)
 	GetOdds(jackpotId, userId int64) (Odds, error)
 	List() ([]Record, error)
+	ListByUser(id int64) ([]Record, error)
 	UserSpent(userId int64) (int, error)
 }
 
@@ -108,6 +109,12 @@ func (db *store) GetOdds(jackpotId, userId int64) (odd Odds, err error) {
 func (db *store) List() (records []Record, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s", table)
 	err = db.sqlx.Select(&records, query)
+	return
+}
+
+func (db *store) ListByUser(id int64) (records []Record, err error) {
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE user_id = ?", table))
+	err = db.sqlx.Select(&records, query, id)
 	return
 }
 
