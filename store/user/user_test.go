@@ -63,6 +63,7 @@ func (s *DBSuite) TestCreate(c *C) {
 	c.Check(record.Username, Equals, "bob")
 	c.Check(record.Email, Equals, "bob@lotto.com")
 	c.Check(record.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
+	c.Check(record.BonusHashes, Equals, 5)
 	c.Check(CheckPasswordHash("password", record.Password), Equals, true)
 }
 
