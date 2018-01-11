@@ -54,6 +54,8 @@ services:
 
   postgres:
     image: postgres:9.6.3
+    ports:
+      - "5432:5432"
     expose:
       - "5432"
     environment:
