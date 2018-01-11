@@ -46,7 +46,8 @@ func ManageJackpots(store jackpot.Store) error {
 	if len(jackpots) == 0 {
 		jackpot := jackpot.Record{
 			Jackpot: 100,
-			EndTime: time.Now().UTC().Add(7 * time.Day),
+			// One week end time
+			EndTime: time.Now().UTC().Add(168 * time.Hour),
 		}
 		err = store.Create(&jackpot)
 		if err != nil {
