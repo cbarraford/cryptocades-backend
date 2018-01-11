@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/gin-gonic/gin"
 	check "gopkg.in/check.v1"
 
 	"github.com/CBarraford/lotto/store/game"
 )
+
+func TestPackage(t *testing.T) { check.TestingT(t) }
 
 type GameListSuite struct{}
 
