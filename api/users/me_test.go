@@ -24,6 +24,7 @@ func (*mockMeStore) Get(id int64) (user.Record, error) {
 	return user.Record{
 		Id:       id,
 		Username: "bob",
+		Email:    "bob@bob.com",
 	}, nil
 }
 
@@ -47,4 +48,5 @@ func (s *UserMeSuite) TestMe(c *check.C) {
 	c.Assert(json.Unmarshal(w.Body.Bytes(), &record), check.IsNil)
 	c.Check(record.Id, check.Equals, int64(12))
 	c.Check(record.Username, check.Equals, "bob")
+	c.Check(record.Email, check.Equals, "bob@bob.com")
 }

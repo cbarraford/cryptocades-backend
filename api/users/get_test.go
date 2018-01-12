@@ -23,6 +23,7 @@ func (*mockGetStore) Get(id int64) (user.Record, error) {
 	return user.Record{
 		Id:       id,
 		Username: "bob",
+		Email:    "bob@bob.com",
 	}, nil
 }
 
@@ -42,4 +43,6 @@ func (s *UserGetSuite) TestGet(c *check.C) {
 	c.Assert(json.Unmarshal(w.Body.Bytes(), &record), check.IsNil)
 	c.Check(record.Id, check.Equals, int64(12))
 	c.Check(record.Username, check.Equals, "bob")
+	// check that email is obscured
+	c.Check(record.Email, check.Equals, "")
 }

@@ -21,6 +21,10 @@ func Get(store user.Store) func(*gin.Context) {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+
+		// obscure email address
+		record.Email = ""
+
 		c.JSON(http.StatusOK, record)
 	}
 }

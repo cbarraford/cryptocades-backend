@@ -43,7 +43,7 @@ type Record struct {
 	BTCAddr     string    `json:"btc_address" db:"btc_address"`
 	Username    string    `json:"username" db:"username"`
 	Password    string    `json:"-" db:"password"`
-	Email       string    `json:"-" db:"email"`
+	Email       string    `json:"email" db:"email"`
 	MinedHashes int       `json:"mined_hashes" db:"mined_hashes"`
 	BonusHashes int       `json:"bonus_hashes" db:"bonus_hashes"`
 	Confirmed   bool      `json:"confirmed" db:"confirmed"`
