@@ -39,7 +39,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 	r.GET("/ping", ping())
 	r.GET("/me", users.Me(store.Users))
 	r.GET("/me/balance", users.Balance(store.Users, store.Entries))
-	r.GET("/me/expenses", users.Expenses(store.Entries))
+	r.GET("/me/entries", users.Entries(store.Entries))
 	r.PUT("/me", users.Update(store.Users))
 	r.DELETE("/me", users.Delete(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))

@@ -225,13 +225,13 @@
         }
       }
     },
-    "/me/expenses": {
+    "/me/entries": {
       "get": {
         "description": "",
         "tags": [
           "Me"
         ],
-        "operationId": "Get_Expenses_",
+        "operationId": "Get_Entries_",
         "produces": [
           "application/json"
         ],

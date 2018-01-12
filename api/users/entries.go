@@ -9,7 +9,7 @@ import (
 	"github.com/CBarraford/lotto/store/entry"
 )
 
-func Expenses(entries entry.Store) func(*gin.Context) {
+func Entries(entries entry.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		var userId int64

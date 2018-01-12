@@ -12,31 +12,31 @@ import (
 	"github.com/CBarraford/lotto/store/entry"
 )
 
-type UserExpensesSuite struct{}
+type UserEntriesSuite struct{}
 
-var _ = check.Suite(&UserExpensesSuite{})
+var _ = check.Suite(&UserEntriesSuite{})
 
-type mockExpensesEntriesStore struct {
+type mockEntriesEntriesStore struct {
 	entry.Dummy
 }
 
-func (*mockExpensesEntriesStore) ListByUser(id int64) ([]entry.Record, error) {
+func (*mockEntriesEntriesStore) ListByUser(id int64) ([]entry.Record, error) {
 	return []entry.Record{
 		{Id: 15, JackpotId: 4, UserId: id, Amount: 45},
 	}, nil
 }
 
-func (s *UserExpensesSuite) TestExpenses(c *check.C) {
-	store := &mockExpensesEntriesStore{}
+func (s *UserEntriesSuite) TestEntries(c *check.C) {
+	store := &mockEntriesEntriesStore{}
 
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
 
-	r.GET("/me/expenses", Expenses(store))
+	r.GET("/me/entries", Entries(store))
 
 	// happy path
-	req, _ := http.NewRequest("GET", "/me/expenses", nil)
+	req, _ := http.NewRequest("GET", "/me/entries", nil)
 	req.Header.Set("Masquerade", "12")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
