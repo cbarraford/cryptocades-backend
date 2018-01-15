@@ -38,18 +38,20 @@ func (m *mockConfirmStore) Delete(id int64) error {
 type mockUserConfirmStore struct {
 	user.Dummy
 	confirmed bool
+	email     string
 }
 
-func (*mockUserConfirmStore) GetByEmail(email string) (user.Record, error) {
+func (*mockUserConfirmStore) Get(id int64) (user.Record, error) {
 	return user.Record{
-		Id:        5,
-		Email:     email,
+		Id:        id,
+		Email:     "bob@bob.com",
 		Confirmed: false,
 	}, nil
 }
 
 func (m *mockUserConfirmStore) MarkAsConfirmed(record *user.Record) error {
 	m.confirmed = true
+	m.email = record.Email
 	return nil
 }
 
@@ -67,5 +69,6 @@ func (s *UserConfirmSuite) TestConfirm(c *C) {
 	r.ServeHTTP(w, req)
 	c.Assert(w.Code, Equals, 200)
 	c.Check(userStore.confirmed, Equals, true)
+	c.Check(userStore.email, Equals, "bob@lotto.com")
 	c.Check(confirmStore.deleted, Equals, true)
 }

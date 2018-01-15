@@ -201,12 +201,15 @@ func (s *DBSuite) TestAuthenticate(c *C) {
 	_, err = s.store.Authenticate("bob", "password")
 	c.Assert(err, NotNil)
 
+	record.Email = "bob@bob.com"
 	c.Assert(s.store.MarkAsConfirmed(&record), IsNil)
 
 	// happy path
 	record, err = s.store.Authenticate("bob", "password")
 	c.Assert(err, IsNil)
 	c.Check(record.Username, Equals, "bob")
+	// ensure email gets updated when we mark at confirmed
+	c.Check(record.Email, Equals, "bob@bob.com")
 
 	// bad password
 	record, err = s.store.Authenticate("bob", "bad password")

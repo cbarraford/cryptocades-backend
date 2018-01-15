@@ -22,11 +22,14 @@ func Confirm(confirmStore confirmation.Store, store user.Store) func(*gin.Contex
 			return
 		}
 
-		user, err := store.GetByEmail(confirm.Email)
+		user, err := store.Get(confirm.Id)
 		if err != nil {
 			c.AbortWithError(http.StatusNotFound, err)
 			return
 		}
+
+		// if the confirmation is email change, update email
+		user.Email = confirm.Email
 
 		err = store.MarkAsConfirmed(&user)
 		if err != nil {

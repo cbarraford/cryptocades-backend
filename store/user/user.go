@@ -170,6 +170,8 @@ func (db *store) PasswordSet(record *Record) error {
 	return err
 }
 
+// Marks account as confirmed as well updates email address (if confirming new
+// email address)
 func (db *store) MarkAsConfirmed(record *Record) error {
 	// touch updated time
 	record.UpdatedTime = time.Now()
@@ -177,6 +179,7 @@ func (db *store) MarkAsConfirmed(record *Record) error {
 
 	query := fmt.Sprintf(`
         UPDATE %s SET
+			email			= :email,
             confirmed       = :confirmed,
             updated_time    = :updated_time
         WHERE id = :id`, table)
