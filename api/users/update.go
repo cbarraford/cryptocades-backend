@@ -28,8 +28,6 @@ func Update(store user.Store) func(*gin.Context) {
 		var json input
 		err = c.BindJSON(&json)
 		if err == nil {
-			record.Username = json.Username
-			record.Email = json.Email
 			record.BTCAddr = json.BTCAddr
 		} else {
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
