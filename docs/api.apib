@@ -57,9 +57,8 @@ Get the user object of the currently logged in user
 
 + Request (application/json; charset=utf-8)
     + Attributes 
-        + username: username (required)
-        + btc_address: bitcoin address (required)
-        + email: email (required)
+        + btc_address: bitcoin address (optional)
+        + password: password (optional)
 + Response 200 (application/json; charset=utf-8)
     + Attributes (User)
 
@@ -67,6 +66,17 @@ Get the user object of the currently logged in user
 Delete the authenticated user
 
 + Response 200 (application/json; charset=utf-8)
+
+## My Email [/me/email]
+
+### Change email [PUT]
+
++ Request (application/json; charset=utf-8)
+    + Attributes 
+        + email: email (required)
++ Response 200 (application/json; charset=utf-8)
+    + Attributes
+        + message (string)
 
 ## My Balance [/me/balance]
 

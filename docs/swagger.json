@@ -197,6 +197,44 @@
         }
       }
     },
+    "/me/email": {
+      "put": {
+        "description": "",
+        "tags": [
+          "Me"
+        ],
+        "operationId": "Change email_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/definitions/Changeemailrequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ping_response"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
     "/me/balance": {
       "get": {
         "description": "",
@@ -733,19 +771,23 @@
       "title": "Update request",
       "type": "object",
       "properties": {
-        "username": {
-          "type": "string"
-        },
         "btc_address": {
           "type": "string"
         },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Changeemailrequest": {
+      "title": "Change email request",
+      "type": "object",
+      "properties": {
         "email": {
           "type": "string"
         }
       },
       "required": [
-        "username",
-        "btc_address",
         "email"
       ]
     },
