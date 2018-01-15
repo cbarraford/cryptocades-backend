@@ -37,9 +37,11 @@ func (s *DBSuite) TestCreate(c *C) {
 	err := s.store.Create(&record, 30)
 	c.Assert(err, IsNil)
 	c.Check(record.Token, Not(Equals), "")
+	c.Check(record.CreatedTime.Add(escalatedTime*time.Minute).UnixNano() == record.EscalatedTime.UnixNano(), Equals, true)
 
 	record, err = s.store.GetByToken(record.Token)
 	c.Check(record.CreatedTime.UnixNano() < record.ExpireTime.UnixNano(), Equals, true)
+	c.Check(record.CreatedTime.Add(escalatedTime*time.Minute).UnixNano() == record.EscalatedTime.UnixNano(), Equals, true)
 }
 
 func (s *DBSuite) TestAuthenticate(c *C) {

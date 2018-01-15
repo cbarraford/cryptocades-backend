@@ -73,7 +73,10 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Session"
+            }
           }
         },
         "x-unitTests": [],
@@ -698,6 +701,38 @@
           "description": "total amount spent on this specific jackpot",
           "type": "integer",
           "format": "int64"
+        }
+      }
+    },
+    "Session": {
+      "title": "Session",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "description": "unique identifier for associated user",
+          "type": "integer",
+          "format": "int64"
+        },
+        "token": {
+          "description": "Token for sessions. Use this in subsequent API calls for authentication.",
+          "type": "string"
+        },
+        "created_time": {
+          "description": "timestamp of session creation",
+          "type": "string"
+        },
+        "expire_time": {
+          "description": "timestamp of session expires",
+          "type": "string"
+        },
+        "escalated_time": {
+          "description": "timestamp sessions has to use escalated privileges before they are lost. Some API endpoints require escalated privileges",
+          "type": "string"
         }
       }
     },

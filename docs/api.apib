@@ -31,6 +31,7 @@ Log into the API and receive a session token
         + username: user's username (required)
         + password: user's password (required)
 + Response 200 (application/json; charset=utf-8)
+    + Attributes (Session)
 
 # Group Logout
 Logout of the API (destroying the session token)
@@ -230,6 +231,14 @@ Enter a jackpot
 + jackpot_id: 4 (number) - {LONG} jackpot unique identifier
 + user_id: 5 (number) - {LONG} user unique identifier
 + amount: 44 (number) - {LONG} total amount spent on this specific jackpot
+
+### Session
++ id: 1 (number) - {LONG} unique identifier
++ user_id: 3 (number) - {LONG} unique identifier for associated user
++ token: 2hfniu5hsuus80 (string) - Token for sessions. Use this in subsequent API calls for authentication.
++ created_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of session creation
++ expire_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of session expires
++ escalated_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp sessions has to use escalated privileges before they are lost. Some API endpoints require escalated privileges
 
 ### User
 + id: 1 (number) - {LONG} unique identifier

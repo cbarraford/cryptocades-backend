@@ -32,7 +32,43 @@
     <span class="hljs-string">"username"</span>,
     <span class="hljs-string">"password"</span>
   ]
-</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json; charset=utf-8</span></code></pre><div style="height: 1px;"></div></div></div></div></div></section><section id="logout" class="resource-group"><h2 class="group-heading">Logout <a href="#logout" class="permalink">&para;</a></h2><p>Logout of the API (destroying the session token)</p>
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json; charset=utf-8</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">user_id</span>": <span class="hljs-value"><span class="hljs-number">3</span></span>,
+  "<span class="hljs-attribute">token</span>": <span class="hljs-value"><span class="hljs-string">"2hfniu5hsuus80"</span></span>,
+  "<span class="hljs-attribute">created_time</span>": <span class="hljs-value"><span class="hljs-string">"2017-07-14T03:18:29.502661Z"</span></span>,
+  "<span class="hljs-attribute">expire_time</span>": <span class="hljs-value"><span class="hljs-string">"2017-07-14T03:18:29.502661Z"</span></span>,
+  "<span class="hljs-attribute">escalated_time</span>": <span class="hljs-value"><span class="hljs-string">"2017-07-14T03:18:29.502661Z"</span>
+</span>}</code></pre><div style="height: 1px;"></div><h5>Schema</h5><pre><code>{
+  "<span class="hljs-attribute">$schema</span>": <span class="hljs-value"><span class="hljs-string">"http://json-schema.org/draft-04/schema#"</span></span>,
+  "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"object"</span></span>,
+  "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"{LONG} unique identifier"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">user_id</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"number"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"{LONG} unique identifier for associated user"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">token</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Token for sessions. Use this in subsequent API calls for authentication."</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">created_time</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"timestamp of session creation"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">expire_time</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"timestamp of session expires"</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">escalated_time</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"timestamp sessions has to use escalated privileges before they are lost. Some API endpoints require escalated privileges"</span>
+    </span>}
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></section><section id="logout" class="resource-group"><h2 class="group-heading">Logout <a href="#logout" class="permalink">&para;</a></h2><p>Logout of the API (destroying the session token)</p>
 <div id="logout-logout" class="resource"><h3 class="resource-heading">Logout <a href="#logout-logout" class="permalink">&nbsp;&para;</a></h3><div id="logout-logout-delete" class="action delete"><h4 class="action-heading"><div class="name">Logout</div><a href="#logout-logout-delete" class="method delete">DELETE</a><code class="uri">/logout</code></h4><p>Logout of the API.</p>
 <h4>Example URI</h4><div class="definition"><span class="method delete">DELETE</span>&nbsp;<span class="uri"><span class="hostname">https://localhost:8080</span>/logout</span></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json; charset=utf-8</span></code></pre><div style="height: 1px;"></div></div></div></div></div></section><section id="me" class="resource-group"><h2 class="group-heading">Me <a href="#me" class="permalink">&para;</a></h2><p>Get the user object of the currently logged in user</p>
 <div id="me-me" class="resource"><h3 class="resource-heading">Me <a href="#me-me" class="permalink">&nbsp;&para;</a></h3><div id="me-me-get" class="action get"><h4 class="action-heading"><div class="name">Me</div><a href="#me-me-get" class="method get">GET</a><code class="uri">/me</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">https://localhost:8080</span>/me</span></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json; charset=utf-8</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{

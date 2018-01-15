@@ -27,17 +27,19 @@ func Update(store user.Store) func(*gin.Context) {
 
 		var json input
 		err = c.BindJSON(&json)
-		if err == nil {
-			record.BTCAddr = json.BTCAddr
-		} else {
+		if err != nil {
+
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
 			return
 		}
 
-		err = store.Update(&record)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
+		if json.BTCAddr != "" {
+			record.BTCAddr = json.BTCAddr
+			err = store.Update(&record)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
 		}
 
 		// check if password is being changed

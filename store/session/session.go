@@ -9,6 +9,10 @@ import (
 	"github.com/CBarraford/lotto/util"
 )
 
+const (
+	escalatedTime = 5
+)
+
 type Store interface {
 	Create(record *Record, i int) error
 	GetByToken(token string) (Record, error)
@@ -28,11 +32,12 @@ func NewStore(db *sqlx.DB) Store {
 const table string = "sessions"
 
 type Record struct {
-	Id          int64     `json:"id" db:"id"`
-	UserId      int64     `json:"user_id" db:"user_id"`
-	Token       string    `json:"token" db:"token"`
-	CreatedTime time.Time `json:"created_time" db:"created_time"`
-	ExpireTime  time.Time `json:"expire_time" db:"expire_time"`
+	Id            int64     `json:"id" db:"id"`
+	UserId        int64     `json:"user_id" db:"user_id"`
+	Token         string    `json:"token" db:"token"`
+	CreatedTime   time.Time `json:"created_time" db:"created_time"`
+	EscalatedTime time.Time `json:"escalated_time"`
+	ExpireTime    time.Time `json:"expire_time" db:"expire_time"`
 }
 
 func (db *store) TableName() string {
@@ -49,6 +54,7 @@ func (db *store) Create(record *Record, session_length int) error {
 	if record.CreatedTime.IsZero() {
 		record.CreatedTime = time.Now().UTC()
 	}
+	record.EscalatedTime = record.CreatedTime.Add(escalatedTime * time.Minute)
 
 	// TODO: while unlikely, duplicate tokens would cause db layer error
 	record.Token = util.RandSeq(20, util.LowerAlphaNumeric)
@@ -69,6 +75,7 @@ func (db *store) GetByToken(token string) (Record, error) {
 	record := Record{}
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE token = ?", table))
 	err := db.sqlx.Get(&record, query, token)
+	record.EscalatedTime = record.CreatedTime.Add(escalatedTime * time.Minute)
 	return record, err
 }
 
@@ -84,7 +91,7 @@ func (db *store) Authenticate(token string) (id int64, escalatedPriv bool, err e
 		return 0, false, fmt.Errorf("Token expired.")
 	}
 
-	if record.CreatedTime.Add(5*time.Minute).UnixNano() >= time.Now().UnixNano() {
+	if record.CreatedTime.Add(escalatedTime*time.Minute).UnixNano() >= time.Now().UnixNano() {
 		escalatedPriv = true
 	}
 

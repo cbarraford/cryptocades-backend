@@ -22,7 +22,7 @@ func Confirm(confirmStore confirmation.Store, store user.Store) func(*gin.Contex
 			return
 		}
 
-		user, err := store.Get(confirm.Id)
+		user, err := store.Get(confirm.UserId)
 		if err != nil {
 			c.AbortWithError(http.StatusNotFound, err)
 			return
