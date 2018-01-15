@@ -12,7 +12,7 @@ import (
 type Store interface {
 	Create(record *Record, i int) error
 	GetByToken(token string) (Record, error)
-	Authenticate(token string) (int64, error)
+	Authenticate(token string) (int64, bool, error)
 	Delete(token string) error
 }
 
@@ -46,15 +46,19 @@ func (db *store) Create(record *Record, session_length int) error {
 		return fmt.Errorf("User ID must not be blank")
 	}
 
+	if record.CreatedTime.IsZero() {
+		record.CreatedTime = time.Now().UTC()
+	}
+
 	// TODO: while unlikely, duplicate tokens would cause db layer error
 	record.Token = util.RandSeq(20, util.LowerAlphaNumeric)
 	record.ExpireTime = time.Now().UTC().AddDate(0, 0, session_length)
 
 	query := fmt.Sprintf(`
         INSERT INTO %s
-			(user_id, token, expire_time)
+			(user_id, token, expire_time, created_time)
         VALUES
-			(:user_id, :token, :expire_time) RETURNING id`, table)
+			(:user_id, :token, :expire_time, :created_time) RETURNING id`, table)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
@@ -68,16 +72,20 @@ func (db *store) GetByToken(token string) (Record, error) {
 	return record, err
 }
 
-func (db *store) Authenticate(token string) (id int64, err error) {
+func (db *store) Authenticate(token string) (id int64, escalatedPriv bool, err error) {
 	var record Record
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE token = ?", table))
 	err = db.sqlx.Get(&record, query, token)
 	if err != nil {
-		return 0, err
+		return 0, false, err
 	}
 
 	if record.ExpireTime.UnixNano() < time.Now().UTC().UnixNano() {
-		return 0, fmt.Errorf("Token expired.")
+		return 0, false, fmt.Errorf("Token expired.")
+	}
+
+	if record.CreatedTime.Add(5*time.Minute).UnixNano() >= time.Now().UnixNano() {
+		escalatedPriv = true
 	}
 
 	id = record.UserId

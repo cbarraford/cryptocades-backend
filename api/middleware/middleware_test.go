@@ -44,12 +44,59 @@ func (s *MiddlewareSuite) TestMasquerade(c *C) {
 
 type mockSessionStore struct {
 	session.Dummy
-	authed bool
+	authed    bool
+	escalated bool
 }
 
-func (m *mockSessionStore) Authenticate(token string) (int64, error) {
+func (m *mockSessionStore) Authenticate(token string) (int64, bool, error) {
 	m.authed = true
-	return 5, nil
+	return 5, m.escalated, nil
+}
+
+func (s *MiddlewareSuite) TestEscalatedAuthenticate(c *C) {
+	sessionStore := &mockSessionStore{escalated: true}
+
+	r := gin.New()
+	r.Use(Authenticate(sessionStore))
+	r.Use(EscalatedAuthRequired())
+
+	r.GET("/test", func(context *gin.Context) {
+		userId, _ := context.Get("userId")
+		c.Check(userId, Equals, "5", Commentf("UserId: %s", userId))
+		context.String(200, "OK")
+	})
+
+	// happy path
+	req, _ := http.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+	req.Header.Set("Session", "a session id is here")
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 200)
+
+	// no auth in request
+	req, _ = http.NewRequest("GET", "/test", nil)
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 401)
+
+	sessionStore = &mockSessionStore{escalated: false}
+
+	r = gin.New()
+	r.Use(Authenticate(sessionStore))
+	r.Use(EscalatedAuthRequired())
+
+	r.GET("/test", func(context *gin.Context) {
+		userId, _ := context.Get("userId")
+		c.Check(userId, Equals, "5", Commentf("UserId: %s", userId))
+		context.String(200, "OK")
+	})
+
+	req, _ = http.NewRequest("GET", "/test", nil)
+	w = httptest.NewRecorder()
+	req.Header.Set("Session", "a session id is here")
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 401)
+
 }
 
 func (s *MiddlewareSuite) TestAuthenticate(c *C) {

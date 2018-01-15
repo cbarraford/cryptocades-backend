@@ -3,6 +3,7 @@ package session
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	. "gopkg.in/check.v1"
 
@@ -50,17 +51,33 @@ func (s *DBSuite) TestAuthenticate(c *C) {
 	c.Assert(err, IsNil)
 
 	var id int64
-	id, err = s.store.Authenticate(record.Token)
+	var escalated bool
+	id, escalated, err = s.store.Authenticate(record.Token)
 	c.Assert(err, IsNil)
+	c.Check(escalated, Equals, true)
 	c.Check(id, Equals, int64(5))
 
 	err = s.store.Create(&record, -1)
 	c.Assert(err, IsNil)
-	_, err = s.store.Authenticate(record.Token)
+	_, _, err = s.store.Authenticate(record.Token)
 	c.Assert(err, ErrorMatches, "Token expired.")
 
-	_, err = s.store.Authenticate("bogus")
+	_, _, err = s.store.Authenticate("bogus")
 	c.Assert(err, NotNil)
+
+	record = Record{
+		UserId:      5,
+		CreatedTime: time.Now().UTC().Add(-30 * time.Minute),
+	}
+
+	err = s.store.Create(&record, 60)
+	c.Assert(err, IsNil)
+
+	id, escalated, err = s.store.Authenticate(record.Token)
+	c.Assert(err, IsNil)
+	c.Check(escalated, Equals, false)
+	c.Check(id, Equals, int64(5))
+
 }
 
 func (s *DBSuite) TestDelete(c *C) {
