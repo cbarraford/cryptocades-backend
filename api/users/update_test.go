@@ -20,17 +20,24 @@ type mockUpdateStore struct {
 	user.Dummy
 	updated     bool
 	btc_address string
+	password    string
 }
 
 func (*mockUpdateStore) Get(id int64) (user.Record, error) {
 	return user.Record{
-		Id: id,
+		Id:       id,
+		Password: "oldPassword",
 	}, nil
 }
 
 func (m *mockUpdateStore) Update(record *user.Record) error {
 	m.updated = true
 	m.btc_address = record.BTCAddr
+	return nil
+}
+
+func (m *mockUpdateStore) PasswordSet(record *user.Record) error {
+	m.password = record.Password
 	return nil
 }
 
@@ -44,7 +51,7 @@ func (s *UserUpdateSuite) TestUpdate(c *C) {
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
 	r.PUT("/me", Update(store))
-	body := strings.NewReader(`{"btc_address":"1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3ub"}`)
+	body := strings.NewReader(`{"btc_address":"1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3ub","password":"newPassword"}`)
 	req, _ := http.NewRequest("PUT", "/me", body)
 	req.Header.Set("Masquerade", "5")
 	w := httptest.NewRecorder()
@@ -52,4 +59,5 @@ func (s *UserUpdateSuite) TestUpdate(c *C) {
 	c.Assert(w.Code, Equals, 200)
 	c.Check(store.updated, Equals, true)
 	c.Check(store.btc_address, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3ub")
+	c.Check(store.password, Equals, "newPassword")
 }

@@ -41,6 +41,8 @@ func GetAPIService(store store.Store) *gin.Engine {
 	r.GET("/me/balance", middleware.AuthRequired(), users.Balance(store.Users, store.Entries))
 	r.GET("/me/entries", middleware.AuthRequired(), users.Entries(store.Entries))
 	r.PUT("/me", middleware.EscalatedAuthRequired(), users.Update(store.Users))
+	// update specifically email
+	r.PUT("/me/email", middleware.EscalatedAuthRequired(), users.UpdateEmail(store.Users, store.Confirmations))
 	r.DELETE("/me", middleware.AuthRequired(), users.Delete(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))
 	r.DELETE("/logout", users.Logout(store.Sessions))

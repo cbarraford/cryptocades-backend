@@ -19,6 +19,7 @@ func Masquerade() gin.HandlerFunc {
 
 		if userId != "" {
 			c.Set("userId", userId)
+			c.Set("escalated", true)
 		}
 	}
 }
@@ -37,7 +38,6 @@ func AuthRequired() gin.HandlerFunc {
 // Check that the request has been authorized
 func EscalatedAuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		log.Print("Escalated Auth....")
 		_, ok := c.Get("userId")
 		if !ok {
 			c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("Unauthorized"))

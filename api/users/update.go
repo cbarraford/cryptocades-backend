@@ -40,6 +40,16 @@ func Update(store user.Store) func(*gin.Context) {
 			return
 		}
 
+		// check if password is being changed
+		if json.Password != "" {
+			record.Password = json.Password
+			err = store.PasswordSet(&record)
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		}
+
 		c.JSON(http.StatusOK, record)
 	}
 }
