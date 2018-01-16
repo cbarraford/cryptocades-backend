@@ -26,7 +26,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowCredentials = true
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*", "http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://lotto-ui-staging.herokuapp.com"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "Session"},
 		ExposeHeaders:    []string{"Content-Length"},
