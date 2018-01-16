@@ -54,7 +54,7 @@ func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context
 		emailer := email.DefaultEmailer()
 		err = emailer.SendMessage(
 			record.Email,
-			"me@lotto.com",
+			"noreply@cryptoca.de",
 			"Please confirm your email address",
 			fmt.Sprintf("Hello! \nThanks for signing up for lotto. You must confirm your email address before you can start playing!\n\n%s", u.String()),
 		)
