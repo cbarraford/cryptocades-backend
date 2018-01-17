@@ -191,10 +191,13 @@ func (db *store) Authenticate(username, password string) (record Record, err err
 	incorrect := fmt.Errorf("Incorrect username or password")
 	record, err = db.GetByUsername(username)
 	if err != nil || !record.Confirmed {
+		log.Printf("Auth Err: %+v", err)
+		log.Printf("Confirmed: %+v", record.Confirmed)
 		return Record{}, incorrect
 	}
 
 	if !CheckPasswordHash(password, record.Password) {
+		log.Printf("Bad username and password")
 		return Record{}, incorrect
 	}
 
