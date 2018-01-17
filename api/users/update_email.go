@@ -59,7 +59,7 @@ func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Co
 		emailer := email.DefaultEmailer()
 		err = emailer.SendMessage(
 			record.Email,
-			"noreply@cryptoca.de",
+			"noreply@cryptokade.com",
 			"Please confirm your new email address",
 			fmt.Sprintf("Hello! \nA change in email address is being registered with Lotto. You must confirm the new email address before it can take affect. Click the link below to confirm this new email address, %s\n\n%s", newEmail, u.String()),
 		)
