@@ -34,7 +34,7 @@ func (e *Emailer) SendMessage(to, from, subject, body string) error {
 			to, from, subject, body)
 		return nil
 	}
-	message := e.mg.NewMessage(from, subject, body, from)
+	message := e.mg.NewMessage(from, subject, body, to)
 	_, _, err := e.mg.Send(message)
 	return err
 }
