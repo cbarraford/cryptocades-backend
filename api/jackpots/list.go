@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/CBarraford/lotto/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 )
 
 func List(store jackpot.Store) func(*gin.Context) {

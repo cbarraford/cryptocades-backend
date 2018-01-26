@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/CBarraford/lotto/store/session"
+	"github.com/cbarraford/cryptocades-backend/store/session"
 	"github.com/gin-gonic/gin"
 	. "gopkg.in/check.v1"
 )

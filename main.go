@@ -4,10 +4,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/CBarraford/lotto/api"
-	"github.com/CBarraford/lotto/manager"
-	"github.com/CBarraford/lotto/store"
-	"github.com/CBarraford/lotto/store/context"
+	"github.com/cbarraford/cryptocades-backend/api"
+	"github.com/cbarraford/cryptocades-backend/manager"
+	"github.com/cbarraford/cryptocades-backend/store"
+	"github.com/cbarraford/cryptocades-backend/store/context"
 )
 
 // TODO: need a mechanism to shutdown the service for emergencies

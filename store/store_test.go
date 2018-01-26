@@ -6,8 +6,8 @@ import (
 
 	. "gopkg.in/check.v1"
 
-	"github.com/CBarraford/lotto/store/user"
-	"github.com/CBarraford/lotto/test"
+	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/test"
 )
 
 func TestPackage(t *testing.T) { TestingT(t) }

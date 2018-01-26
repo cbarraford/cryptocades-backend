@@ -1,5 +1,5 @@
-[![CircleCI](https://circleci.com/gh/CBarraford/lotto/tree/master.svg?style=svg&circle-token=e41380660a1b6ecd373ffc742a8f6df7cd821bcb)]
-[![codecov](https://codecov.io/gh/CBarraford/lotto/branch/master/graph/badge.svg?token=e1O9Ww2XUC)](https://codecov.io/gh/CBarraford/lotto)
+[![CircleCI](https://circleci.com/gh/cbarraford/cryptocades-backend/tree/master.svg?style=svg&circle-token=e41380660a1b6ecd373ffc742a8f6df7cd821bcb)]
+[![codecov](https://codecov.io/gh/cbarraford/cryptocades-backend/branch/master/graph/badge.svg?token=e1O9Ww2XUC)](https://codecov.io/gh/cbarraford/cryptocades-backend)
 
 Lotto
 =====
@@ -7,7 +7,7 @@ Lotto
 ## Development
 This project adheres to the [golang
 standard](https://golang.org/doc/code.html#Organization) of GOPATH=$HOME. So make sure you
-clone this project in ~/src/github.com/CBarraford/lotto
+clone this project in ~/src/github.com/cbarraford/cryptocades-backend
 
 ### Create schema migration
 ```

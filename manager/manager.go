@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/CBarraford/lotto/store"
-	"github.com/CBarraford/lotto/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store"
+	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 )
 
 const MAX_JACKPOTS = 1

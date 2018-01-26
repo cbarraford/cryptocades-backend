@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  lotto:
+  cryptocades-backend:
     build: .
-    image: lotto
+    image: cryptocades-backend
     links:
       - postgres
       - redis
@@ -14,8 +14,8 @@ services:
       - cryptonoter
     volumes:
       - ~:/root
-      - .:/root/src/github.com/CBarraford/lotto
-    working_dir: /root/src/github.com/CBarraford/lotto
+      - .:/root/src/github.com/cbarraford/cryptocades-backend
+    working_dir: /root/src/github.com/cbarraford/cryptocades-backend
     environment:
       GOPATH: /root
       PGUSER: postgres

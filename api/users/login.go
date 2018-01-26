@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/CBarraford/lotto/store/session"
-	"github.com/CBarraford/lotto/store/user"
+	"github.com/cbarraford/cryptocades-backend/store/session"
+	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 type login struct {

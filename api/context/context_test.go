@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	. "gopkg.in/check.v1"
 
-	"github.com/CBarraford/lotto/api/middleware"
+	"github.com/cbarraford/cryptocades-backend/api/middleware"
 )
 
 func TestPackage(t *testing.T) { TestingT(t) }

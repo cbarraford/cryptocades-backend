@@ -6,11 +6,11 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	"github.com/CBarraford/lotto/api/games"
-	"github.com/CBarraford/lotto/api/jackpots"
-	"github.com/CBarraford/lotto/api/middleware"
-	"github.com/CBarraford/lotto/api/users"
-	"github.com/CBarraford/lotto/store"
+	"github.com/cbarraford/cryptocades-backend/api/games"
+	"github.com/cbarraford/cryptocades-backend/api/jackpots"
+	"github.com/cbarraford/cryptocades-backend/api/middleware"
+	"github.com/cbarraford/cryptocades-backend/api/users"
+	"github.com/cbarraford/cryptocades-backend/store"
 )
 
 func GetAPIService(store store.Store) *gin.Engine {

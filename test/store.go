@@ -12,8 +12,8 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 
-	"github.com/CBarraford/lotto/store/context"
-	"github.com/CBarraford/lotto/util"
+	"github.com/cbarraford/cryptocades-backend/store/context"
+	"github.com/cbarraford/cryptocades-backend/util"
 )
 
 const NoIntegration string = "Short mode: no integration tests"
@@ -46,7 +46,7 @@ func EphemeralURLStore(c *check.C) string {
 		dbURL = fmt.Sprintf("postgres://postgres:password@postgres:5432/%s?sslmode=disable", dbname)
 	}
 
-	migrateDir := fmt.Sprintf("file://%s/src/github.com/CBarraford/lotto/migrations", build.Default.GOPATH)
+	migrateDir := fmt.Sprintf("file://%s/src/github.com/cbarraford/cryptocades-backend/migrations", build.Default.GOPATH)
 	err = context.MigrateDB(dbURL, migrateDir)
 	c.Assert(err, check.IsNil)
 

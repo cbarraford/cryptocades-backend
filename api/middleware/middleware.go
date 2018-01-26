@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/CBarraford/lotto/store/session"
+	"github.com/cbarraford/cryptocades-backend/store/session"
 )
 
 // Allow api request to masquerade as any user. This is intended only for

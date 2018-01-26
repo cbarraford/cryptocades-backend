@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	check "gopkg.in/check.v1"
 
-	"github.com/CBarraford/lotto/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 )
 
 type JackpotListSuite struct{}

@@ -1,1 +1,1 @@
-web: lotto
+web: cryptocades-backend

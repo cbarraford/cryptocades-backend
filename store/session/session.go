@@ -6,7 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/CBarraford/lotto/util"
+	"github.com/cbarraford/cryptocades-backend/util"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 
 	. "gopkg.in/check.v1"
 
-	"github.com/CBarraford/lotto/test"
+	"github.com/cbarraford/cryptocades-backend/test"
 )
 
 type RedisSuite struct {

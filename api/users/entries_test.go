@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	check "gopkg.in/check.v1"
 
-	"github.com/CBarraford/lotto/api/middleware"
-	"github.com/CBarraford/lotto/store/entry"
+	"github.com/cbarraford/cryptocades-backend/api/middleware"
+	"github.com/cbarraford/cryptocades-backend/store/entry"
 )
 
 type UserEntriesSuite struct{}

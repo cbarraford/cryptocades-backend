@@ -5,7 +5,7 @@ import (
 
 	. "gopkg.in/check.v1"
 
-	"github.com/CBarraford/lotto/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 )
 
 func TestPackage(t *testing.T) { TestingT(t) }

@@ -8,12 +8,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/CBarraford/lotto/api/context"
-	"github.com/CBarraford/lotto/store/confirmation"
-	"github.com/CBarraford/lotto/store/user"
-	"github.com/CBarraford/lotto/util"
-	"github.com/CBarraford/lotto/util/email"
-	"github.com/CBarraford/lotto/util/url"
+	"github.com/cbarraford/cryptocades-backend/api/context"
+	"github.com/cbarraford/cryptocades-backend/store/confirmation"
+	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util"
+	"github.com/cbarraford/cryptocades-backend/util/email"
+	"github.com/cbarraford/cryptocades-backend/util/url"
 )
 
 func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Context) {

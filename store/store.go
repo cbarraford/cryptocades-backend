@@ -4,12 +4,12 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 
-	"github.com/CBarraford/lotto/store/confirmation"
-	"github.com/CBarraford/lotto/store/entry"
-	"github.com/CBarraford/lotto/store/game"
-	"github.com/CBarraford/lotto/store/jackpot"
-	"github.com/CBarraford/lotto/store/session"
-	"github.com/CBarraford/lotto/store/user"
+	"github.com/cbarraford/cryptocades-backend/store/confirmation"
+	"github.com/cbarraford/cryptocades-backend/store/entry"
+	"github.com/cbarraford/cryptocades-backend/store/game"
+	"github.com/cbarraford/cryptocades-backend/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/session"
+	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 type Store struct {

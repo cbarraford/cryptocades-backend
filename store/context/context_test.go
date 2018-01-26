@@ -10,8 +10,8 @@ import (
 
 	. "gopkg.in/check.v1"
 
-	"github.com/CBarraford/lotto/store"
-	"github.com/CBarraford/lotto/util"
+	"github.com/cbarraford/cryptocades-backend/store"
+	"github.com/cbarraford/cryptocades-backend/util"
 )
 
 func TestPackage(t *testing.T) { TestingT(t) }
@@ -49,7 +49,7 @@ func (s *ContextSuite) TestMigrate(c *C) {
 		dbURL = fmt.Sprintf("postgres://postgres:password@postgres:5432/%s?sslmode=disable", dbname)
 	}
 
-	migrateDir := fmt.Sprintf("file://%s/src/github.com/CBarraford/lotto/migrations", build.Default.GOPATH)
+	migrateDir := fmt.Sprintf("file://%s/src/github.com/cbarraford/cryptocades-backend/migrations", build.Default.GOPATH)
 	c.Assert(MigrateDB(dbURL, migrateDir), IsNil)
 
 	// do a second time so that no change does not create an error

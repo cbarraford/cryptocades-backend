@@ -18,7 +18,7 @@ build-internal:
 	go get -t ${BUILD_ARGS} ${TARGET}
 
 start-internal:
-	~/bin/lotto
+	~/bin/cryptocades-backend
 
 test-short-internal:
 	go test -short ${TARGET}
@@ -47,31 +47,31 @@ wait-for-postgres:
 
 create-migration:
 	@./bin/migrate create -ext sql -dir migrations ${name}
-	#@docker-compose run --rm --no-deps lotto ./bin/migrate create -ext sql -dir migrations ${name}
+	#@docker-compose run --rm --no-deps cryptocades-backend ./bin/migrate create -ext sql -dir migrations ${name}
 
 sh:
-	@docker-compose run --rm --no-deps lotto /bin/sh
+	@docker-compose run --rm --no-deps cryptocades-backend /bin/sh
 
 build:
-	@docker-compose run --rm --no-deps lotto make build-internal
+	@docker-compose run --rm --no-deps cryptocades-backend make build-internal
 
 # this leave postgres running
 start:
-	@docker-compose run --rm -p 8080:8080 -e ENVIRONMENT=$$ENVIRONMENT lotto make wait-for-postgres start-internal
+	@docker-compose run --rm -p 8080:8080 -e ENVIRONMENT=$$ENVIRONMENT cryptocades-backend make wait-for-postgres start-internal
 
 run: build start
 
 test-short:
-	@docker-compose run --rm --no-deps lotto make test-short-internal
+	@docker-compose run --rm --no-deps cryptocades-backend make test-short-internal
 
 test:
-	@./scripts/run.sh lotto make wait-for-postgres test-internal
+	@./scripts/run.sh cryptocades-backend make wait-for-postgres test-internal
 
 test-cover:
-	@./scripts/run.sh lotto make wait-for-postgres test-cover-internal
+	@./scripts/run.sh cryptocades-backend make wait-for-postgres test-cover-internal
 
 lint-internal:
 	make fmt-check-internal vet-internal
 
 lint:
-	@docker-compose run --rm -e TARGET="${TARGET}" --no-deps lotto make lint-internal 
+	@docker-compose run --rm -e TARGET="${TARGET}" --no-deps cryptocades-backend make lint-internal 

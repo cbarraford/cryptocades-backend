@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/CBarraford/lotto/api/context"
-	"github.com/CBarraford/lotto/store/entry"
-	"github.com/CBarraford/lotto/store/user"
+	"github.com/cbarraford/cryptocades-backend/api/context"
+	"github.com/cbarraford/cryptocades-backend/store/entry"
+	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 func Balance(store user.Store, entries entry.Store) func(*gin.Context) {

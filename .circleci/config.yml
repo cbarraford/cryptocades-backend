@@ -17,7 +17,7 @@ jobs:
       - image: redis
 
 
-    working_directory: /go/src/github.com/CBarraford/lotto
+    working_directory: /go/src/github.com/cbarraford/cryptocades-backend
     steps:
       - checkout
 

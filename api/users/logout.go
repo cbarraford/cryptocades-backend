@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/CBarraford/lotto/store/session"
+	"github.com/cbarraford/cryptocades-backend/store/session"
 )
 
 func Logout(store session.Store) func(*gin.Context) {

@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/CBarraford/lotto/api/context"
-	"github.com/CBarraford/lotto/store/user"
+	"github.com/cbarraford/cryptocades-backend/api/context"
+	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 func Delete(store user.Store) func(*gin.Context) {
