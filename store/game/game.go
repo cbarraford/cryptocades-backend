@@ -22,7 +22,7 @@ func (db *store) List() []Record {
 	return []Record{
 		{
 			Id:          1,
-			Name:        "Goblin Stacks",
+			Name:        "Tallest Tower",
 			Description: "Earn lotto tickets as your goblin builds your tower. Hit tower milestones to receive bonuses!",
 		},
 		{

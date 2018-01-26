@@ -34,7 +34,7 @@ func (s *GameListSuite) TestList(c *check.C) {
 	c.Assert(json.Unmarshal(w.Body.Bytes(), &games), check.IsNil)
 	c.Assert(games, check.HasLen, 2)
 	c.Check(games[0].Id, check.Equals, 1)
-	c.Check(games[0].Name, check.Equals, "Goblin Stacks")
+	c.Check(games[0].Name, check.Equals, "Tallest Tower")
 	c.Check(games[1].Id, check.Equals, 2)
 	c.Check(games[1].Name, check.Equals, "Asteroid Tycoon")
 }
