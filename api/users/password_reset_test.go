@@ -66,14 +66,14 @@ func (s *UserPasswordResetSuite) TestPasswordReset(c *C) {
 	gin.SetMode(gin.ReleaseMode)
 
 	// happy path
-	confirmStore := &mockPasswordResetStore{email: "bob@lotto.com"}
+	confirmStore := &mockPasswordResetStore{email: "bob@cryptocades.com"}
 	userStore := &mockUserPasswordResetStore{}
 
 	r := gin.New()
 	r.POST("/users/password_reset", PasswordResetInit(confirmStore, userStore))
 	r.POST("/users/password_reset/:code", PasswordReset(confirmStore, userStore))
 
-	input := fmt.Sprintf(`{"email":"bob@lotto.com"}`)
+	input := fmt.Sprintf(`{"email":"bob@cryptocades.com"}`)
 	body := strings.NewReader(input)
 	req, _ := http.NewRequest("POST", "/users/password_reset", body)
 	w := httptest.NewRecorder()

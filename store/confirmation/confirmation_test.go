@@ -29,7 +29,7 @@ func (s *DBSuite) SetUpSuite(c *C) {
 
 	record := user.Record{
 		Username: "bob",
-		Email:    "bob@lotto.com",
+		Email:    "bob@cryptocades.com",
 		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
 		Password: "password",
 	}
@@ -65,19 +65,19 @@ func (s *DBSuite) TestCreateRequirements(c *C) {
 func (s *DBSuite) TestCreate(c *C) {
 	record := Record{
 		Code:   "123456",
-		Email:  "bob@lotto.com",
+		Email:  "bob@cryptocades.com",
 		UserId: 1,
 	}
 	c.Assert(s.store.Create(&record), IsNil)
 	c.Check(record.Code, Equals, "123456")
-	c.Check(record.Email, Equals, "bob@lotto.com")
+	c.Check(record.Email, Equals, "bob@cryptocades.com")
 	c.Check(record.UserId, Equals, int64(1))
 }
 
 func (s *DBSuite) TestGet(c *C) {
 	record := Record{
 		Code:   "123456",
-		Email:  "bob@lotto.com",
+		Email:  "bob@cryptocades.com",
 		UserId: 1,
 	}
 	c.Assert(s.store.Create(&record), IsNil)
@@ -92,7 +92,7 @@ func (s *DBSuite) TestGet(c *C) {
 func (s *DBSuite) TestGetByCode(c *C) {
 	record := Record{
 		Code:   "123456",
-		Email:  "bob@lotto.com",
+		Email:  "bob@cryptocades.com",
 		UserId: 1,
 	}
 	c.Assert(s.store.Create(&record), IsNil)
@@ -106,7 +106,7 @@ func (s *DBSuite) TestGetByCode(c *C) {
 	// should not find this record before creation time was long ago
 	record = Record{
 		Code:        "123456888",
-		Email:       "bob@lotto.com",
+		Email:       "bob@cryptocades.com",
 		UserId:      1,
 		CreatedTime: time.Now().Add(-24 * time.Hour),
 	}
@@ -120,7 +120,7 @@ func (s *DBSuite) TestDelete(c *C) {
 	var err error
 	record := Record{
 		Code:   "123456",
-		Email:  "bob@lotto.com",
+		Email:  "bob@cryptocades.com",
 		UserId: 1,
 	}
 	c.Assert(s.store.Create(&record), IsNil)

@@ -29,7 +29,7 @@ func (s *StoreSuite) TestEphemeralPostgres(c *C) {
 
 	record := user.Record{
 		Username: "bob",
-		Email:    "bob@lotto.com",
+		Email:    "bob@cryptocades.com",
 		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
 		Password: "password",
 	}

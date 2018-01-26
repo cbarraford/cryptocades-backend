@@ -53,7 +53,6 @@ func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Co
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
-		// TODO: Update language once we have an official company name
 		// TODO: support mobile url
 		u := url.Get(fmt.Sprintf("/confirmation/%s", confirm.Code))
 		emailer := email.DefaultEmailer()
@@ -61,7 +60,7 @@ func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Co
 			record.Email,
 			"noreply@cryptokade.com",
 			"Please confirm your new email address",
-			fmt.Sprintf("Hello! \nA change in email address is being registered with Lotto. You must confirm the new email address before it can take affect. Click the link below to confirm this new email address, %s\n\n%s", newEmail, u.String()),
+			fmt.Sprintf("Hello! \nA change in email address is being registered with Cryptocades. You must confirm the new email address before it can take affect. Click the link below to confirm this new email address, %s\n\n%s", newEmail, u.String()),
 		)
 		if err != nil {
 			log.Printf("Failed to send new email confirmation: %s", err)

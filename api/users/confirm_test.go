@@ -59,7 +59,7 @@ func (s *UserConfirmSuite) TestConfirm(c *C) {
 	gin.SetMode(gin.ReleaseMode)
 
 	// happy path
-	confirmStore := &mockConfirmStore{email: "bob@lotto.com"}
+	confirmStore := &mockConfirmStore{email: "bob@cryptocades.com"}
 	userStore := &mockUserConfirmStore{}
 
 	r := gin.New()
@@ -69,6 +69,6 @@ func (s *UserConfirmSuite) TestConfirm(c *C) {
 	r.ServeHTTP(w, req)
 	c.Assert(w.Code, Equals, 200)
 	c.Check(userStore.confirmed, Equals, true)
-	c.Check(userStore.email, Equals, "bob@lotto.com")
+	c.Check(userStore.email, Equals, "bob@cryptocades.com")
 	c.Check(confirmStore.deleted, Equals, true)
 }

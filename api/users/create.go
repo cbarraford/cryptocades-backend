@@ -48,7 +48,7 @@ func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
-		// TODO: Update language once we have an official company name
+
 		// TODO: support mobile url
 		u := url.Get(fmt.Sprintf("/confirmation/%s", confirm.Code))
 		emailer := email.DefaultEmailer()
@@ -56,7 +56,7 @@ func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context
 			record.Email,
 			"noreply@cryptokade.com",
 			"Please confirm your email address",
-			fmt.Sprintf("Hello! \nThanks for signing up for lotto. You must confirm your email address before you can start playing!\n\n%s", u.String()),
+			fmt.Sprintf("Hello! \nThanks for signing up for Cryptocades. You must confirm your email address before you can start playing!\n\n%s", u.String()),
 		)
 		if err != nil {
 			log.Printf("Failed to send email confirmation: %s", err)

@@ -33,7 +33,7 @@ func (s *RedisSuite) TestZPop(c *C) {
 	var err error
 	record := Record{
 		Username: "bob",
-		Email:    "bob@lotto.com",
+		Email:    "bob@cryptocades.com",
 		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
 		Password: "password",
 	}
