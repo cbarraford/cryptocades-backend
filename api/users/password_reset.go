@@ -107,7 +107,7 @@ func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*
 		mailer := emailer.DefaultEmailer()
 		err = mailer.SendMessage(
 			json.Email,
-			"noreply@cryptokade.com",
+			"noreply@cryptocades.com",
 			"Password Reset",
 			fmt.Sprintf("Hello! \nWe've recieved a request to reset your password. Please click the link below to continue. The link will expire after 12 hours.\n\n%s", u.String()),
 		)
