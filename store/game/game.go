@@ -23,7 +23,7 @@ func (db *store) List() []Record {
 		{
 			Id:          1,
 			Name:        "Tallest Tower",
-			Description: "Earn lotto tickets as your goblin builds your tower. Hit tower milestones to receive bonuses!",
+			Description: "Earn lotto tickets as your tower builds taller and taller. Hit tower milestones to receive bonuses!",
 		},
 		{
 			Id:          2,
