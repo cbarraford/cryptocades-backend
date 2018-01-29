@@ -58,32 +58,23 @@ func (db *store) Create(record *Record) error {
 		return fmt.Errorf("Amount must be more than 0")
 	}
 
-	var count int64
-	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COUNT(id) FROM %s WHERE user_id = ? AND jackpot_id = ?", table))
-	err = db.sqlx.Get(&count, query, record.UserId, record.JackpotId)
+	tx, err := db.sqlx.Beginx()
 	if err != nil {
 		return err
 	}
 
-	if count > 0 {
-		query := db.sqlx.Rebind(
-			fmt.Sprintf("UPDATE %s SET amount = amount + ? WHERE user_id = ? AND jackpot_id = ?", table))
-		_, err = db.sqlx.Exec(query, record.Amount, record.UserId, record.JackpotId)
-	} else {
-
-		query := fmt.Sprintf(`
+	query := db.sqlx.Rebind(fmt.Sprintf(`
         INSERT INTO %s
 			(jackpot_id, user_id, amount)
         VALUES
-			(:jackpot_id, :user_id, :amount) RETURNING id`, table)
+			(?, ?, ?) ON CONFLICT (user_id, jackpot_id) DO UPDATE SET amount = %s.amount + ?`, table, table))
 
-		stmt, err := db.sqlx.PrepareNamed(query)
-		if err != nil {
-			return err
-		}
-		err = stmt.QueryRowx(record).Scan(&record.Id)
+	_, err = tx.Exec(query, record.JackpotId, record.UserId, record.Amount, record.Amount)
+	if err != nil {
+		tx.Rollback()
+		return err
 	}
-	return err
+	return tx.Commit()
 }
 
 func (db *store) Get(id int64) (Record, error) {

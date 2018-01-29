@@ -63,7 +63,7 @@ func (s *DBSuite) TestCreate(c *C) {
 	}
 	c.Assert(s.store.Create(&record2), IsNil)
 
-	r, err := s.store.Get(record1.Id)
+	r, err := s.store.Get(1)
 	c.Assert(err, IsNil)
 	c.Check(r.JackpotId, Equals, int64(4))
 	c.Check(r.UserId, Equals, int64(5))
@@ -76,7 +76,7 @@ func (s *DBSuite) TestCreate(c *C) {
 	}
 	c.Assert(s.store.Create(&record3), IsNil)
 
-	r, err = s.store.Get(record3.Id)
+	r, err = s.store.Get(3)
 	c.Assert(err, IsNil)
 	c.Check(r.JackpotId, Equals, int64(8))
 	c.Check(r.UserId, Equals, int64(9))
