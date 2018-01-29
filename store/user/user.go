@@ -71,9 +71,7 @@ func (db *store) Create(record *Record) error {
 	record.MinedHashes = 0
 
 	// all new users get a bonus of 5. This is for legal reasons.
-	if record.BonusHashes == 0 {
-		record.BonusHashes = 5
-	}
+	record.BonusHashes = record.BonusHashes + 5
 
 	// all users are auto-confirmed in development environment
 	if os.Getenv("ENVIRONMENT") == "development" {

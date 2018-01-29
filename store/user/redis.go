@@ -9,8 +9,10 @@ import (
 )
 
 type score struct {
-	id    int64
-	score int
+	id        int64
+	score     int
+	gameId    int64
+	sessionId string
 }
 
 // zpop pops a value from the ZSET key using WATCH/MULTI/EXEC commands.
@@ -46,11 +48,24 @@ func (db *store) zpop(key string) (scores []score, err error) {
 			}
 			id, _ := strconv.ParseInt(parts[1], 10, 64)
 
+			parts = strings.Split(parts[0], "-")
+			if len(parts) != 2 {
+				log.Printf("Malformed redis key: %s", members[i])
+				continue
+			}
+			gameId, _ := strconv.ParseInt(parts[0], 10, 64)
+			sessionId := parts[1]
+
 			v, err := strconv.Atoi(members[i+1])
 			if err != nil {
 				return nil, err
 			}
-			scores = append(scores, score{id, v})
+			scores = append(scores, score{
+				id:        id,
+				score:     v,
+				gameId:    gameId,
+				sessionId: sessionId,
+			})
 
 			db.redis.Send("ZREM", key, members[i])
 		}

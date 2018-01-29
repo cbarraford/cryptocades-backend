@@ -39,7 +39,7 @@ func (s *RedisSuite) TestZPop(c *C) {
 	}
 	c.Assert(s.store.Create(&record), IsNil)
 
-	for _, member := range []string{"red@1", "red@1", "blue@1", "12@1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq", "", "bogus", "green@12"} {
+	for _, member := range []string{"1-red@1", "1-red@1", "1-blue@1", "12@1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq", "", "bogus", "1-green@12", "green@1"} {
 		s.store.redis.Send("ZINCRBY", "shares", 1, member)
 	}
 	if _, err := s.store.redis.Do(""); err != nil {
