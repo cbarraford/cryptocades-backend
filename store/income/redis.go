@@ -61,10 +61,10 @@ func (db *store) zpop(key string) (scores []Record, err error) {
 				return nil, err
 			}
 			scores = append(scores, Record{
-				UserId:    id,
-				Amount:    v,
-				GameId:    gameId,
-				SessionId: sessionId,
+				UserId:        id,
+				PartialAmount: v,
+				GameId:        gameId,
+				SessionId:     sessionId,
 			})
 
 			db.redis.Send("ZREM", key, members[i])

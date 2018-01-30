@@ -34,6 +34,32 @@ func (s *RedisSuite) TestZPop(c *C) {
 	for _, member := range []string{
 		"1-red@1",
 		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
+		"1-red@1",
 		"1-blue@1",
 		"12@1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
 		"",
@@ -52,5 +78,5 @@ func (s *RedisSuite) TestZPop(c *C) {
 
 	total, err := s.store.UserIncome(1)
 	c.Assert(err, IsNil)
-	c.Check(total, Equals, 3)
+	c.Check(total, Equals, 1)
 }

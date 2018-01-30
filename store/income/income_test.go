@@ -35,37 +35,31 @@ func (s *DBSuite) TearDownTest(c *C) {
 func (s *DBSuite) TestCreateRequirements(c *C) {
 	record := Record{
 		SessionId: "abcfef",
-		Amount:    60,
 	}
 	c.Assert(s.store.Create(&record), NotNil)
 
 	record = Record{
 		UserId: 5,
-		Amount: 60,
-	}
-	c.Assert(s.store.Create(&record), NotNil)
-
-	record = Record{
-		UserId:    5,
-		SessionId: "abcfef",
 	}
 	c.Assert(s.store.Create(&record), NotNil)
 }
 
 func (s *DBSuite) TestCreate(c *C) {
 	record1 := Record{
-		UserId:    5,
-		GameId:    4,
-		SessionId: "abcdef",
-		Amount:    60,
+		UserId:        5,
+		GameId:        4,
+		SessionId:     "abcdef",
+		Amount:        60,
+		PartialAmount: 10,
 	}
 	c.Assert(s.store.Create(&record1), IsNil)
 
 	record2 := Record{
-		UserId:    5,
-		GameId:    4,
-		SessionId: "abcdef",
-		Amount:    40,
+		UserId:        5,
+		GameId:        4,
+		SessionId:     "abcdef",
+		Amount:        40,
+		PartialAmount: 25,
 	}
 	c.Assert(s.store.Create(&record2), IsNil)
 
@@ -73,14 +67,15 @@ func (s *DBSuite) TestCreate(c *C) {
 	c.Assert(err, IsNil)
 	c.Check(r.GameId, Equals, int64(4))
 	c.Check(r.UserId, Equals, int64(5))
-	c.Check(r.Amount, Equals, 100)
+	c.Check(r.Amount, Equals, 101)
+	c.Check(r.PartialAmount, Equals, 15)
 	c.Check(r.SessionId, Equals, "abcdef")
 
 	record3 := Record{
-		UserId:    9,
-		GameId:    10,
-		SessionId: "bcdef",
-		Amount:    120,
+		UserId:        9,
+		GameId:        10,
+		SessionId:     "bcdef",
+		PartialAmount: 120,
 	}
 	c.Assert(s.store.Create(&record3), IsNil)
 
@@ -88,7 +83,8 @@ func (s *DBSuite) TestCreate(c *C) {
 	c.Assert(err, IsNil)
 	c.Check(r.GameId, Equals, int64(10))
 	c.Check(r.UserId, Equals, int64(9))
-	c.Check(r.Amount, Equals, 120)
+	c.Check(r.Amount, Equals, 6)
+	c.Check(r.PartialAmount, Equals, 0)
 	c.Check(r.SessionId, Equals, "bcdef")
 }
 

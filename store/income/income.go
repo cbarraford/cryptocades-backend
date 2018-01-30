@@ -29,12 +29,13 @@ func NewStore(db *sqlx.DB, redis redis.Conn) Store {
 const table string = "incomes"
 
 type Record struct {
-	Id          int64     `json:"id" db:"id"`
-	UserId      int64     `json:"user_id" db:"user_id"`
-	GameId      int64     `json:"game_id" db:"game_id"`
-	SessionId   string    `json:"session_id" db:"session_id"`
-	Amount      int       `json:"amount" db:"amount"`
-	CreatedTime time.Time `json:"created_time" db:"created_time"`
+	Id            int64     `json:"id" db:"id"`
+	UserId        int64     `json:"user_id" db:"user_id"`
+	GameId        int64     `json:"game_id" db:"game_id"`
+	SessionId     string    `json:"session_id" db:"session_id"`
+	Amount        int       `json:"amount" db:"amount"`
+	PartialAmount int       `json:"partial_amount" db:"partial_amount"`
+	CreatedTime   time.Time `json:"created_time" db:"created_time"`
 }
 
 func (db *store) TableName() string {
@@ -49,9 +50,6 @@ func (db *store) Create(record *Record) error {
 	}
 	if record.UserId == 0 {
 		return fmt.Errorf("User id must not be blank")
-	}
-	if record.Amount == 0 {
-		return fmt.Errorf("Amount must be more than 0")
 	}
 
 	tx, err := db.sqlx.Beginx()
@@ -69,13 +67,29 @@ func (db *store) Create(record *Record) error {
 }
 
 func (db *store) CreateWithinTransaction(record *Record, tx *sqlx.Tx) error {
+	// TODO: we are hard coding the spread for Tallest Tower. Will need to
+	// store this value in each individual game and send the game's spread via
+	// DI
+	spread := 20
 	query := db.sqlx.Rebind(fmt.Sprintf(`
         INSERT INTO %s
-            (game_id, session_id, user_id, amount)
+            (game_id, session_id, user_id, amount, partial_amount)
         VALUES
-            (?, ?, ?, ?) ON CONFLICT (game_id, session_id, user_id) DO UPDATE SET amount = %s.amount + ?`, table, table))
+            (?, ?, ?, ?, ?) ON CONFLICT (game_id, session_id, user_id) DO UPDATE SET amount = %s.amount + ? + FLOOR((%s.partial_amount + ?)/?), partial_amount = MOD(%s.partial_amount + ?,?)`, table, table, table, table))
 
-	_, err := tx.Exec(query, record.GameId, record.SessionId, record.UserId, record.Amount, record.Amount)
+	_, err := tx.Exec(
+		query,
+		record.GameId,
+		record.SessionId,
+		record.UserId,
+		record.Amount+(record.PartialAmount/spread),
+		record.PartialAmount%spread,
+		record.Amount,
+		record.PartialAmount,
+		spread,
+		record.PartialAmount,
+		spread,
+	)
 	return err
 }
 

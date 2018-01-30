@@ -1,0 +1,1 @@
+ALTER TABLE incomes ADD COLUMN partial_amount INTEGER NOT NULL;
