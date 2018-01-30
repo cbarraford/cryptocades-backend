@@ -7,10 +7,10 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
-	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/store/income"
 )
 
-func Balance(store user.Store, entries entry.Store) func(*gin.Context) {
+func Balance(store income.Store, entries entry.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		var userId int64
@@ -20,7 +20,7 @@ func Balance(store user.Store, entries entry.Store) func(*gin.Context) {
 			return
 		}
 
-		record, err := store.Get(userId)
+		income, err := store.UserIncome(userId)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -32,8 +32,6 @@ func Balance(store user.Store, entries entry.Store) func(*gin.Context) {
 			return
 		}
 
-		balance := (record.MinedHashes + record.BonusHashes) - spent
-
-		c.JSON(http.StatusOK, gin.H{"balance": balance})
+		c.JSON(http.StatusOK, gin.H{"balance": income - spent})
 	}
 }

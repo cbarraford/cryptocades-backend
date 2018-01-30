@@ -19,16 +19,12 @@ var _ = Suite(&DBSuite{})
 
 func (s *DBSuite) SetUpSuite(c *C) {
 	db := test.EphemeralPostgresStore(c)
-	red := test.EphemeralRedisStore(c)
-	s.store = store{sqlx: db, redis: red}
+	s.store = store{sqlx: db}
 }
 
 func (s *DBSuite) TearDownTest(c *C) {
 	query := fmt.Sprintf("Truncate %s CASCADE", table)
 	_, err := s.store.sqlx.Exec(query)
-	c.Assert(err, IsNil)
-
-	_, err = s.store.redis.Do("FLUSHALL")
 	c.Assert(err, IsNil)
 }
 
@@ -63,7 +59,6 @@ func (s *DBSuite) TestCreate(c *C) {
 	c.Check(record.Username, Equals, "bob")
 	c.Check(record.Email, Equals, "bob@cryptocades.com")
 	c.Check(record.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
-	c.Check(record.BonusHashes, Equals, 5)
 	c.Check(CheckPasswordHash("password", record.Password), Equals, true)
 }
 
@@ -98,8 +93,6 @@ func (s *DBSuite) TestGetByUsername(c *C) {
 	c.Check(r.Username, Equals, "bob")
 	c.Check(r.Email, Equals, "bob@cryptocades.com")
 	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
-	c.Check(r.MinedHashes, Equals, 0)
-	c.Check(r.BonusHashes, Equals, 0)
 	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }
 
@@ -134,8 +127,6 @@ func (s *DBSuite) TestGetByEmail(c *C) {
 	c.Check(r.Username, Equals, "bob")
 	c.Check(r.Email, Equals, "bob@cryptocades.com")
 	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
-	c.Check(r.MinedHashes, Equals, 0)
-	c.Check(r.BonusHashes, Equals, 0)
 	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }
 
@@ -152,8 +143,6 @@ func (s *DBSuite) TestUpdate(c *C) {
 	c.Assert(err, IsNil)
 	r.Username = "bobby"
 	r.Email = "bobby@cryptocades.com"
-	r.MinedHashes = 101
-	r.BonusHashes = 10
 	r.BTCAddr = "NMiJFQvupX5kSZcUtfSoD9NtLevUgjv3ur"
 
 	c.Assert(s.store.Update(&r), IsNil)
@@ -162,8 +151,6 @@ func (s *DBSuite) TestUpdate(c *C) {
 	c.Assert(err, IsNil)
 	c.Check(r.Username, Equals, "bobby")
 	c.Check(r.Email, Equals, "bobby@cryptocades.com")
-	c.Check(r.MinedHashes, Equals, 101)
-	c.Check(r.BonusHashes, Equals, 10)
 	c.Check(r.BTCAddr, Equals, "NMiJFQvupX5kSZcUtfSoD9NtLevUgjv3ur")
 	c.Check(r.UpdatedTime, Not(Equals), record.UpdatedTime)
 }
@@ -239,38 +226,6 @@ func (s *DBSuite) TestPasswordSet(c *C) {
 	record, err = s.store.Authenticate("bob", "another passwd")
 	c.Assert(err, IsNil)
 	c.Check(record.Username, Equals, "bob")
-}
-
-func (s *DBSuite) TestAppendScore(c *C) {
-	var err error
-	record := Record{
-		Username: "bob",
-		Email:    "bob@cryptocades.com",
-		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
-		Password: "password",
-	}
-	c.Assert(s.store.Create(&record), IsNil)
-
-	scores := []score{
-		{record.Id, 12, 1, "sldkf"},
-		{record.Id, 12, 1, "lkjfl"},
-	}
-	err = s.store.AppendScore(scores)
-	c.Assert(err, IsNil)
-
-	record, err = s.store.Get(record.Id)
-	c.Assert(err, IsNil)
-	c.Check(record.MinedHashes, Equals, 24)
-
-	// bad address
-	scores = []score{{48, 12, 1, "skfui"}}
-	err = s.store.AppendScore(scores)
-	c.Assert(err, IsNil)
-
-	record, err = s.store.Get(record.Id)
-	c.Assert(err, IsNil)
-	c.Check(record.MinedHashes, Equals, 24)
-
 }
 
 func (s *DBSuite) TestDelete(c *C) {

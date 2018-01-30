@@ -10,7 +10,7 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
-	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/store/income"
 )
 
 type UserBalanceSuite struct{}
@@ -26,16 +26,11 @@ func (*mockBalanceEntriesStore) UserSpent(id int64) (int, error) {
 }
 
 type mockBalanceStore struct {
-	user.Dummy
+	income.Dummy
 }
 
-func (*mockBalanceStore) Get(id int64) (user.Record, error) {
-	return user.Record{
-		Id:          id,
-		Username:    "bob",
-		MinedHashes: 12,
-		BonusHashes: 10,
-	}, nil
+func (*mockBalanceStore) UserIncome(id int64) (int, error) {
+	return 22, nil
 }
 
 type response struct {

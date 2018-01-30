@@ -1,4 +1,4 @@
-package user
+package income
 
 import (
 	"log"
@@ -16,7 +16,7 @@ type score struct {
 }
 
 // zpop pops a value from the ZSET key using WATCH/MULTI/EXEC commands.
-func (db *store) zpop(key string) (scores []score, err error) {
+func (db *store) zpop(key string) (scores []Record, err error) {
 
 	defer func() {
 		// Return connection to normal state on error.
@@ -60,11 +60,11 @@ func (db *store) zpop(key string) (scores []score, err error) {
 			if err != nil {
 				return nil, err
 			}
-			scores = append(scores, score{
-				id:        id,
-				score:     v,
-				gameId:    gameId,
-				sessionId: sessionId,
+			scores = append(scores, Record{
+				UserId:    id,
+				Amount:    v,
+				GameId:    gameId,
+				SessionId: sessionId,
 			})
 
 			db.redis.Send("ZREM", key, members[i])
@@ -83,9 +83,23 @@ func (db *store) zpop(key string) (scores []score, err error) {
 }
 
 func (db *store) UpdateScores() error {
-	scores, err := db.zpop("shares")
+	records, err := db.zpop("shares")
 	if err != nil {
 		return err
 	}
-	return db.AppendScore(scores)
+
+	tx, err := db.sqlx.Beginx()
+	if err != nil {
+		return err
+	}
+
+	for _, record := range records {
+		err := db.CreateWithinTransaction(&record, tx)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }

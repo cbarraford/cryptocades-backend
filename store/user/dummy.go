@@ -16,6 +16,4 @@ func (*Dummy) GetByUsername(u string) (Record, error)   { return Record{}, kaboo
 func (*Dummy) GetByEmail(e string) (Record, error)      { return Record{}, kaboom }
 func (*Dummy) List() ([]Record, error)                  { return nil, kaboom }
 func (*Dummy) Authenticate(u, p string) (Record, error) { return Record{}, kaboom }
-func (*Dummy) AppendScore(scores []score) error         { return kaboom }
 func (*Dummy) Delete(id int64) error                    { return kaboom }
-func (*Dummy) UpdateScores() error                      { return kaboom }

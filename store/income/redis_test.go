@@ -1,4 +1,4 @@
-package user
+package income
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ func (s *RedisSuite) SetUpSuite(c *C) {
 }
 
 func (s *RedisSuite) TearDownTest(c *C) {
-	query := fmt.Sprintf("Truncate %s CASCADE", table)
+	query := fmt.Sprintf("Truncate %s", table)
 	_, err := s.store.sqlx.Exec(query)
 	c.Assert(err, IsNil)
 
@@ -31,15 +31,16 @@ func (s *RedisSuite) TearDownTest(c *C) {
 
 func (s *RedisSuite) TestZPop(c *C) {
 	var err error
-	record := Record{
-		Username: "bob",
-		Email:    "bob@cryptocades.com",
-		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
-		Password: "password",
-	}
-	c.Assert(s.store.Create(&record), IsNil)
-
-	for _, member := range []string{"1-red@1", "1-red@1", "1-blue@1", "12@1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq", "", "bogus", "1-green@12", "green@1"} {
+	for _, member := range []string{
+		"1-red@1",
+		"1-red@1",
+		"1-blue@1",
+		"12@1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		"",
+		"bogus",
+		"1-green@12",
+		"green@1",
+	} {
 		s.store.redis.Send("ZINCRBY", "shares", 1, member)
 	}
 	if _, err := s.store.redis.Do(""); err != nil {
@@ -49,7 +50,7 @@ func (s *RedisSuite) TestZPop(c *C) {
 	c.Assert(s.store.UpdateScores(), IsNil)
 	c.Assert(s.store.UpdateScores(), IsNil)
 
-	record, err = s.store.Get(record.Id)
+	total, err := s.store.UserIncome(1)
 	c.Assert(err, IsNil)
-	c.Check(record.MinedHashes, Equals, 3)
+	c.Check(total, Equals, 3)
 }
