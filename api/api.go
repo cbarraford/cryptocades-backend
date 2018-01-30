@@ -38,7 +38,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 
 	r.GET("/ping", ping())
 	r.GET("/me", middleware.AuthRequired(), users.Me(store.Users))
-	r.GET("/me/balance", middleware.AuthRequired(), users.Balance(store.Users, store.Entries))
+	r.GET("/me/balance", middleware.AuthRequired(), users.Balance(store.Incomes, store.Entries))
 	r.GET("/me/entries", middleware.AuthRequired(), users.Entries(store.Entries))
 	r.PUT("/me", middleware.EscalatedAuthRequired(), users.Update(store.Users))
 	// update specifically email
@@ -68,7 +68,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 	{
 		jackpotsGroup.GET("/", jackpots.List(store.Jackpots))
 		jackpotsGroup.GET("/:id/odds", jackpots.Odds(store.Entries))
-		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Users, store.Entries))
+		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Entries))
 	}
 
 	return r

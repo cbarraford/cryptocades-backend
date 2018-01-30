@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -20,20 +19,17 @@ type Store interface {
 	List() ([]Record, error)
 	MarkAsConfirmed(record *Record) error
 	Authenticate(username, password string) (Record, error)
-	AppendScore(scores []score) error
 	PasswordSet(record *Record) error
 	Delete(id int64) error
-	UpdateScores() error
 }
 
 type store struct {
 	Store
-	sqlx  *sqlx.DB
-	redis redis.Conn
+	sqlx *sqlx.DB
 }
 
-func NewStore(db *sqlx.DB, redis redis.Conn) Store {
-	return &store{sqlx: db, redis: redis}
+func NewStore(db *sqlx.DB) Store {
+	return &store{sqlx: db}
 }
 
 const table string = "users"
@@ -44,8 +40,6 @@ type Record struct {
 	Username    string    `json:"username" db:"username"`
 	Password    string    `json:"-" db:"password"`
 	Email       string    `json:"email" db:"email"`
-	MinedHashes int       `json:"mined_hashes" db:"mined_hashes"`
-	BonusHashes int       `json:"bonus_hashes" db:"bonus_hashes"`
 	Confirmed   bool      `json:"confirmed" db:"confirmed"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
@@ -67,11 +61,6 @@ func (db *store) Create(record *Record) error {
 	if record.Password == "" {
 		return fmt.Errorf("Password must not be blank")
 	}
-
-	record.MinedHashes = 0
-
-	// all new users get a bonus of 5. This is for legal reasons.
-	record.BonusHashes = record.BonusHashes + 5
 
 	// all users are auto-confirmed in development environment
 	if os.Getenv("ENVIRONMENT") == "development" {
@@ -129,8 +118,6 @@ func (db *store) Update(record *Record) error {
             username        = :username,
             email           = :email,
             updated_time    = :updated_time,
-			mined_hashes	= :mined_hashes,
-			bonus_hashes	= :bonus_hashes,
 			btc_address		= :btc_address
         WHERE id = :id`, table)
 	_, err := db.sqlx.NamedExec(query, record)
@@ -200,18 +187,6 @@ func (db *store) Authenticate(username, password string) (record Record, err err
 	}
 
 	return
-}
-
-func (db *store) AppendScore(scores []score) error {
-	tx, err := db.sqlx.Begin()
-	for _, s := range scores {
-		query := fmt.Sprintf("UPDATE %s SET mined_hashes = mined_hashes + $1 WHERE id = $2;", table)
-		_, err = tx.Exec(query, s.score, s.id)
-		if err != nil {
-			log.Printf("Error Appending Score (%s: %+v): %+v", s.id, s.score, err)
-		}
-	}
-	return tx.Commit()
 }
 
 func (db *store) Delete(id int64) error {

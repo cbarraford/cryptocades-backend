@@ -2,6 +2,7 @@ package entry
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -74,6 +75,31 @@ func (db *store) Create(record *Record) error {
 		tx.Rollback()
 		return err
 	}
+
+	var totalIncome int
+	// this query should stay in sync with income.go:UserIncome
+	query = db.sqlx.Rebind("SELECT COALESCE(SUM(amount),0) FROM incomes WHERE user_id = ?")
+	err = tx.Get(&totalIncome, query, record.UserId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	var spent int
+	query = db.sqlx.Rebind(fmt.Sprintf("SELECT COALESCE(SUM(amount),0) FROM %s WHERE user_id = ?", table))
+	err = tx.Get(&spent, query, record.UserId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// check if we're overspent
+	log.Printf("Total: %d | Spent: %d", totalIncome, spent)
+	if (totalIncome - spent) < 0 {
+		tx.Rollback()
+		return fmt.Errorf("Insufficient funds.")
+	}
+
 	return tx.Commit()
 }
 

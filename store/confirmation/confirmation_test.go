@@ -23,9 +23,8 @@ var _ = Suite(&DBSuite{})
 
 func (s *DBSuite) SetUpSuite(c *C) {
 	db := test.EphemeralPostgresStore(c)
-	red := test.EphemeralRedisStore(c)
 	s.store = store{sqlx: db}
-	s.userStore = user.NewStore(db, red)
+	s.userStore = user.NewStore(db)
 
 	record := user.Record{
 		Username: "bob",

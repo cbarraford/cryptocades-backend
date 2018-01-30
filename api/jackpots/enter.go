@@ -2,21 +2,19 @@ package jackpots
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
-	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 type input struct {
 	Amount int `json:"amount"`
 }
 
-func Enter(userStore user.Store, store entry.Store) func(*gin.Context) {
+func Enter(store entry.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		var userId int64
@@ -36,27 +34,6 @@ func Enter(userStore user.Store, store entry.Store) func(*gin.Context) {
 		err = c.BindJSON(&json)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
-			return
-		}
-
-		// TODO: we should check total vs spent atomically
-
-		user, err := userStore.Get(userId)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		spent, err := store.UserSpent(userId)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		// ensure we're not spending currency we don't have
-		if (spent + json.Amount) > (user.MinedHashes + user.BonusHashes) {
-			err := fmt.Errorf("Insufficient funds.")
-			c.AbortWithError(http.StatusPaymentRequired, err)
 			return
 		}
 

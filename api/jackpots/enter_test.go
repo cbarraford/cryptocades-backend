@@ -11,7 +11,6 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
-	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 type JackpotEnterSuite struct{}
@@ -38,28 +37,15 @@ func (s *mockEntryStore) Create(record *entry.Record) error {
 	return nil
 }
 
-type mockUserStore struct {
-	user.Dummy
-}
-
-func (*mockUserStore) Get(i int64) (user.Record, error) {
-	return user.Record{
-		Id:          i,
-		MinedHashes: 50,
-		BonusHashes: 5,
-	}, nil
-}
-
 func (s *JackpotEnterSuite) TestEnter(c *check.C) {
 	store := &mockEntryStore{}
-	userStore := &mockUserStore{}
 
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/jackpots/:id/enter", Enter(userStore, store))
+	r.POST("/jackpots/:id/enter", Enter(store))
 
 	// happy path
 	input := fmt.Sprintf(`{"amount":10}`)
@@ -73,15 +59,4 @@ func (s *JackpotEnterSuite) TestEnter(c *check.C) {
 	c.Check(store.amount, check.Equals, 10)
 	c.Check(store.jackpotId, check.Equals, int64(23))
 	c.Check(store.userId, check.Equals, int64(44))
-
-	// overspend
-	store.created = false
-	input = fmt.Sprintf(`{"amount":1000}`)
-	body = strings.NewReader(input)
-	req, _ = http.NewRequest("POST", "/jackpots/23/enter", body)
-	req.Header.Set("Masquerade", "44")
-	w = httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	c.Assert(w.Code, check.Equals, 402)
-	c.Check(store.created, check.Equals, false)
 }
