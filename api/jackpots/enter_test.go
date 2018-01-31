@@ -5,12 +5,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	check "gopkg.in/check.v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
+	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
@@ -50,10 +52,25 @@ func (s *mockUserStore) Get(id int64) (user.Record, error) {
 	}, nil
 }
 
+type mockJackpotStore struct {
+	jackpot.Dummy
+	endtime time.Time
+}
+
+func (s *mockJackpotStore) Get(id int64) (jackpot.Record, error) {
+	return jackpot.Record{
+		Id:      id,
+		EndTime: s.endtime,
+	}, nil
+}
+
 func (s *JackpotEnterSuite) TestEnter(c *check.C) {
 	store := &mockEntryStore{}
 	userStore := &mockUserStore{
 		btcAddr: "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+	}
+	jackpotStore := &mockJackpotStore{
+		endtime: time.Now().Add(168 * time.Hour),
 	}
 
 	gin.SetMode(gin.ReleaseMode)
@@ -61,7 +78,7 @@ func (s *JackpotEnterSuite) TestEnter(c *check.C) {
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/jackpots/:id/enter", Enter(store, userStore))
+	r.POST("/jackpots/:id/enter", Enter(store, userStore, jackpotStore))
 
 	// happy path
 	input := fmt.Sprintf(`{"amount":10}`)
@@ -78,6 +95,17 @@ func (s *JackpotEnterSuite) TestEnter(c *check.C) {
 
 	// invalid btc address
 	userStore.btcAddr = "           "
+	input = fmt.Sprintf(`{"amount":10}`)
+	body = strings.NewReader(input)
+	req, _ = http.NewRequest("POST", "/jackpots/23/enter", body)
+	req.Header.Set("Masquerade", "44")
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, check.Equals, 400)
+
+	// only enter active jackpots
+	userStore.btcAddr = "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq"
+	jackpotStore.endtime = time.Now().Add(-1 * time.Second)
 	input = fmt.Sprintf(`{"amount":10}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/jackpots/23/enter", body)

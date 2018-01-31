@@ -72,7 +72,7 @@ func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
 	{
 		jackpotsGroup.GET("/", jackpots.List(store.Jackpots))
 		jackpotsGroup.GET("/:id/odds", jackpots.Odds(store.Entries))
-		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Entries, store.Users))
+		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Entries, store.Users, store.Jackpots))
 	}
 
 	return r

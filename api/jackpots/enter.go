@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	newrelic "github.com/newrelic/go-agent"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
+	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
@@ -19,7 +21,7 @@ type input struct {
 	Amount int `json:"amount"`
 }
 
-func Enter(store entry.Store, userStore user.Store) func(*gin.Context) {
+func Enter(store entry.Store, userStore user.Store, jackpotStore jackpot.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		var userId int64
@@ -53,6 +55,26 @@ func Enter(store entry.Store, userStore user.Store) func(*gin.Context) {
 		jackpotId, err := context.GetInt64("id", c)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "jackpots",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		jackpot, err := jackpotStore.Get(jackpotId)
+		seg.End()
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		// ensure we don't enter a past jackpot
+		if time.Now().UnixNano() > jackpot.EndTime.UnixNano() {
+			err = fmt.Errorf("Cannot enter a closed jackpot")
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
