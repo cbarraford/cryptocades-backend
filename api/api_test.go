@@ -9,6 +9,7 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/store"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	newrelic "github.com/newrelic/go-agent"
 )
 
 func TestPackage(t *testing.T) { TestingT(t) }
@@ -22,7 +23,12 @@ func (s *ApiSuite) TestApiService(c *C) {
 		Users: &user.Dummy{},
 	}
 
-	r := GetAPIService(store)
+	config := newrelic.NewConfig("Test", "")
+	config.Enabled = false
+	agent, err := newrelic.NewApplication(config)
+	c.Assert(err, IsNil)
+
+	r := GetAPIService(store, agent)
 
 	// check ping apiendpoint
 	req, _ := http.NewRequest("GET", "/ping", nil)

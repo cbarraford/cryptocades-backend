@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	newrelic "github.com/newrelic/go-agent"
+	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/user"
@@ -19,11 +21,19 @@ func Me(store user.Store) func(*gin.Context) {
 			return
 		}
 
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "users",
+			Operation:  "LIST",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		record, err := store.Get(userId)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+		seg.End()
 		c.JSON(http.StatusOK, record)
 	}
 }

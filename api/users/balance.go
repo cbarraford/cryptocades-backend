@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	newrelic "github.com/newrelic/go-agent"
+	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
@@ -20,13 +22,29 @@ func Balance(store income.Store, entries entry.Store) func(*gin.Context) {
 			return
 		}
 
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "incomes",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		income, err := store.UserIncome(userId)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
+		txn = nrgin.Transaction(c)
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "entries",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		spent, err := entries.UserSpent(userId)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return

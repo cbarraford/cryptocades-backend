@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	newrelic "github.com/newrelic/go-agent"
+	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
@@ -29,13 +31,28 @@ func PasswordReset(confirmStore confirmation.Store, store user.Store) func(*gin.
 
 		code := context.GetString("code", c)
 
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "confirmations",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		confirm, err := confirmStore.GetByCode(code)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusNotFound, err)
 			return
 		}
 
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "users",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		user, err := store.GetByEmail(confirm.Email)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusNotFound, err)
 			return
@@ -55,13 +72,27 @@ func PasswordReset(confirmStore confirmation.Store, store user.Store) func(*gin.
 			return
 		}
 
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "users",
+			Operation:  "Update",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		err = store.PasswordSet(&user)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "confirmations",
+			Operation:  "Delete",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		err = confirmStore.Delete(confirm.Id)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -84,7 +115,15 @@ func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*
 			return
 		}
 
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "users",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		user, err := store.GetByEmail(json.Email)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusNotFound, err)
 			return
@@ -96,7 +135,15 @@ func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*
 			UserId: user.Id,
 			Email:  json.Email,
 		}
+
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "users",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		err = confirmStore.Create(&confirm)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -105,12 +152,14 @@ func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*
 		// TODO: support mobile url
 		u := url.Get(fmt.Sprintf("/password/reset/%s", confirm.Code))
 		mailer := emailer.DefaultEmailer()
+		segEmail := newrelic.StartSegment(txn, "email")
 		err = mailer.SendMessage(
 			json.Email,
 			"noreply@cryptocades.com",
 			"Password Reset",
 			fmt.Sprintf("Hello! \nWe've recieved a request to reset your password. Please click the link below to continue. The link will expire after 12 hours.\n\n%s", u.String()),
 		)
+		segEmail.End()
 		if err != nil {
 			log.Printf("Failed to send password reset: %s", err)
 		}

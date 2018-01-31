@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	newrelic "github.com/newrelic/go-agent"
+	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
@@ -25,7 +27,15 @@ func Odds(store entry.Store) func(*gin.Context) {
 			return
 		}
 
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "entries",
+			Operation:  "Odds",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		odds, err := store.GetOdds(id, userId)
+		seg.End()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		} else {

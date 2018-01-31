@@ -7,6 +7,8 @@ import (
 	"regexp"
 
 	"github.com/gin-gonic/gin"
+	newrelic "github.com/newrelic/go-agent"
+	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
@@ -27,7 +29,15 @@ func Enter(store entry.Store, userStore user.Store) func(*gin.Context) {
 			return
 		}
 
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "users",
+			Operation:  "LIST",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		user, err := userStore.Get(userId)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -59,7 +69,14 @@ func Enter(store entry.Store, userStore user.Store) func(*gin.Context) {
 			Amount:    json.Amount,
 		}
 
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "entries",
+			Operation:  "Create",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		err = store.Create(&record)
+		seg.End()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return

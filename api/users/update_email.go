@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	newrelic "github.com/newrelic/go-agent"
+	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
@@ -23,6 +25,8 @@ func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Co
 		var json passwordEmail
 		var newEmail string
 
+		txn := nrgin.Transaction(c)
+
 		err = c.BindJSON(&json)
 		if err == nil {
 			newEmail = json.Email
@@ -36,7 +40,14 @@ func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Co
 			return
 		}
 
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "users",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		record, err := store.Get(userId)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -48,20 +59,30 @@ func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Co
 			UserId: userId,
 			Email:  newEmail,
 		}
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "confirmations",
+			Operation:  "Create",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
 		err = confirmStore.Create(&confirm)
+		seg.End()
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+
 		// TODO: support mobile url
 		u := url.Get(fmt.Sprintf("/confirmation/%s", confirm.Code))
 		emailer := email.DefaultEmailer()
+		emailSeg := newrelic.StartSegment(txn, "email")
 		err = emailer.SendMessage(
 			record.Email,
 			"noreply@cryptocades.com",
 			"Please confirm your new email address",
 			fmt.Sprintf("Hello! \nA change in email address is being registered with Cryptocades. You must confirm the new email address before it can take affect. Click the link below to confirm this new email address, %s\n\n%s", newEmail, u.String()),
 		)
+		emailSeg.End()
 		if err != nil {
 			log.Printf("Failed to send new email confirmation: %s", err)
 		}

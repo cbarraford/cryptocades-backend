@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	newrelic "github.com/newrelic/go-agent"
+	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/games"
 	"github.com/cbarraford/cryptocades-backend/api/jackpots"
@@ -13,7 +15,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store"
 )
 
-func GetAPIService(store store.Store) *gin.Engine {
+func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
 	r := gin.New()
 
 	// Global middleware
@@ -21,6 +23,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 	r.Use(gin.Recovery())
 	r.Use(middleware.Authenticate(store.Sessions))
 	r.Use(middleware.HandleErrors())
+	r.Use(nrgin.Middleware(agent))
 
 	// CORS
 	corsConfig := cors.DefaultConfig()
