@@ -175,6 +175,12 @@
 			"revisionTime": "2017-12-16T07:03:16Z"
 		},
 		{
+			"checksumSHA1": "+azhwVhw/PHnjtjF9uul9tXlExw=",
+			"path": "github.com/stvp/rollbar",
+			"revision": "4a50daf855af93a350f2a6789101cd51955c88ca",
+			"revisionTime": "2017-11-13T05:23:35Z"
+		},
+		{
 			"checksumSHA1": "EptrQv3dNCLx7QkLn/7kE1JBzrA=",
 			"path": "github.com/ugorji/go/codec",
 			"revision": "0e0d6e869525973a9b36093f6ddc9d91b9fc2d71",
