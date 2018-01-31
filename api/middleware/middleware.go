@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stvp/rollbar"
 
 	"github.com/cbarraford/cryptocades-backend/store/session"
 )
@@ -73,6 +74,7 @@ func HandleErrors() gin.HandlerFunc {
 
 		errorToPrint := c.Errors.Last()
 		if errorToPrint != nil {
+			rollbar.Error(rollbar.ERR, errorToPrint)
 			c.JSON(-1, gin.H{
 				"message": errorToPrint.Error(),
 			})

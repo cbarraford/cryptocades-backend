@@ -6,6 +6,7 @@ import (
 	"os"
 
 	newrelic "github.com/newrelic/go-agent"
+	"github.com/stvp/rollbar"
 
 	"github.com/cbarraford/cryptocades-backend/api"
 	"github.com/cbarraford/cryptocades-backend/manager"
@@ -20,11 +21,13 @@ func main() {
 
 	err = context.MigrateDB(os.Getenv("DATABASE_URL"), "file://./migrations")
 	if err != nil {
+		rollbar.Error(rollbar.ERR, err)
 		log.Fatal(err)
 	}
 
 	db, err := store.GetDB(os.Getenv("DATABASE_URL"))
 	if err != nil {
+		rollbar.Error(rollbar.ERR, err)
 		log.Fatal(err)
 	}
 	db.SetMaxOpenConns(116)
@@ -32,6 +35,7 @@ func main() {
 
 	red, err := store.GetRedis(os.Getenv("REDIS_URL"))
 	if err != nil {
+		rollbar.Error(rollbar.ERR, err)
 		log.Fatal(err)
 	}
 
@@ -49,6 +53,7 @@ func main() {
 	}
 	agent, err := newrelic.NewApplication(agentConfig)
 	if err != nil {
+		rollbar.Error(rollbar.ERR, err)
 		log.Fatal(err)
 	}
 

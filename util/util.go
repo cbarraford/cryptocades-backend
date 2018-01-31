@@ -2,11 +2,16 @@ package util
 
 import (
 	"math/rand"
+	"os"
 	"time"
+
+	"github.com/stvp/rollbar"
 )
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	rollbar.Token = os.Getenv("ROLLBAR_ACCESS_TOKEN")
+	rollbar.Environment = os.Getenv("ENVIRONMENT")
 }
 
 var LowerLetters = []rune("abcdefghijklmnopqrstuvwxyz")
