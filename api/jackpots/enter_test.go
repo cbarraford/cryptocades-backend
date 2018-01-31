@@ -95,8 +95,6 @@ func (s *JackpotEnterSuite) TestEnter(c *check.C) {
 
 	// invalid btc address
 	userStore.btcAddr = "           "
-	input = fmt.Sprintf(`{"amount":10}`)
-	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/jackpots/23/enter", body)
 	req.Header.Set("Masquerade", "44")
 	w = httptest.NewRecorder()
@@ -106,8 +104,6 @@ func (s *JackpotEnterSuite) TestEnter(c *check.C) {
 	// only enter active jackpots
 	userStore.btcAddr = "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq"
 	jackpotStore.endtime = time.Now().Add(-1 * time.Second)
-	input = fmt.Sprintf(`{"amount":10}`)
-	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/jackpots/23/enter", body)
 	req.Header.Set("Masquerade", "44")
 	w = httptest.NewRecorder()
