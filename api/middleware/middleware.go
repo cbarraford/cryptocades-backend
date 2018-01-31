@@ -66,3 +66,16 @@ func Authenticate(store session.Store) gin.HandlerFunc {
 		}
 	}
 }
+
+func HandleErrors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next() // execute all the handlers
+
+		errorToPrint := c.Errors.Last()
+		if errorToPrint != nil {
+			c.JSON(-1, gin.H{
+				"message": errorToPrint.Error(),
+			})
+		}
+	}
+}

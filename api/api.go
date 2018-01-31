@@ -20,6 +20,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Use(middleware.Authenticate(store.Sessions))
+	r.Use(middleware.HandleErrors())
 
 	// CORS
 	corsConfig := cors.DefaultConfig()
@@ -68,7 +69,7 @@ func GetAPIService(store store.Store) *gin.Engine {
 	{
 		jackpotsGroup.GET("/", jackpots.List(store.Jackpots))
 		jackpotsGroup.GET("/:id/odds", jackpots.Odds(store.Entries))
-		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Entries))
+		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Entries, store.Users))
 	}
 
 	return r

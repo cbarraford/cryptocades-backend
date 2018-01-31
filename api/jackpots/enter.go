@@ -2,25 +2,41 @@ package jackpots
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
+	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 type input struct {
 	Amount int `json:"amount"`
 }
 
-func Enter(store entry.Store) func(*gin.Context) {
+func Enter(store entry.Store, userStore user.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		var userId int64
 
 		if userId, err = context.GetUserId(c); err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		user, err := userStore.Get(userId)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		btcRegex, _ := regexp.Compile("^[13][a-km-zA-HJ-NP-Z0-9]{26,33}$")
+		if !btcRegex.MatchString(user.BTCAddr) {
+			err = fmt.Errorf("Must have a valid bitcoin address to enter a jackpot.")
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
