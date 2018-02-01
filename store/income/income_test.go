@@ -3,6 +3,7 @@ package income
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	. "gopkg.in/check.v1"
 
@@ -45,12 +46,14 @@ func (s *DBSuite) TestCreateRequirements(c *C) {
 }
 
 func (s *DBSuite) TestCreate(c *C) {
+	t := time.Now().Add(-1 * time.Hour)
 	record1 := Record{
 		UserId:        5,
 		GameId:        4,
 		SessionId:     "abcdef",
 		Amount:        60,
 		PartialAmount: 10,
+		UpdatedTime:   t,
 	}
 	c.Assert(s.store.Create(&record1), IsNil)
 
@@ -70,6 +73,7 @@ func (s *DBSuite) TestCreate(c *C) {
 	c.Check(r.Amount, Equals, 101)
 	c.Check(r.PartialAmount, Equals, 15)
 	c.Check(r.SessionId, Equals, "abcdef")
+	c.Check(r.UpdatedTime.Unix() > t.Unix(), Equals, true)
 
 	record3 := Record{
 		UserId:        9,

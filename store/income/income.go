@@ -35,6 +35,7 @@ type Record struct {
 	SessionId     string    `json:"session_id" db:"session_id"`
 	Amount        int       `json:"amount" db:"amount"`
 	PartialAmount int       `json:"partial_amount" db:"partial_amount"`
+	UpdatedTime   time.Time `json:"updated_time" db:"updated_time"`
 	CreatedTime   time.Time `json:"created_time" db:"created_time"`
 }
 
@@ -50,6 +51,13 @@ func (db *store) Create(record *Record) error {
 	}
 	if record.UserId == 0 {
 		return fmt.Errorf("User id must not be blank")
+	}
+
+	if record.CreatedTime.IsZero() {
+		record.CreatedTime = time.Now()
+	}
+	if record.UpdatedTime.IsZero() {
+		record.UpdatedTime = time.Now()
 	}
 
 	tx, err := db.sqlx.Beginx()
@@ -75,7 +83,7 @@ func (db *store) CreateWithinTransaction(record *Record, tx *sqlx.Tx) error {
         INSERT INTO %s
             (game_id, session_id, user_id, amount, partial_amount)
         VALUES
-            (?, ?, ?, ?, ?) ON CONFLICT (game_id, session_id, user_id) DO UPDATE SET amount = %s.amount + ? + FLOOR((%s.partial_amount + ?)/?), partial_amount = MOD(%s.partial_amount + ?,?)`, table, table, table, table))
+            (?, ?, ?, ?, ?) ON CONFLICT (game_id, session_id, user_id) DO UPDATE SET amount = %s.amount + ? + FLOOR((%s.partial_amount + ?)/?), partial_amount = MOD(%s.partial_amount + ?,?), updated_time = now()`, table, table, table, table))
 
 	_, err := tx.Exec(
 		query,
