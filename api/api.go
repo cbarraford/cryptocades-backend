@@ -43,6 +43,7 @@ func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
 	r.GET("/ping", ping())
 	r.GET("/me", middleware.AuthRequired(), users.Me(store.Users))
 	r.GET("/me/balance", middleware.AuthRequired(), users.Balance(store.Incomes, store.Entries))
+	r.GET("/me/incomes", middleware.AuthRequired(), users.Incomes(store.Incomes))
 	r.GET("/me/entries", middleware.AuthRequired(), users.Entries(store.Entries))
 	r.PUT("/me", middleware.EscalatedAuthRequired(), users.Update(store.Users))
 	// update specifically email
