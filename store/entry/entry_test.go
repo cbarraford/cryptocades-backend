@@ -214,8 +214,8 @@ func (s *DBSuite) TestListByUser(c *C) {
 	c.Assert(s.store.Create(&record), IsNil)
 
 	user2 := user.Record{
-		Username: "test2",
-		Email:    "test2@test.com",
+		Username: "test3",
+		Email:    "test3@test.com",
 		Password: "password",
 	}
 	c.Assert(s.users.Create(&user2), IsNil)
@@ -254,6 +254,54 @@ func (s *DBSuite) TestListByUser(c *C) {
 
 }
 
+func (s *DBSuite) TestListByJackpot(c *C) {
+	record := Record{
+		JackpotId: 4,
+		UserId:    s.user.Id,
+		Amount:    40,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record = Record{
+		JackpotId: 5,
+		UserId:    s.user.Id,
+		Amount:    30,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	user2 := user.Record{
+		Username: "test2",
+		Email:    "test2@test.com",
+		Password: "password",
+	}
+	c.Assert(s.users.Create(&user2), IsNil)
+
+	in := income.Record{
+		UserId:    user2.Id,
+		GameId:    1,
+		Amount:    200,
+		SessionId: "abcdef",
+	}
+	c.Assert(s.incomes.Create(&in), IsNil)
+
+	record = Record{
+		JackpotId: 4,
+		UserId:    user2.Id,
+		Amount:    90,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	records, err := s.store.ListByJackpot(4)
+	c.Assert(err, IsNil)
+	c.Assert(records, HasLen, 2)
+	c.Check(records[0].JackpotId, Equals, int64(4))
+	c.Check(records[0].UserId, Equals, s.user.Id)
+	c.Check(records[0].Amount, Equals, 40)
+	c.Check(records[1].JackpotId, Equals, int64(4))
+	c.Check(records[1].UserId, Equals, user2.Id)
+	c.Check(records[1].Amount, Equals, 90)
+}
+
 func (s *DBSuite) TestUserSpent(c *C) {
 	record := Record{
 		JackpotId: 4,
@@ -270,8 +318,8 @@ func (s *DBSuite) TestUserSpent(c *C) {
 	c.Assert(s.store.Create(&record), IsNil)
 
 	user := user.Record{
-		Username: "test3",
-		Email:    "test3@test.com",
+		Username: "test7",
+		Email:    "test7@test.com",
 		Password: "password",
 	}
 	c.Assert(s.users.Create(&user), IsNil)

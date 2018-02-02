@@ -109,3 +109,29 @@ func (s *DBSuite) TestGetActiveJackpots(c *C) {
 	c.Assert(records, HasLen, 1)
 	c.Check(records[0].Jackpot, Equals, 500)
 }
+
+func (s *DBSuite) TestGetIncompleteJackpots(c *C) {
+	record := Record{
+		Jackpot: 500,
+		EndTime: time.Now().UTC().AddDate(0, 0, 1),
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record = Record{
+		Jackpot: 300,
+		EndTime: time.Now().UTC().AddDate(0, 0, -1),
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record = Record{
+		Jackpot:  600,
+		EndTime:  time.Now().UTC().AddDate(0, 0, -1),
+		WinnerId: 5,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	records, err := s.store.GetIncompleteJackpots()
+	c.Assert(err, IsNil)
+	c.Assert(records, HasLen, 1)
+	c.Check(records[0].Jackpot, Equals, 300)
+}

@@ -13,6 +13,7 @@ type Store interface {
 	Update(record *Record) error
 	List() ([]Record, error)
 	GetActiveJackpots() ([]Record, error)
+	GetIncompleteJackpots() ([]Record, error)
 }
 
 type store struct {
@@ -48,9 +49,9 @@ func (db *store) Create(record *Record) error {
 
 	query := fmt.Sprintf(`
         INSERT INTO %s
-			(jackpot, end_time)
+			(jackpot, end_time, winner_id)
         VALUES
-			(:jackpot, :end_time) RETURNING id`, table)
+		(:jackpot, :end_time, :winner_id) RETURNING id`, table)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
@@ -86,6 +87,12 @@ func (db *store) List() (records []Record, err error) {
 
 func (db *store) GetActiveJackpots() (records []Record, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE end_time >= now()", table)
+	err = db.sqlx.Select(&records, query)
+	return
+}
+
+func (db *store) GetIncompleteJackpots() (records []Record, err error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE end_time < now() and winner_id = 0", table)
 	err = db.sqlx.Select(&records, query)
 	return
 }

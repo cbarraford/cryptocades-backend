@@ -3,9 +3,11 @@ package manager
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/cbarraford/cryptocades-backend/store"
+	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 )
 
@@ -20,7 +22,7 @@ func Start(store store.Store) {
 		for {
 			select {
 			case <-tickJack.C:
-				if err := ManageJackpots(store.Jackpots); err != nil {
+				if err := ManageJackpots(store.Jackpots, store.Entries); err != nil {
 					// TODO: we should alert on this error
 					log.Printf("Manage Jackpot Error: %+v", err)
 				}
@@ -38,7 +40,7 @@ func Start(store store.Store) {
 	}()
 }
 
-func ManageJackpots(store jackpot.Store) error {
+func ManageJackpots(store jackpot.Store, entryStore entry.Store) error {
 	jackpots, err := store.GetActiveJackpots()
 	if err != nil {
 		return fmt.Errorf("Error getting active jackpots: %+v", err)
@@ -53,7 +55,64 @@ func ManageJackpots(store jackpot.Store) error {
 		if err != nil {
 			return fmt.Errorf("Unable to create new jackpot: %+v", err)
 		}
-	} else {
+	}
+
+	jackpots, err = store.GetIncompleteJackpots()
+	if err != nil {
+		return fmt.Errorf("Error getting incomplete jackpots: %+v", err)
+	}
+	for _, jackpot := range jackpots {
+		jackpot.WinnerId, err = PickWinner(entryStore, jackpot.Id)
+		err = store.Update(&jackpot)
+		if err != nil {
+			return fmt.Errorf("Error updating jackpot winner: %+v", err)
+		}
 	}
 	return nil
+}
+
+func PickWinner(store entry.Store, jackpotId int64) (int64, error) {
+	records, err := store.ListByJackpot(jackpotId)
+	if err != nil {
+		return 0, err
+	}
+
+	// shuffle our records returned
+	for i := len(records) - 1; i > 0; i-- {
+		j := rand.Intn(i + 1)
+		records[i], records[j] = records[j], records[i]
+	}
+
+	// count total entries in this jackpot
+	var totalEntries int
+	for _, record := range records {
+		totalEntries = totalEntries + record.Amount
+	}
+
+	// rand.Intn includes 0, so increment by one
+	winnerNum := rand.Intn(totalEntries) + 1
+
+	winner := findWinner(records, winnerNum)
+
+	if winner.UserId > 0 {
+		return winner.UserId, nil
+	}
+
+	return 0, fmt.Errorf("Unable to find a jackpot winner: %d", jackpotId)
+}
+
+func findWinner(records []entry.Record, winnerNum int) entry.Record {
+	if winnerNum == 0 {
+		return entry.Record{}
+	}
+
+	var counter int
+	for _, record := range records {
+		counter = counter + record.Amount
+		if counter >= winnerNum {
+			return record
+		}
+	}
+
+	return entry.Record{}
 }
