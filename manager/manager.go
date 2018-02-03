@@ -62,6 +62,7 @@ func ManageJackpots(store jackpot.Store, entryStore entry.Store) error {
 		return fmt.Errorf("Error getting incomplete jackpots: %+v", err)
 	}
 	for _, jackpot := range jackpots {
+		log.Printf("Closed Jackpot: %+v", jackpot)
 		jackpot.WinnerId, err = PickWinner(entryStore, jackpot.Id)
 		err = store.Update(&jackpot)
 		if err != nil {
