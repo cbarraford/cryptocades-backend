@@ -56,7 +56,15 @@ func (s *ManagerSuite) TestJackpotCreation(c *C) {
 	}
 	c.Check(store.created, Equals, false)
 	c.Check(store.updated, Equals, false)
-	entryStore := &mockEntryStore{}
+	entryStore := &mockEntryStore{
+		jackpots: []entry.Record{
+			{JackpotId: 5, UserId: 10, Amount: 1},
+			{JackpotId: 5, UserId: 11, Amount: 2},
+			{JackpotId: 5, UserId: 12, Amount: 3},
+			{JackpotId: 5, UserId: 13, Amount: 2},
+			{JackpotId: 5, UserId: 14, Amount: 1},
+		},
+	}
 
 	c.Assert(ManageJackpots(store, entryStore), IsNil)
 	c.Check(store.created, Equals, false)
@@ -70,31 +78,48 @@ func (s *ManagerSuite) TestJackpotCreation(c *C) {
 
 type mockEntryStore struct {
 	entry.Dummy
+	jackpots []entry.Record
 }
 
 func (m *mockEntryStore) ListByJackpot(id int64) ([]entry.Record, error) {
-	return []entry.Record{
-		{JackpotId: id, UserId: 10, Amount: 1},
-		{JackpotId: id, UserId: 11, Amount: 2},
-		{JackpotId: id, UserId: 12, Amount: 3},
-		{JackpotId: id, UserId: 13, Amount: 2},
-		{JackpotId: id, UserId: 14, Amount: 1},
-	}, nil
+	return m.jackpots, nil
 }
 
 func (s *ManagerSuite) TestPickWinner(c *C) {
-	store := &mockEntryStore{}
+	store := &mockEntryStore{
+		jackpots: []entry.Record{
+			{JackpotId: 5, UserId: 10, Amount: 1},
+			{JackpotId: 5, UserId: 11, Amount: 2},
+			{JackpotId: 5, UserId: 12, Amount: 3},
+			{JackpotId: 5, UserId: 13, Amount: 2},
+			{JackpotId: 5, UserId: 14, Amount: 1},
+		},
+	}
 
 	// run it a thousand times to check that we don't get some rare zero case
 	for i := 0; i < 1000; i++ {
-		winner, err := PickWinner(store, 1)
+		winner, err := PickWinner(store, 5)
 		c.Assert(err, IsNil)
 		c.Check(winner > 0, Equals, true)
 	}
+
+	// test with no entries
+	store.jackpots = nil
+	winner, err := PickWinner(store, 5)
+	c.Assert(err, IsNil)
+	c.Check(winner > 0, Equals, false)
 }
 
 func (s *ManagerSuite) TestFindWinner(c *C) {
-	store := &mockEntryStore{}
+	store := &mockEntryStore{
+		jackpots: []entry.Record{
+			{JackpotId: 5, UserId: 10, Amount: 1},
+			{JackpotId: 5, UserId: 11, Amount: 2},
+			{JackpotId: 5, UserId: 12, Amount: 3},
+			{JackpotId: 5, UserId: 13, Amount: 2},
+			{JackpotId: 5, UserId: 14, Amount: 1},
+		},
+	}
 
 	records, _ := store.ListByJackpot(1)
 	c.Check(findWinner(records, 0).UserId, Equals, int64(0))

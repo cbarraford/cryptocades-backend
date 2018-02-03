@@ -62,7 +62,6 @@ func ManageJackpots(store jackpot.Store, entryStore entry.Store) error {
 		return fmt.Errorf("Error getting incomplete jackpots: %+v", err)
 	}
 	for _, jackpot := range jackpots {
-		log.Printf("Closed Jackpot: %+v", jackpot)
 		jackpot.WinnerId, err = PickWinner(entryStore, jackpot.Id)
 		err = store.Update(&jackpot)
 		if err != nil {
@@ -76,6 +75,11 @@ func PickWinner(store entry.Store, jackpotId int64) (int64, error) {
 	records, err := store.ListByJackpot(jackpotId)
 	if err != nil {
 		return 0, err
+	}
+
+	// if no entries, no winners
+	if len(records) == 0 {
+		return 0, nil
 	}
 
 	// shuffle our records returned
