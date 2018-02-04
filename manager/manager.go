@@ -9,6 +9,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 const MAX_JACKPOTS = 1
@@ -22,7 +23,7 @@ func Start(store store.Store) {
 		for {
 			select {
 			case <-tickJack.C:
-				if err := ManageJackpots(store.Jackpots, store.Entries); err != nil {
+				if err := ManageJackpots(store.Jackpots, store.Entries, store.Users); err != nil {
 					// TODO: we should alert on this error
 					log.Printf("Manage Jackpot Error: %+v", err)
 				}
@@ -40,7 +41,7 @@ func Start(store store.Store) {
 	}()
 }
 
-func ManageJackpots(store jackpot.Store, entryStore entry.Store) error {
+func ManageJackpots(store jackpot.Store, entryStore entry.Store, userStore user.Store) error {
 	jackpots, err := store.GetActiveJackpots()
 	if err != nil {
 		return fmt.Errorf("Error getting active jackpots: %+v", err)
@@ -63,9 +64,20 @@ func ManageJackpots(store jackpot.Store, entryStore entry.Store) error {
 	}
 	for _, jackpot := range jackpots {
 		jackpot.WinnerId, err = PickWinner(entryStore, jackpot.Id)
-		err = store.Update(&jackpot)
 		if err != nil {
-			return fmt.Errorf("Error updating jackpot winner: %+v", err)
+			return fmt.Errorf("Error picking jackpot winner: %+v", err)
+		}
+
+		if jackpot.WinnerId > 0 {
+			user, err := userStore.Get(jackpot.WinnerId)
+			if err != nil {
+				return fmt.Errorf("Error getting jackpot winner: %+v", err)
+			}
+			jackpot.WinnerBTCAddr = user.BTCAddr
+			err = store.Update(&jackpot)
+			if err != nil {
+				return fmt.Errorf("Error updating jackpot winner: %+v", err)
+			}
 		}
 	}
 	return nil

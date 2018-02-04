@@ -7,6 +7,7 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 func TestPackage(t *testing.T) { TestingT(t) }
@@ -17,13 +18,25 @@ type ManagerSuite struct {
 
 var _ = Suite(&ManagerSuite{})
 
+type mockUserStore struct {
+	user.Dummy
+}
+
+func (m *mockUserStore) Get(id int64) (user.Record, error) {
+	return user.Record{
+		Id:      id,
+		BTCAddr: "abcd",
+	}, nil
+}
+
 type mockCreateJackpotStore struct {
 	jackpot.Dummy
-	created    bool
-	updated    bool
-	winnerId   int64
-	records    []jackpot.Record
-	incomplete []jackpot.Record
+	created     bool
+	updated     bool
+	winnerId    int64
+	btc_address string
+	records     []jackpot.Record
+	incomplete  []jackpot.Record
 }
 
 func (m *mockCreateJackpotStore) Create(record *jackpot.Record) error {
@@ -34,6 +47,7 @@ func (m *mockCreateJackpotStore) Create(record *jackpot.Record) error {
 func (m *mockCreateJackpotStore) Update(record *jackpot.Record) error {
 	m.updated = true
 	m.winnerId = record.WinnerId
+	m.btc_address = record.WinnerBTCAddr
 	return nil
 }
 
@@ -66,13 +80,16 @@ func (s *ManagerSuite) TestJackpotCreation(c *C) {
 		},
 	}
 
-	c.Assert(ManageJackpots(store, entryStore), IsNil)
+	userStore := &mockUserStore{}
+
+	c.Assert(ManageJackpots(store, entryStore, userStore), IsNil)
 	c.Check(store.created, Equals, false)
 	c.Check(store.updated, Equals, true)
 	c.Check(store.winnerId > 0, Equals, true)
+	c.Check(store.btc_address, Equals, "abcd")
 
 	store.records = nil
-	c.Assert(ManageJackpots(store, entryStore), IsNil)
+	c.Assert(ManageJackpots(store, entryStore, userStore), IsNil)
 	c.Check(store.created, Equals, true)
 }
 

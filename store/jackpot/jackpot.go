@@ -28,12 +28,14 @@ func NewStore(db *sqlx.DB) Store {
 const table string = "jackpots"
 
 type Record struct {
-	Id          int64     `json:"id" db:"id"`
-	Jackpot     int       `json:"jackpot" db:"jackpot"`
-	WinnerId    int64     `json:"winner_id" db:"winner_id"`
-	EndTime     time.Time `json:"end_time" db:"end_time"`
-	CreatedTime time.Time `json:"created_time" db:"created_time"`
-	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
+	Id            int64     `json:"id" db:"id"`
+	Jackpot       int       `json:"jackpot" db:"jackpot"`
+	WinnerId      int64     `json:"-" db:"winner_id"`
+	WinnerBTCAddr string    `json:"btc_addres" db:"btc_address"`
+	TransactionId string    `json:"transaction_id" db:"transaction_id"`
+	EndTime       time.Time `json:"end_time" db:"end_time"`
+	CreatedTime   time.Time `json:"created_time" db:"created_time"`
+	UpdatedTime   time.Time `json:"updated_time" db:"updated_time"`
 }
 
 func (db *store) TableName() string {
@@ -49,9 +51,9 @@ func (db *store) Create(record *Record) error {
 
 	query := fmt.Sprintf(`
         INSERT INTO %s
-			(jackpot, end_time, winner_id)
+			(jackpot, end_time, winner_id, btc_address, transaction_id)
         VALUES
-		(:jackpot, :end_time, :winner_id) RETURNING id`, table)
+			(:jackpot, :end_time, :winner_id, :btc_address, :transaction_id) RETURNING id`, table)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
@@ -73,6 +75,8 @@ func (db *store) Update(record *Record) error {
         UPDATE %s SET
             jackpot			= :jackpot,
             updated_time	= :updated_time,
+			btc_address		= :btc_address,
+			transaction_id	= :transaction_id,
 			winner_id		= :winner_id
         WHERE id = :id`, table)
 	_, err := db.sqlx.NamedExec(query, record)
