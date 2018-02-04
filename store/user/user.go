@@ -199,13 +199,13 @@ func (db *store) Delete(id int64) error {
 	return err
 }
 
-func (r *Record) MarshalJSON() ([]byte, error) {
+func (r Record) MarshalJSON() ([]byte, error) {
 	type Alias Record
 	return json.Marshal(&struct {
 		Avatar string `json:"avatar"`
-		*Alias
+		Alias
 	}{
 		Avatar: gravatar.Avatar(r.Email, 256),
-		Alias:  (*Alias)(r),
+		Alias:  (Alias)(r),
 	})
 }
