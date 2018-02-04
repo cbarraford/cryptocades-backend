@@ -60,4 +60,12 @@ func (s *UserUpdateSuite) TestUpdate(c *C) {
 	c.Check(store.updated, Equals, true)
 	c.Check(store.btc_address, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3ub")
 	c.Check(store.password, Equals, "newPassword")
+
+	// bad btc address
+	body = strings.NewReader(`{"btc_address":"bad btc address"}`)
+	req, _ = http.NewRequest("PUT", "/me", body)
+	req.Header.Set("Masquerade", "5")
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 400)
 }

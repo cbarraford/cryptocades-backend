@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +14,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util"
 )
 
 type input struct {
@@ -45,8 +45,7 @@ func Enter(store entry.Store, userStore user.Store, jackpotStore jackpot.Store) 
 			return
 		}
 
-		btcRegex, _ := regexp.Compile("^[13][a-km-zA-HJ-NP-Z0-9]{26,33}$")
-		if !btcRegex.MatchString(user.BTCAddr) {
+		if !util.BTCRegex.MatchString(user.BTCAddr) {
 			err = fmt.Errorf("Must have a valid bitcoin address to enter a jackpot.")
 			c.AbortWithError(http.StatusBadRequest, err)
 			return

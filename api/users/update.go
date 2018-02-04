@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util"
 )
 
 func Update(store user.Store) func(*gin.Context) {
@@ -45,6 +47,11 @@ func Update(store user.Store) func(*gin.Context) {
 
 		if json.BTCAddr != "" {
 			record.BTCAddr = json.BTCAddr
+			if !util.BTCRegex.MatchString(record.BTCAddr) {
+				err = fmt.Errorf("Must have a valid bitcoin address to enter a jackpot.")
+				c.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
 			seg = newrelic.DatastoreSegment{
 				Product:    newrelic.DatastorePostgres,
 				Collection: "users",
