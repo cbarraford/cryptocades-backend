@@ -1,12 +1,15 @@
 package user
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+
+	"github.com/cbarraford/cryptocades-backend/util/gravatar"
 )
 
 type Store interface {
@@ -40,6 +43,7 @@ type Record struct {
 	Username    string    `json:"username" db:"username"`
 	Password    string    `json:"-" db:"password"`
 	Email       string    `json:"email" db:"email"`
+	Avatar      string    `json:"avatar" db:"-"`
 	Confirmed   bool      `json:"confirmed" db:"confirmed"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
@@ -193,4 +197,15 @@ func (db *store) Delete(id int64) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", table)
 	_, err := db.sqlx.Exec(db.sqlx.Rebind(query), id)
 	return err
+}
+
+func (r *Record) MarshalJSON() ([]byte, error) {
+	type Alias Record
+	return json.Marshal(&struct {
+		Avatar string `json:"avatar"`
+		*Alias
+	}{
+		Avatar: gravatar.Avatar(r.Email, 256),
+		Alias:  (*Alias)(r),
+	})
 }
