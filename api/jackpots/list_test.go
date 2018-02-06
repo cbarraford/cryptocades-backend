@@ -43,5 +43,5 @@ func (s *JackpotListSuite) TestList(c *check.C) {
 	c.Assert(json.Unmarshal(w.Body.Bytes(), &records), check.IsNil)
 	c.Assert(records, check.HasLen, 1)
 	record := records[0]
-	c.Check(record.Jackpot, check.Equals, 88)
+	c.Check(record.Jackpot, check.Equals, float64(88))
 }

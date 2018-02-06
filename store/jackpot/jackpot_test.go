@@ -66,20 +66,20 @@ func (s *DBSuite) TestUpdate(c *C) {
 
 	r, err := s.store.Get(record.Id)
 	c.Assert(err, IsNil)
-	r.Jackpot = 101
+	r.Jackpot = float64(1.0000405808)
 	r.WinnerId = 45
 
 	c.Assert(s.store.Update(&r), IsNil)
 
 	r, err = s.store.Get(r.Id)
 	c.Assert(err, IsNil)
-	c.Check(r.Jackpot, Equals, 101)
+	c.Check(r.Jackpot, Equals, float64(1.0000405808))
 	c.Check(r.WinnerId, Equals, int64(45))
 }
 
 func (s *DBSuite) TestList(c *C) {
 	record := Record{
-		Jackpot: 200,
+		Jackpot: float64(200),
 		EndTime: time.Now().UTC().AddDate(0, 0, 1),
 	}
 	c.Assert(s.store.Create(&record), IsNil)
@@ -88,7 +88,7 @@ func (s *DBSuite) TestList(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(records, HasLen, 1)
 	r := records[0]
-	c.Check(r.Jackpot, Equals, 200)
+	c.Check(r.Jackpot, Equals, float64(200))
 }
 
 func (s *DBSuite) TestGetActiveJackpots(c *C) {
@@ -107,7 +107,7 @@ func (s *DBSuite) TestGetActiveJackpots(c *C) {
 	records, err := s.store.GetActiveJackpots()
 	c.Assert(err, IsNil)
 	c.Assert(records, HasLen, 1)
-	c.Check(records[0].Jackpot, Equals, 500)
+	c.Check(records[0].Jackpot, Equals, float64(500))
 }
 
 func (s *DBSuite) TestGetIncompleteJackpots(c *C) {
@@ -133,5 +133,5 @@ func (s *DBSuite) TestGetIncompleteJackpots(c *C) {
 	records, err := s.store.GetIncompleteJackpots()
 	c.Assert(err, IsNil)
 	c.Assert(records, HasLen, 1)
-	c.Check(records[0].Jackpot, Equals, 300)
+	c.Check(records[0].Jackpot, Equals, float64(300))
 }

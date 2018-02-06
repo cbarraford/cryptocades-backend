@@ -29,7 +29,7 @@ const table string = "jackpots"
 
 type Record struct {
 	Id            int64     `json:"id" db:"id"`
-	Jackpot       int       `json:"jackpot" db:"jackpot"`
+	Jackpot       float64   `json:"jackpot" db:"jackpot"`
 	WinnerId      int64     `json:"-" db:"winner_id"`
 	WinnerBTCAddr string    `json:"btc_addres" db:"btc_address"`
 	TransactionId string    `json:"transaction_id" db:"transaction_id"`

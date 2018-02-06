@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"time"
 
+	coinApi "github.com/miguelmota/go-coinmarketcap"
+
 	"github.com/cbarraford/cryptocades-backend/store"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
@@ -47,8 +49,9 @@ func ManageJackpots(store jackpot.Store, entryStore entry.Store, userStore user.
 		return fmt.Errorf("Error getting active jackpots: %+v", err)
 	}
 	if len(jackpots) == 0 {
+		coinInfo, err := coinApi.GetCoinData("bitcoin")
 		jackpot := jackpot.Record{
-			Jackpot: 100,
+			Jackpot: 100 / coinInfo.PriceUsd,
 			// One week end time
 			EndTime: time.Now().UTC().Add(168 * time.Hour),
 		}
