@@ -1,0 +1,1 @@
+ALTER TABLE jackpots ALTER COLUMN jackpot TYPE INTEGER;
