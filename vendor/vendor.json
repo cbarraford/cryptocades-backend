@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "pz9cCs6Xdo285ssZF5dEfvHTFbo=",
+			"path": "github.com/anaskhan96/soup",
+			"revision": "df81beb8204e429c6e021f1000aabf728561ee56",
+			"revisionTime": "2017-12-18T20:31:25Z"
+		},
+		{
 			"checksumSHA1": "2UmMbNHc8FBr98mJFN1k8ISOIHk=",
 			"path": "github.com/garyburd/redigo/internal",
 			"revision": "5f161ed9cfbce31e5a0ec0b1c3c81087e2e9cbef",
@@ -121,6 +127,12 @@
 			"revisionTime": "2017-11-07T05:05:31Z"
 		},
 		{
+			"checksumSHA1": "AQ34xI95jf4LUq2I5KYATisWe2E=",
+			"path": "github.com/miguelmota/go-coinmarketcap",
+			"revision": "7984dad06d8a2b15ce4531eb808aa3542fc0ebaa",
+			"revisionTime": "2018-01-18T01:34:16Z"
+		},
+		{
 			"checksumSHA1": "GUy17UT17gYQH/n1/q4ttdx5qvQ=",
 			"path": "github.com/newrelic/go-agent",
 			"revision": "f5bce3387232559bcbe6a5f8227c4bf508dac1ba",
@@ -197,6 +209,18 @@
 			"path": "golang.org/x/crypto/blowfish",
 			"revision": "94eea52f7b742c7cbe0b03b22f0c4c8631ece122",
 			"revisionTime": "2017-11-28T01:43:40Z"
+		},
+		{
+			"checksumSHA1": "ag6CP2CjfMRiJxDuBDVKytu5sR8=",
+			"path": "golang.org/x/net/html",
+			"revision": "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1",
+			"revisionTime": "2018-02-02T11:17:09Z"
+		},
+		{
+			"checksumSHA1": "NvlH++AI8+25Z2Vs8WKxLVCNrxo=",
+			"path": "golang.org/x/net/html/atom",
+			"revision": "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1",
+			"revisionTime": "2018-02-02T11:17:09Z"
 		},
 		{
 			"checksumSHA1": "CEFTYXtWmgSh+3Ik1NmDaJcz4E0=",
