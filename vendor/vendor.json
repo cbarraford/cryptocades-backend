@@ -3,10 +3,28 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "zUZIS8ZqolQFRf9oU+AjekuMflU=",
+			"path": "github.com/0987363/cache",
+			"revision": "ffb4c5cf2d2b6045445917ec6754cb1e38a66b19",
+			"revisionTime": "2018-01-08T08:12:03Z"
+		},
+		{
 			"checksumSHA1": "pz9cCs6Xdo285ssZF5dEfvHTFbo=",
 			"path": "github.com/anaskhan96/soup",
 			"revision": "df81beb8204e429c6e021f1000aabf728561ee56",
 			"revisionTime": "2017-12-18T20:31:25Z"
+		},
+		{
+			"checksumSHA1": "fvVoeETRxg13N2GlxydO+5slZdM=",
+			"path": "github.com/bradfitz/gomemcache/memcache",
+			"revision": "1952afaa557dc08e8e0d89eafab110fb501c1a2b",
+			"revisionTime": "2017-02-08T21:30:04Z"
+		},
+		{
+			"checksumSHA1": "Q63JA8Ftgri8rfLn29vBw+UCBwY=",
+			"path": "github.com/cbarraford/cache",
+			"revision": "d1dc2ca7c0a7bff1e8e3e0d2ff9b3d91ecce69f3",
+			"revisionTime": "2018-02-08T10:57:05Z"
 		},
 		{
 			"checksumSHA1": "2UmMbNHc8FBr98mJFN1k8ISOIHk=",
@@ -23,6 +41,24 @@
 			"path": "github.com/garyburd/redigo/redis",
 			"revision": "5f161ed9cfbce31e5a0ec0b1c3c81087e2e9cbef",
 			"revisionTime": "2017-12-14T08:01:08Z"
+		},
+		{
+			"checksumSHA1": "m34QqGJRl2VMuTo1R0JkbKUMhFE=",
+			"path": "github.com/gin-contrib/cache",
+			"revision": "87f25cc11083b14a2b7e2d28553d5b05b39dcb2e",
+			"revisionTime": "2018-01-20T15:39:08Z"
+		},
+		{
+			"checksumSHA1": "8cpHFf0DaG2QqrGEgYGpnrRDIB0=",
+			"path": "github.com/gin-contrib/cache/persistence",
+			"revision": "87f25cc11083b14a2b7e2d28553d5b05b39dcb2e",
+			"revisionTime": "2018-01-20T15:39:08Z"
+		},
+		{
+			"checksumSHA1": "NDh5MuQeIW05zTQzpY5kEmrWKiU=",
+			"path": "github.com/gin-contrib/cache/utils",
+			"revision": "87f25cc11083b14a2b7e2d28553d5b05b39dcb2e",
+			"revisionTime": "2018-01-20T15:39:08Z"
 		},
 		{
 			"checksumSHA1": "XeZ0s/EYoIORsoatbSOJQzIDLgU=",
@@ -185,6 +221,12 @@
 			"path": "github.com/pkg/errors",
 			"revision": "e881fd58d78e04cf6d0de1217f8707c8cc2249bc",
 			"revisionTime": "2017-12-16T07:03:16Z"
+		},
+		{
+			"checksumSHA1": "XzHDmND/Rq9/RLKBP2fnAtBJu2M=",
+			"path": "github.com/robfig/go-cache",
+			"revision": "9fc39e0dbf62c034ec4e45e6120fc69433a3ec51",
+			"revisionTime": "2013-03-06T15:13:11Z"
 		},
 		{
 			"checksumSHA1": "+azhwVhw/PHnjtjF9uul9tXlExw=",

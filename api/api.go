@@ -1,13 +1,18 @@
 package api
 
 import (
+	"net/http"
 	"time"
 
+	"github.com/cbarraford/cache"
+	"github.com/cbarraford/cache/persistence"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	coinApi "github.com/miguelmota/go-coinmarketcap"
 	newrelic "github.com/newrelic/go-agent"
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
+	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/api/games"
 	"github.com/cbarraford/cryptocades-backend/api/jackpots"
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
@@ -16,13 +21,14 @@ import (
 )
 
 func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
+	mem := persistence.NewInMemoryStore(60 * time.Second)
+
 	r := gin.New()
 
 	// Global middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Use(middleware.Authenticate(store.Sessions))
-	r.Use(middleware.HandleErrors())
 	r.Use(nrgin.Middleware(agent))
 
 	// CORS
@@ -37,10 +43,13 @@ func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+	r.Use(middleware.HandleErrors())
 
 	r.Static("/docs", "./docs")
 
 	r.GET("/ping", ping())
+	r.GET("/currency/price/:symbol", cache.CachePage(mem, time.Minute, price()))
+
 	r.GET("/me", middleware.AuthRequired(), users.Me(store.Users))
 	r.GET("/me/balance", middleware.AuthRequired(), users.Balance(store.Incomes, store.Entries))
 	r.GET("/me/incomes", middleware.AuthRequired(), users.Incomes(store.Incomes))
@@ -84,6 +93,20 @@ func ping() func(*gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
+		})
+	}
+}
+
+func price() func(*gin.Context) {
+	return func(c *gin.Context) {
+		sym := context.GetString("price", c)
+		coinInfo, err := coinApi.GetCoinData(sym)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(200, gin.H{
+			"usd": coinInfo.PriceUsd,
 		})
 	}
 }
