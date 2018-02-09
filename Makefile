@@ -62,7 +62,7 @@ start:
 run: build start
 
 test-short:
-	@docker-compose run --rm --no-deps cryptocades-backend make test-short-internal
+	@docker-compose run --rm --no-deps -e TARGET=$$TARGET cryptocades-backend make test-short-internal
 
 test:
 	@./scripts/run.sh cryptocades-backend make wait-for-postgres test-internal
