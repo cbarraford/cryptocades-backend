@@ -130,6 +130,28 @@ func (s *DBSuite) TestGetByEmail(c *C) {
 	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }
 
+func (s *DBSuite) TestGetByReferralCode(c *C) {
+	record := Record{
+		Username: "bob",
+		Email:    "bob@cryptocades.com",
+		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		Password: "password",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	var err error
+	record, err = s.store.Get(record.Id)
+	c.Assert(err, IsNil)
+
+	r, err := s.store.GetByReferralCode(record.ReferralCode)
+	c.Assert(err, IsNil)
+	c.Check(r.Username, Equals, "bob")
+	c.Check(r.Email, Equals, "bob@cryptocades.com")
+	c.Check(r.BTCAddr, Equals, "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq")
+	c.Check(r.ReferralCode, Equals, record.ReferralCode, Commentf("%s", record.ReferralCode))
+	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
+}
+
 func (s *DBSuite) TestUpdate(c *C) {
 	record := Record{
 		Username: "bob",

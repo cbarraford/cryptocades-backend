@@ -18,6 +18,7 @@ type Store interface {
 	GetByUsername(username string) (Record, error)
 	GetByEmail(email string) (Record, error)
 	GetByBTCAddress(btc_address string) (Record, error)
+	GetByReferralCode(code string) (Record, error)
 	Update(record *Record) error
 	List() ([]Record, error)
 	MarkAsConfirmed(record *Record) error
@@ -38,15 +39,16 @@ func NewStore(db *sqlx.DB) Store {
 const table string = "users"
 
 type Record struct {
-	Id          int64     `json:"id" db:"id"`
-	BTCAddr     string    `json:"btc_address" db:"btc_address"`
-	Username    string    `json:"username" db:"username"`
-	Password    string    `json:"-" db:"password"`
-	Email       string    `json:"email" db:"email"`
-	Avatar      string    `json:"avatar" db:"-"`
-	Confirmed   bool      `json:"confirmed" db:"confirmed"`
-	CreatedTime time.Time `json:"created_time" db:"created_time"`
-	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
+	Id           int64     `json:"id" db:"id"`
+	BTCAddr      string    `json:"btc_address" db:"btc_address"`
+	Username     string    `json:"username" db:"username"`
+	Password     string    `json:"-" db:"password"`
+	Email        string    `json:"email" db:"email"`
+	Avatar       string    `json:"avatar" db:"-"`
+	Confirmed    bool      `json:"confirmed" db:"confirmed"`
+	ReferralCode string    `json:"referral_code" db:"referral_code"`
+	CreatedTime  time.Time `json:"created_time" db:"created_time"`
+	UpdatedTime  time.Time `json:"updated_time" db:"updated_time"`
 }
 
 func (db *store) TableName() string {
@@ -110,6 +112,12 @@ func (db *store) GetByBTCAddress(btc string) (record Record, err error) {
 func (db *store) GetByEmail(email string) (record Record, err error) {
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE email = ?", table))
 	err = db.sqlx.Get(&record, query, email)
+	return
+}
+
+func (db *store) GetByReferralCode(code string) (record Record, err error) {
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE referral_code = ?", table))
+	err = db.sqlx.Get(&record, query, code)
 	return
 }
 

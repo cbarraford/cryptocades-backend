@@ -11,13 +11,20 @@ import (
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
+	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/user"
 	"github.com/cbarraford/cryptocades-backend/util"
 	"github.com/cbarraford/cryptocades-backend/util/email"
 	"github.com/cbarraford/cryptocades-backend/util/url"
 )
 
-func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context) {
+const (
+	signUpBonus   = 5
+	referralBonus = 10
+	maxReferrals  = 10
+)
+
+func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		record := user.Record{}
@@ -28,6 +35,7 @@ func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context
 			record.Email = json.Email
 			record.BTCAddr = json.BTCAddr
 			record.Password = json.Password
+			record.ReferralCode = json.ReferralCode
 		} else {
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
 			return
@@ -45,6 +53,107 @@ func Create(store user.Store, confirmStore confirmation.Store) func(*gin.Context
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
+		}
+
+		// give them free tickets for signing up
+		in := income.Record{
+			UserId:    record.Id,
+			SessionId: "Sign up",
+			Amount:    signUpBonus,
+		}
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "incomes",
+			Operation:  "sign-up-bonus",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		err = incomeStore.Create(&in)
+		seg.End()
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		if record.ReferralCode != "" {
+
+			seg = newrelic.DatastoreSegment{
+				Product:    newrelic.DatastorePostgres,
+				Collection: "incomes",
+				Operation:  "Bonus Count",
+			}
+			seg.StartTime = newrelic.StartSegmentNow(txn)
+			count, err := incomeStore.CountBonuses(record.Id, "Referral")
+			seg.End()
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+
+			if count < maxReferrals {
+				seg = newrelic.DatastoreSegment{
+					Product:    newrelic.DatastorePostgres,
+					Collection: "users",
+					Operation:  "GET",
+				}
+				seg.StartTime = newrelic.StartSegmentNow(txn)
+				referrer, err := store.GetByReferralCode(record.ReferralCode)
+				seg.End()
+				if err != nil {
+					c.AbortWithError(http.StatusInternalServerError, err)
+					return
+				}
+
+				seg = newrelic.DatastoreSegment{
+					Product:    newrelic.DatastorePostgres,
+					Collection: "users",
+					Operation:  "GET",
+				}
+				seg.StartTime = newrelic.StartSegmentNow(txn)
+				record, err = store.Get(record.Id)
+				seg.End()
+				if err != nil {
+					c.AbortWithError(http.StatusInternalServerError, err)
+					return
+				}
+
+				// give them free tickets for using referral
+				in1 := income.Record{
+					UserId:    record.Id,
+					SessionId: fmt.Sprintf("Referral - %s", referrer.ReferralCode),
+					Amount:    referralBonus,
+				}
+				in2 := income.Record{
+					UserId:    referrer.Id,
+					SessionId: fmt.Sprintf("Referral - %s", record.ReferralCode),
+					Amount:    referralBonus,
+				}
+
+				seg = newrelic.DatastoreSegment{
+					Product:    newrelic.DatastorePostgres,
+					Collection: "incomes",
+					Operation:  "referral",
+				}
+				seg.StartTime = newrelic.StartSegmentNow(txn)
+				err = incomeStore.Create(&in1)
+				seg.End()
+				if err != nil {
+					c.AbortWithError(http.StatusInternalServerError, err)
+					return
+				}
+
+				seg = newrelic.DatastoreSegment{
+					Product:    newrelic.DatastorePostgres,
+					Collection: "incomes",
+					Operation:  "referral",
+				}
+				seg.StartTime = newrelic.StartSegmentNow(txn)
+				err = incomeStore.Create(&in2)
+				seg.End()
+				if err != nil {
+					c.AbortWithError(http.StatusInternalServerError, err)
+					return
+				}
+			}
 		}
 
 		// send confirmation email

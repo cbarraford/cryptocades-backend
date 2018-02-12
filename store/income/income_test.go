@@ -139,7 +139,7 @@ func (s *DBSuite) TestListByUser(c *C) {
 func (s *DBSuite) TestUserIncome(c *C) {
 	record := Record{
 		GameId:    4,
-		SessionId: "sldfku",
+		SessionId: "sign up",
 		UserId:    5,
 		Amount:    60,
 	}
@@ -147,7 +147,7 @@ func (s *DBSuite) TestUserIncome(c *C) {
 
 	record = Record{
 		GameId:    4,
-		SessionId: "skbhtus",
+		SessionId: "referral-2",
 		UserId:    5,
 		Amount:    50,
 	}
@@ -155,7 +155,7 @@ func (s *DBSuite) TestUserIncome(c *C) {
 
 	record = Record{
 		GameId:    4,
-		SessionId: "sdlfkjnthgu",
+		SessionId: "sign up",
 		UserId:    6,
 		Amount:    40,
 	}
@@ -168,4 +168,13 @@ func (s *DBSuite) TestUserIncome(c *C) {
 	spent, err = s.store.UserIncome(9999)
 	c.Assert(err, IsNil)
 	c.Check(spent, Equals, 0)
+
+	var count int
+	count, err = s.store.CountBonuses(5, "referral")
+	c.Assert(err, IsNil)
+	c.Check(count, Equals, 1)
+
+	count, err = s.store.CountBonuses(5, "test")
+	c.Assert(err, IsNil)
+	c.Check(count, Equals, 0)
 }

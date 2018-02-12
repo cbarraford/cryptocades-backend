@@ -60,7 +60,7 @@ func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
 	r.DELETE("/me", middleware.AuthRequired(), users.Delete(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))
 	r.DELETE("/logout", users.Logout(store.Sessions))
-	r.POST("/users", users.Create(store.Users, store.Confirmations))
+	r.POST("/users", users.Create(store.Users, store.Incomes, store.Confirmations))
 	r.POST("/users/confirmation/:code",
 		users.Confirm(store.Confirmations, store.Users),
 	)

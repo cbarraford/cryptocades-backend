@@ -11,12 +11,34 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
+	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 type UserCreateSuite struct{}
 
 var _ = Suite(&UserCreateSuite{})
+
+type mockIncomeCreateStore struct {
+	income.Dummy
+	session_id []string
+	freebe     bool
+	count      int
+	total      int
+}
+
+func (m *mockIncomeCreateStore) Create(record *income.Record) error {
+	m.session_id = append(m.session_id, record.SessionId)
+	if record.Amount == 5 && record.SessionId == "Sign up" {
+		m.freebe = true
+	}
+	m.total = m.total + record.Amount
+	return nil
+}
+
+func (m *mockIncomeCreateStore) CountBonuses(i int64, p string) (int, error) {
+	return m.count, nil
+}
 
 type mockCreateUserStore struct {
 	user.Dummy
@@ -35,6 +57,21 @@ func (m *mockCreateUserStore) Create(record *user.Record) error {
 	m.password = record.Password
 	m.email = record.Email
 	return nil
+}
+
+func (m *mockCreateUserStore) GetByReferralCode(code string) (user.Record, error) {
+	return user.Record{
+		Id:           5,
+		ReferralCode: code,
+	}, nil
+}
+
+func (m *mockCreateUserStore) Get(id int64) (user.Record, error) {
+	return user.Record{
+		Id:           id,
+		Email:        "bob@bob.com",
+		ReferralCode: fmt.Sprintf("ref-%d", id),
+	}, nil
 }
 
 type mockConfirmCreateStore struct {
@@ -59,12 +96,15 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	// happy path
 	store := &mockCreateUserStore{}
 	confirmStore := &mockConfirmCreateStore{}
+	incomeStore := &mockIncomeCreateStore{
+		count: 0,
+	}
 
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, confirmStore))
-	input := fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345"}`)
+	r.POST("/users", Create(store, incomeStore, confirmStore))
+	input := fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
 	body := strings.NewReader(input)
 	req, _ := http.NewRequest("POST", "/users", body)
 	req.Header.Set("Masquerade", "5")
@@ -81,4 +121,24 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	c.Check(confirmStore.email, Equals, "bob@bob.com")
 	c.Check(confirmStore.userId, Equals, int64(10))
 	c.Check(confirmStore.code, Not(Equals), "")
+
+	c.Check(incomeStore.freebe, Equals, true)
+	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up", "Referral - code1", "Referral - ref-10"})
+	c.Check(incomeStore.total, Equals, 25) // 5 for bonus, 10 for each user (2)
+
+	// make sure that when we have 10 referrals already, we don't award more
+	incomeStore.count = 10
+	incomeStore.session_id = nil
+	r = gin.New()
+	r.Use(middleware.Masquerade())
+	r.Use(middleware.AuthRequired())
+	r.POST("/users", Create(store, incomeStore, confirmStore))
+	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
+	body = strings.NewReader(input)
+	req, _ = http.NewRequest("POST", "/users", body)
+	req.Header.Set("Masquerade", "5")
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 200)
+	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up"})
 }

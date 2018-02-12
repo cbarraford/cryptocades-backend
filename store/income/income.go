@@ -14,6 +14,7 @@ type Store interface {
 	ListByUser(userId int64) ([]Record, error)
 	UserIncome(userId int64) (int, error)
 	UpdateScores() error
+	CountBonuses(userId int64, prefix string) (int, error)
 }
 
 type store struct {
@@ -117,6 +118,12 @@ func (db *store) List() (records []Record, err error) {
 func (db *store) ListByUser(id int64) (records []Record, err error) {
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE user_id = ?", table))
 	err = db.sqlx.Select(&records, query, id)
+	return
+}
+
+func (db *store) CountBonuses(id int64, prefix string) (i int, err error) {
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COUNT(id) FROM %s WHERE session_id LIKE ?", table))
+	err = db.sqlx.Get(&i, query, prefix+"%")
 	return
 }
 
