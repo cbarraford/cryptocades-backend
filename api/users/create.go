@@ -41,6 +41,11 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 			return
 		}
 
+		if err := util.ValidateEmail(record.Email); err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
 		txn := nrgin.Transaction(c)
 		seg := newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,

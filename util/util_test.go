@@ -19,3 +19,10 @@ func (s *UtilSuite) TestRandSeq(c *C) {
 	c.Check(r2, HasLen, 14)
 	c.Check(r1, Not(Equals), r2)
 }
+
+func (s *UtilSuite) TestValidateEmail(c *C) {
+	c.Check(ValidateEmail("test@test.com"), IsNil)
+	c.Check(ValidateEmail("testtest.com"), NotNil)
+	c.Check(ValidateEmail("test+test@test.com"), NotNil)
+	c.Check(ValidateEmail(""), NotNil)
+}

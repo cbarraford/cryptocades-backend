@@ -81,6 +81,14 @@ func (s *UserPasswordResetSuite) TestPasswordReset(c *C) {
 	c.Assert(w.Code, Equals, 200)
 	c.Check(confirmStore.created, Equals, true)
 
+	// bad email address
+	input = fmt.Sprintf(`{"email":""}`)
+	body = strings.NewReader(input)
+	req, _ = http.NewRequest("POST", "/users/password_reset", body)
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 400)
+
 	input = fmt.Sprintf(`{"password":"new_password"}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/users/password_reset/abcderf", body)
@@ -90,4 +98,5 @@ func (s *UserPasswordResetSuite) TestPasswordReset(c *C) {
 	c.Check(userStore.reset, Equals, true)
 	c.Check(userStore.password, Equals, "new_password")
 	c.Check(confirmStore.deleted, Equals, true)
+
 }

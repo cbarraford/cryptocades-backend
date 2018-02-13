@@ -115,6 +115,11 @@ func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*
 			return
 		}
 
+		if err := util.ValidateEmail(json.Email); err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
 		txn := nrgin.Transaction(c)
 		seg := newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,

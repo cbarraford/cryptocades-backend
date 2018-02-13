@@ -141,4 +141,19 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r.ServeHTTP(w, req)
 	c.Assert(w.Code, Equals, 200)
 	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up"})
+
+	// test that a bad email fails
+	incomeStore.count = 0
+	incomeStore.session_id = nil
+	r = gin.New()
+	r.Use(middleware.Masquerade())
+	r.Use(middleware.AuthRequired())
+	r.POST("/users", Create(store, incomeStore, confirmStore))
+	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob+tag@bob.com","btc_address":"12345","referral_code":"code1"}`)
+	body = strings.NewReader(input)
+	req, _ = http.NewRequest("POST", "/users", body)
+	req.Header.Set("Masquerade", "5")
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 400)
 }
