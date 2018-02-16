@@ -13,6 +13,7 @@ import (
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/context"
+	"github.com/cbarraford/cryptocades-backend/api/facebook"
 	"github.com/cbarraford/cryptocades-backend/api/games"
 	"github.com/cbarraford/cryptocades-backend/api/jackpots"
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
@@ -59,6 +60,7 @@ func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
 	r.PUT("/me/email", middleware.EscalatedAuthRequired(), users.UpdateEmail(store.Users, store.Confirmations))
 	r.DELETE("/me", middleware.AuthRequired(), users.Delete(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))
+	r.POST("/login/facebook", facebook.Login(store.Users, store.Sessions))
 	r.DELETE("/logout", users.Logout(store.Sessions))
 	r.POST("/users", users.Create(store.Users, store.Incomes, store.Confirmations))
 	r.POST("/users/confirmation/:code",

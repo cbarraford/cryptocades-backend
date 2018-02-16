@@ -15,6 +15,7 @@ func (*Dummy) GetByBTCAddress(u string) (Record, error)      { return Record{}, 
 func (*Dummy) GetByUsername(u string) (Record, error)        { return Record{}, kaboom }
 func (*Dummy) GetByEmail(e string) (Record, error)           { return Record{}, kaboom }
 func (*Dummy) GetByReferralCode(code string) (Record, error) { return Record{}, kaboom }
+func (*Dummy) GetByFacebookId(code string) (Record, error)   { return Record{}, kaboom }
 func (*Dummy) List() ([]Record, error)                       { return nil, kaboom }
 func (*Dummy) Authenticate(u, p string) (Record, error)      { return Record{}, kaboom }
 func (*Dummy) Delete(id int64) error                         { return kaboom }

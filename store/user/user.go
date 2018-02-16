@@ -3,7 +3,6 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -19,6 +18,7 @@ type Store interface {
 	GetByEmail(email string) (Record, error)
 	GetByBTCAddress(btc_address string) (Record, error)
 	GetByReferralCode(code string) (Record, error)
+	GetByFacebookId(id string) (Record, error)
 	Update(record *Record) error
 	List() ([]Record, error)
 	MarkAsConfirmed(record *Record) error
@@ -44,6 +44,7 @@ type Record struct {
 	Username     string    `json:"username" db:"username"`
 	Password     string    `json:"-" db:"password"`
 	Email        string    `json:"email" db:"email"`
+	FacebookId   string    `json:"-" db:"fb_id"`
 	Avatar       string    `json:"avatar" db:"-"`
 	Confirmed    bool      `json:"confirmed" db:"confirmed"`
 	ReferralCode string    `json:"referral_code" db:"referral_code"`
@@ -64,7 +65,7 @@ func (db *store) Create(record *Record) error {
 	if record.Email == "" {
 		return fmt.Errorf("Email must not be blank")
 	}
-	if record.Password == "" {
+	if record.Password == "" && record.FacebookId == "" {
 		return fmt.Errorf("Password must not be blank")
 	}
 
@@ -81,9 +82,9 @@ func (db *store) Create(record *Record) error {
 
 	query := fmt.Sprintf(`
         INSERT INTO %s
-			(username, password, btc_address, email, confirmed)
+			(username, password, btc_address, email, fb_id, confirmed)
         VALUES
-			(:username, :password, :btc_address, :email, :confirmed) RETURNING id`, table)
+			(:username, :password, :btc_address, :email, :fb_id, :confirmed) RETURNING id`, table)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
@@ -118,6 +119,15 @@ func (db *store) GetByEmail(email string) (record Record, err error) {
 func (db *store) GetByReferralCode(code string) (record Record, err error) {
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE referral_code = ?", table))
 	err = db.sqlx.Get(&record, query, code)
+	return
+}
+
+func (db *store) GetByFacebookId(id string) (record Record, err error) {
+	if id == "" {
+		return record, fmt.Errorf("Facebook id not found")
+	}
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE fb_id = ?", table))
+	err = db.sqlx.Get(&record, query, id)
 	return
 }
 
@@ -187,14 +197,17 @@ func (db *store) MarkAsConfirmed(record *Record) error {
 func (db *store) Authenticate(username, password string) (record Record, err error) {
 	incorrect := fmt.Errorf("Incorrect username or password")
 	record, err = db.GetByUsername(username)
+
+	// if password is blank, always fail
+	if password == "" {
+		return Record{}, incorrect
+	}
+
 	if err != nil || !record.Confirmed {
-		log.Printf("Auth Err: %+v", err)
-		log.Printf("Confirmed: %+v", record.Confirmed)
 		return Record{}, incorrect
 	}
 
 	if !CheckPasswordHash(password, record.Password) {
-		log.Printf("Bad username and password")
 		return Record{}, incorrect
 	}
 

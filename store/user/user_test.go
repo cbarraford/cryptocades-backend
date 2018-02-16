@@ -152,6 +152,31 @@ func (s *DBSuite) TestGetByReferralCode(c *C) {
 	c.Check(CheckPasswordHash("password", r.Password), Equals, true)
 }
 
+func (s *DBSuite) TestGetByFacebookId(c *C) {
+	record := Record{
+		Username:   "10101484833558856",
+		Email:      "bob@cryptocades.com",
+		FacebookId: "10101484833558856",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	var err error
+	record, err = s.store.Get(record.Id)
+	c.Assert(err, IsNil)
+
+	r, err := s.store.GetByFacebookId(record.FacebookId)
+	c.Assert(err, IsNil)
+	c.Check(r.Username, Equals, "10101484833558856")
+	c.Check(r.Email, Equals, "bob@cryptocades.com")
+	c.Check(r.FacebookId, Equals, "10101484833558856")
+
+	r, err = s.store.GetByFacebookId("")
+	c.Assert(err, NotNil)
+
+	r, err = s.store.GetByFacebookId("bogus")
+	c.Assert(err, NotNil)
+}
+
 func (s *DBSuite) TestUpdate(c *C) {
 	record := Record{
 		Username: "bob",
@@ -228,6 +253,16 @@ func (s *DBSuite) TestAuthenticate(c *C) {
 
 	// bad username
 	record, err = s.store.Authenticate("bad username", "bad password")
+	c.Assert(err, ErrorMatches, "Incorrect username or password")
+
+	// ensure blank password can't be logged into
+	record = Record{
+		Username:   "12345",
+		Email:      "bob@cryptocades.com",
+		FacebookId: "12345",
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+	record, err = s.store.Authenticate("12345", "")
 	c.Assert(err, ErrorMatches, "Incorrect username or password")
 }
 
