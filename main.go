@@ -22,7 +22,7 @@ func main() {
 	err = context.MigrateDB(os.Getenv("DATABASE_URL"), "file://./migrations")
 	if err != nil {
 		rollbar.Error(rollbar.ERR, err)
-		log.Fatal(err)
+		log.Fatalf("DB Migration Error: %+v", err)
 	}
 
 	db, err := store.GetDB(os.Getenv("DATABASE_URL"))
