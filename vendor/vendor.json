@@ -109,6 +109,22 @@
 			"revisionTime": "2017-11-13T18:07:20Z"
 		},
 		{
+			"checksumSHA1": "MFkrEy77SoBbEtLd3Ros+NZO35w=",
+			"path": "github.com/heroku/x/hmetrics",
+			"revision": "705849e307dd75c91728463dea5bfd08ef493e64",
+			"revisionTime": "2017-10-04T17:02:40Z"
+		},
+		{
+			"checksumSHA1": "GOeW0t8PSBNHFTUHmdSgPv2kl/0=",
+			"path": "github.com/heroku/x/hmetrics/onload",
+			"revision": "705849e307dd75c91728463dea5bfd08ef493e64",
+			"revisionTime": "2017-10-04T17:02:40Z"
+		},
+		{
+			"path": "github.com/hmetrics/onload",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "QmAzbypFddS3Tl/HDca0X0zXZ/M=",
 			"path": "github.com/jmoiron/sqlx",
 			"revision": "de8647470aafe4854c976707c431dbe1eb2822c6",

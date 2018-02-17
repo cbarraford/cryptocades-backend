@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/heroku/x/hmetrics/onload"
 	newrelic "github.com/newrelic/go-agent"
 	"github.com/stvp/rollbar"
 
