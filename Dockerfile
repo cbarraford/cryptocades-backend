@@ -17,9 +17,8 @@ RUN \
 	rm -rf /var/cache/apk/* && \
 	:
 
-RUN echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
-    apk update && \
-    apk add curl make git "libpq@edge<9.7" "postgresql-client@edge<9.7" "postgresql@edge<9.7" "postgresql-contrib@edge<9.7" && \
+RUN apk update && \
+    apk add curl make git postgresql-client && \
     apk del curl && \
     rm -rf /var/cache/apk/*
 
