@@ -178,3 +178,37 @@ func (s *DBSuite) TestUserIncome(c *C) {
 	c.Assert(err, IsNil)
 	c.Check(count, Equals, 0)
 }
+
+func (s *DBSuite) TestUserIncomeRank(c *C) {
+	record := Record{
+		GameId:    4,
+		SessionId: "sign up",
+		UserId:    5,
+		Amount:    60,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record = Record{
+		GameId:    4,
+		SessionId: "referral-2",
+		UserId:    6,
+		Amount:    50,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	record = Record{
+		GameId:    4,
+		SessionId: "sign up",
+		UserId:    7,
+		Amount:    40,
+	}
+	c.Assert(s.store.Create(&record), IsNil)
+
+	spent, err := s.store.UserIncomeRank(5)
+	c.Assert(err, IsNil)
+	c.Check(spent, Equals, 60)
+
+	spent, err = s.store.UserIncomeRank(9999)
+	c.Assert(err, IsNil)
+	c.Check(spent, Equals, 0)
+}

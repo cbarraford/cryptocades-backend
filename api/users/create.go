@@ -63,7 +63,7 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 		// give them free tickets for signing up
 		in := income.Record{
 			UserId:    record.Id,
-			SessionId: "Sign up",
+			SessionId: "Sign up Bonus",
 			Amount:    signUpBonus,
 		}
 		seg = newrelic.DatastoreSegment{

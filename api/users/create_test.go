@@ -29,7 +29,7 @@ type mockIncomeCreateStore struct {
 
 func (m *mockIncomeCreateStore) Create(record *income.Record) error {
 	m.session_id = append(m.session_id, record.SessionId)
-	if record.Amount == 5 && record.SessionId == "Sign up" {
+	if record.Amount == 5 && record.SessionId == "Sign up Bonus" {
 		m.freebe = true
 	}
 	m.total = m.total + record.Amount
@@ -123,7 +123,7 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	c.Check(confirmStore.code, Not(Equals), "")
 
 	c.Check(incomeStore.freebe, Equals, true)
-	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up", "Referral - code1", "Referral - ref-10"})
+	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up Bonus", "Referral - code1", "Referral - ref-10"})
 	c.Check(incomeStore.total, Equals, 25) // 5 for bonus, 10 for each user (2)
 
 	// make sure that when we have 10 referrals already, we don't award more
@@ -140,7 +140,7 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	c.Assert(w.Code, Equals, 200)
-	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up"})
+	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up Bonus"})
 
 	// test that a bad email fails
 	incomeStore.count = 0

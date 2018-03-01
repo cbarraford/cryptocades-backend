@@ -26,6 +26,10 @@ func (*mockIncomesStore) ListByUser(id int64) ([]income.Record, error) {
 	}, nil
 }
 
+func (*mockIncomesStore) UserIncomeRank(id int64) (int, error) {
+	return 50, nil
+}
+
 func (s *UserIncomesSuite) TestIncomes(c *check.C) {
 	store := &mockIncomesStore{}
 
@@ -49,4 +53,29 @@ func (s *UserIncomesSuite) TestIncomes(c *check.C) {
 	c.Check(records[0].GameId, check.Equals, int64(4))
 	c.Check(records[0].UserId, check.Equals, int64(12))
 	c.Check(records[0].Amount, check.Equals, 45)
+}
+
+type Rank struct {
+	Rank int `json:"rank"`
+}
+
+func (s *UserIncomesSuite) TestIncomeRank(c *check.C) {
+	store := &mockIncomesStore{}
+
+	r := gin.New()
+	r.Use(middleware.Masquerade())
+	r.Use(middleware.AuthRequired())
+
+	r.GET("/me/incomes/rank", IncomeRank(store))
+
+	// happy path
+	req, _ := http.NewRequest("GET", "/me/incomes/rank", nil)
+	req.Header.Set("Masquerade", "12")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, check.Equals, 200)
+
+	var rank Rank
+	c.Assert(json.Unmarshal(w.Body.Bytes(), &rank), check.IsNil)
+	c.Check(rank.Rank, check.Equals, 50)
 }

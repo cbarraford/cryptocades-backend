@@ -13,9 +13,14 @@ type Store interface {
 	Get(id int64) (Record, error)
 	ListByUser(userId int64) ([]Record, error)
 	UserIncome(userId int64) (int, error)
+	UserIncomeRank(userId int64) (int, error)
 	UpdateScores() error
 	CountBonuses(userId int64, prefix string) (int, error)
 }
+
+// increase this number as we reach user count milestones (ie 10, 20, 50, 100)
+// TODO set to 100 once we have 100 users in the database
+const rankDivider = 5
 
 type store struct {
 	Store
@@ -127,11 +132,18 @@ func (db *store) CountBonuses(id int64, prefix string) (i int, err error) {
 	return
 }
 
-func (db *store) UserIncome(userId int64) (spent int, err error) {
+func (db *store) UserIncome(userId int64) (earned int, err error) {
 	// If you update the query here, also update it in entry.go. This isn't
 	// very DRY, but felt like it wasn't worth the import, getting this func to
 	// work within a transaction, etc
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COALESCE(SUM(amount),0) FROM %s WHERE user_id = ?", table))
-	err = db.sqlx.Get(&spent, query, userId)
+	err = db.sqlx.Get(&earned, query, userId)
+	return
+}
+
+func (db *store) UserIncomeRank(userId int64) (rank int, err error) {
+	query := db.sqlx.Rebind(fmt.Sprintf("WITH totals AS (SELECT user_id, COALESCE(SUM(amount),0) AS total FROM %s GROUP BY user_id), ranks AS (SELECT user_id, total, ntile(%d) OVER (ORDER BY total) AS rank from totals) SELECT rank from ranks WHERE user_id = ?;", table, rankDivider))
+	_ = db.sqlx.Get(&rank, query, userId)
+	rank = int((float64(rank) / float64(rankDivider)) * 100)
 	return
 }
