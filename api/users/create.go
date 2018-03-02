@@ -19,9 +19,9 @@ import (
 )
 
 const (
-	signUpBonus   = 5
-	referralBonus = 10
-	maxReferrals  = 10
+	SignUpBonus   = 5
+	ReferralBonus = 10
+	MaxReferrals  = 10
 )
 
 func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store) func(*gin.Context) {
@@ -60,105 +60,10 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 			return
 		}
 
-		// give them free tickets for signing up
-		in := income.Record{
-			UserId:    record.Id,
-			SessionId: "Sign up Bonus",
-			Amount:    signUpBonus,
-		}
-		seg = newrelic.DatastoreSegment{
-			Product:    newrelic.DatastorePostgres,
-			Collection: "incomes",
-			Operation:  "sign-up-bonus",
-		}
-		seg.StartTime = newrelic.StartSegmentNow(txn)
-		err = incomeStore.Create(&in)
-		seg.End()
+		err = NewUserBonus(txn, record, store, incomeStore)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
-		}
-
-		if record.ReferralCode != "" {
-
-			seg = newrelic.DatastoreSegment{
-				Product:    newrelic.DatastorePostgres,
-				Collection: "incomes",
-				Operation:  "Bonus Count",
-			}
-			seg.StartTime = newrelic.StartSegmentNow(txn)
-			count, err := incomeStore.CountBonuses(record.Id, "Referral")
-			seg.End()
-			if err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
-				return
-			}
-
-			if count < maxReferrals {
-				seg = newrelic.DatastoreSegment{
-					Product:    newrelic.DatastorePostgres,
-					Collection: "users",
-					Operation:  "GET",
-				}
-				seg.StartTime = newrelic.StartSegmentNow(txn)
-				referrer, err := store.GetByReferralCode(record.ReferralCode)
-				seg.End()
-				if err != nil {
-					c.AbortWithError(http.StatusInternalServerError, err)
-					return
-				}
-
-				seg = newrelic.DatastoreSegment{
-					Product:    newrelic.DatastorePostgres,
-					Collection: "users",
-					Operation:  "GET",
-				}
-				seg.StartTime = newrelic.StartSegmentNow(txn)
-				record, err = store.Get(record.Id)
-				seg.End()
-				if err != nil {
-					c.AbortWithError(http.StatusInternalServerError, err)
-					return
-				}
-
-				// give them free tickets for using referral
-				in1 := income.Record{
-					UserId:    record.Id,
-					SessionId: fmt.Sprintf("Referral - %s", referrer.ReferralCode),
-					Amount:    referralBonus,
-				}
-				in2 := income.Record{
-					UserId:    referrer.Id,
-					SessionId: fmt.Sprintf("Referral - %s", record.ReferralCode),
-					Amount:    referralBonus,
-				}
-
-				seg = newrelic.DatastoreSegment{
-					Product:    newrelic.DatastorePostgres,
-					Collection: "incomes",
-					Operation:  "referral",
-				}
-				seg.StartTime = newrelic.StartSegmentNow(txn)
-				err = incomeStore.Create(&in1)
-				seg.End()
-				if err != nil {
-					c.AbortWithError(http.StatusInternalServerError, err)
-					return
-				}
-
-				seg = newrelic.DatastoreSegment{
-					Product:    newrelic.DatastorePostgres,
-					Collection: "incomes",
-					Operation:  "referral",
-				}
-				seg.StartTime = newrelic.StartSegmentNow(txn)
-				err = incomeStore.Create(&in2)
-				seg.End()
-				if err != nil {
-					c.AbortWithError(http.StatusInternalServerError, err)
-					return
-				}
-			}
 		}
 
 		// send confirmation email
@@ -198,4 +103,103 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 
 		c.JSON(http.StatusOK, record)
 	}
+}
+
+func NewUserBonus(txn newrelic.Transaction, record user.Record, store user.Store, incomeStore income.Store) error {
+
+	// give them free tickets for signing up
+	in := income.Record{
+		UserId:    record.Id,
+		SessionId: "Sign up Bonus",
+		Amount:    SignUpBonus,
+	}
+	seg := newrelic.DatastoreSegment{
+		Product:    newrelic.DatastorePostgres,
+		Collection: "incomes",
+		Operation:  "sign-up-bonus",
+	}
+	seg.StartTime = newrelic.StartSegmentNow(txn)
+	err := incomeStore.Create(&in)
+	seg.End()
+	if err != nil {
+		return err
+	}
+
+	if record.ReferralCode != "" {
+
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "incomes",
+			Operation:  "Bonus Count",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		count, err := incomeStore.CountBonuses(record.Id, "Referral")
+		seg.End()
+		if err != nil {
+			return err
+		}
+
+		if count < MaxReferrals {
+			seg = newrelic.DatastoreSegment{
+				Product:    newrelic.DatastorePostgres,
+				Collection: "users",
+				Operation:  "GET",
+			}
+			seg.StartTime = newrelic.StartSegmentNow(txn)
+			referrer, err := store.GetByReferralCode(record.ReferralCode)
+			seg.End()
+			if err != nil {
+				return err
+			}
+
+			seg = newrelic.DatastoreSegment{
+				Product:    newrelic.DatastorePostgres,
+				Collection: "users",
+				Operation:  "GET",
+			}
+			seg.StartTime = newrelic.StartSegmentNow(txn)
+			record, err = store.Get(record.Id)
+			seg.End()
+			if err != nil {
+				return err
+			}
+
+			// give them free tickets for using referral
+			in1 := income.Record{
+				UserId:    record.Id,
+				SessionId: fmt.Sprintf("Referral - %s", referrer.ReferralCode),
+				Amount:    ReferralBonus,
+			}
+			in2 := income.Record{
+				UserId:    referrer.Id,
+				SessionId: fmt.Sprintf("Referral - %s", record.ReferralCode),
+				Amount:    ReferralBonus,
+			}
+
+			seg = newrelic.DatastoreSegment{
+				Product:    newrelic.DatastorePostgres,
+				Collection: "incomes",
+				Operation:  "referral",
+			}
+			seg.StartTime = newrelic.StartSegmentNow(txn)
+			err = incomeStore.Create(&in1)
+			seg.End()
+			if err != nil {
+				return err
+			}
+
+			seg = newrelic.DatastoreSegment{
+				Product:    newrelic.DatastorePostgres,
+				Collection: "incomes",
+				Operation:  "referral",
+			}
+			seg.StartTime = newrelic.StartSegmentNow(txn)
+			err = incomeStore.Create(&in2)
+			seg.End()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

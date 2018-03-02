@@ -11,14 +11,17 @@ import (
 	newrelic "github.com/newrelic/go-agent"
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
+	"github.com/cbarraford/cryptocades-backend/api/users"
+	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/session"
 	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
 type login struct {
-	Email       string `json:"email"`
-	ExpiresIn   int    `json:"expiresIn"`
-	AccessToken string `json:"accessToken"`
+	Email        string `json:"email"`
+	ExpiresIn    int    `json:"expiresIn"`
+	AccessToken  string `json:"accessToken"`
+	ReferralCode string `json:"referral_code"`
 }
 
 type facebookMe struct {
@@ -26,7 +29,7 @@ type facebookMe struct {
 	UserId string `json:"id"`
 }
 
-func Login(store user.Store, sessionStore session.Store) func(*gin.Context) {
+func Login(store user.Store, incomeStore income.Store, sessionStore session.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		var record user.Record
@@ -76,7 +79,14 @@ func Login(store user.Store, sessionStore session.Store) func(*gin.Context) {
 					record.Email = l.Email
 					record.Username = fb.UserId
 					record.FacebookId = fb.UserId
+					record.ReferralCode = l.ReferralCode
 					err := store.Create(&record)
+					if err != nil {
+						c.AbortWithError(http.StatusBadRequest, err)
+						return
+					}
+
+					err = users.NewUserBonus(txn, record, store, incomeStore)
 					if err != nil {
 						c.AbortWithError(http.StatusBadRequest, err)
 						return
