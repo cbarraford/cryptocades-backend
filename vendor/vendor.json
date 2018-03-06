@@ -33,6 +33,12 @@
 			"revisionTime": "2018-02-08T10:57:05Z"
 		},
 		{
+			"checksumSHA1": "hrQWibpnrd/+TKXUNYQA9zTPoSk=",
+			"path": "github.com/ezzarghili/recaptcha-go",
+			"revision": "b4e5104159e4802a6492e55833bb84de62450cc9",
+			"revisionTime": "2018-02-19T13:39:43Z"
+		},
+		{
 			"checksumSHA1": "2UmMbNHc8FBr98mJFN1k8ISOIHk=",
 			"path": "github.com/garyburd/redigo/internal",
 			"revision": "5f161ed9cfbce31e5a0ec0b1c3c81087e2e9cbef",
