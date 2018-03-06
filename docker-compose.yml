@@ -16,6 +16,8 @@ services:
       - ~:/root
       - .:/root/src/github.com/cbarraford/cryptocades-backend
     working_dir: /root/src/github.com/cbarraford/cryptocades-backend
+    env_file: 
+      - .env
     environment:
       GOPATH: /root
       PGUSER: postgres

@@ -3,6 +3,7 @@ package user
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -221,12 +222,14 @@ func (db *store) Delete(id int64) error {
 }
 
 func (r Record) MarshalJSON() ([]byte, error) {
+	avatar := gravatar.Avatar(r.Email, 256)
+	log.Printf("Avatar: %s", avatar)
 	type Alias Record
 	return json.Marshal(&struct {
 		Avatar string `json:"avatar"`
 		Alias
 	}{
-		Avatar: gravatar.Avatar(r.Email, 256),
+		Avatar: avatar,
 		Alias:  (Alias)(r),
 	})
 }

@@ -57,7 +57,7 @@ build:
 
 # this leave postgres running
 start:
-	@docker-compose run --rm -p 8080:8080 -e ROLLBAR_ACCESS_TOKEN=$$ROLLBAR_ACCESS_TOKEN -e NEW_RELIC_LICENSE_KEY=$$NEW_RELIC_LICENSE_KEY -e ENVIRONMENT=$$ENVIRONMENT cryptocades-backend make wait-for-postgres start-internal
+	@docker-compose run --rm -p 8080:8080 cryptocades-backend make wait-for-postgres start-internal
 
 run: build start
 
