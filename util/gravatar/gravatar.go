@@ -5,7 +5,6 @@ package gravatar
 import (
 	"crypto/md5"
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 
@@ -21,7 +20,6 @@ func Avatar(email string, size uint) string {
 	}
 	// pick default image if gravatar doesn't have one
 	defaultImg := _url.Get(fmt.Sprintf("/img/avatars/%d.png", sum%12))
-	log.Printf("Default Image: %s", defaultImg)
 	u, _ := url.Parse(fmt.Sprintf("https://www.gravatar.com/avatar/%x", hash))
 	vals := url.Values{}
 	vals.Set("s", strconv.FormatUint(uint64(size), 10))

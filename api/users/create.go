@@ -54,7 +54,7 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 			return
 		}
 		if !success {
-			c.AbortWithError(http.StatusPreconditionFailed, fmt.Errorf("ReCAPTCHA Error: %s", err))
+			c.AbortWithError(http.StatusPreconditionFailed, fmt.Errorf("ReCAPTCHA failed"))
 			return
 		}
 
