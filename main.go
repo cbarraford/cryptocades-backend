@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	recaptcha "github.com/ezzarghili/recaptcha-go"
 	_ "github.com/heroku/x/hmetrics/onload"
 	newrelic "github.com/newrelic/go-agent"
 	"github.com/stvp/rollbar"
@@ -44,6 +45,12 @@ func main() {
 
 	manager.Start(cstore)
 
+	captcha, err := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"))
+	if err != nil {
+		rollbar.Error(rollbar.ERR, err)
+		log.Fatal(err)
+	}
+
 	agentName := fmt.Sprintf("Cryptocades-%s", os.Getenv("ENVIRONMENT"))
 	key := os.Getenv("NEW_RELIC_LICENSE_KEY")
 	agentConfig := newrelic.NewConfig(agentName, key)
@@ -58,6 +65,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := api.GetAPIService(cstore, agent)
+	r := api.GetAPIService(cstore, agent, captcha)
 	r.Run()
 }

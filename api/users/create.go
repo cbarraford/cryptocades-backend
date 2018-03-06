@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	recaptcha "github.com/ezzarghili/recaptcha-go"
 	"github.com/gin-gonic/gin"
@@ -26,11 +25,7 @@ const (
 	MaxReferrals  = 10
 )
 
-func init() {
-	recaptcha.Init(os.Getenv("RECAPTCHA_SECRET"))
-}
-
-func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store) func(*gin.Context) {
+func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store, captcha recaptcha.ReCAPTCHA) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		record := user.Record{}
@@ -53,7 +48,7 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 		}
 
 		// verify captcha code
-		success, err := recaptcha.Verify(json.CaptchaCode, c.ClientIP())
+		success, err := captcha.Verify(json.CaptchaCode, c.ClientIP())
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return

@@ -80,6 +80,7 @@ func Login(store user.Store, incomeStore income.Store, sessionStore session.Stor
 					record.Username = fb.UserId
 					record.FacebookId = fb.UserId
 					record.ReferralCode = l.ReferralCode
+					// TODO Require ReCAPTCHA
 					err := store.Create(&record)
 					if err != nil {
 						c.AbortWithError(http.StatusBadRequest, err)
