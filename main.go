@@ -45,7 +45,7 @@ func main() {
 
 	manager.Start(cstore)
 
-	captcha, err := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"))
+	captcha, err := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_CODE"))
 	if err != nil {
 		rollbar.Error(rollbar.ERR, err)
 		log.Fatal(err)
