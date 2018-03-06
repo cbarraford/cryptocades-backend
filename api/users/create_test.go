@@ -103,6 +103,7 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
+	r.Use(middleware.HandleErrors())
 	r.POST("/users", Create(store, incomeStore, confirmStore))
 	input := fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
 	body := strings.NewReader(input)
