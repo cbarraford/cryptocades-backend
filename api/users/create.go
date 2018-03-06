@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	recaptcha "github.com/ezzarghili/recaptcha-go"
 	"github.com/gin-gonic/gin"
 	newrelic "github.com/newrelic/go-agent"
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
@@ -24,7 +25,7 @@ const (
 	MaxReferrals  = 10
 )
 
-func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store) func(*gin.Context) {
+func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store, captcha recaptcha.ReCAPTCHA) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		record := user.Record{}
@@ -43,6 +44,17 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 
 		if err := util.ValidateEmail(record.Email); err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		// verify captcha code
+		success, err := captcha.Verify(json.CaptchaCode, c.ClientIP())
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		if !success {
+			c.AbortWithError(http.StatusPreconditionFailed, fmt.Errorf("ReCAPTCHA failed"))
 			return
 		}
 

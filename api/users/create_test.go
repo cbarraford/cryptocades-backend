@@ -2,10 +2,13 @@ package users
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 
+	recaptcha "github.com/ezzarghili/recaptcha-go"
 	"github.com/gin-gonic/gin"
 	. "gopkg.in/check.v1"
 
@@ -90,6 +93,23 @@ func (m *mockConfirmCreateStore) Create(record *confirmation.Record) error {
 	return nil
 }
 
+type mockReCAPTCHAClient struct{}
+
+func (*mockReCAPTCHAClient) Post(url string, contentType string, body io.Reader) (resp *http.Response, err error) {
+	resp = &http.Response{
+		Status:     "200 OK",
+		StatusCode: 200,
+	}
+	resp.Body = ioutil.NopCloser(strings.NewReader(`
+    {
+        "success": true,
+        "challenge_ts": "2018-03-06T03:41:29+00:00",
+        "hostname": "test.com"
+    }
+    `))
+	return
+}
+
 func (s *UserCreateSuite) TestCreate(c *C) {
 	gin.SetMode(gin.ReleaseMode)
 
@@ -99,11 +119,15 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	incomeStore := &mockIncomeCreateStore{
 		count: 0,
 	}
+	captcha := recaptcha.ReCAPTCHA{
+		Client: &mockReCAPTCHAClient{},
+	}
 
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, incomeStore, confirmStore))
+	r.Use(middleware.HandleErrors())
+	r.POST("/users", Create(store, incomeStore, confirmStore, captcha))
 	input := fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
 	body := strings.NewReader(input)
 	req, _ := http.NewRequest("POST", "/users", body)
@@ -132,7 +156,7 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r = gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, incomeStore, confirmStore))
+	r.POST("/users", Create(store, incomeStore, confirmStore, captcha))
 	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/users", body)
@@ -148,7 +172,7 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r = gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, incomeStore, confirmStore))
+	r.POST("/users", Create(store, incomeStore, confirmStore, captcha))
 	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob+tag@bob.com","btc_address":"12345","referral_code":"code1"}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/users", body)

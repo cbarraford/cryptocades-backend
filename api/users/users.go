@@ -6,4 +6,5 @@ type input struct {
 	Password     string `json:"password"`
 	Email        string `json:"email"`
 	ReferralCode string `json:"referral_code"`
+	CaptchaCode  string `json:"captcha_code"`
 }

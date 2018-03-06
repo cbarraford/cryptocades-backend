@@ -6,6 +6,7 @@ import (
 
 	"github.com/cbarraford/cache"
 	"github.com/cbarraford/cache/persistence"
+	recaptcha "github.com/ezzarghili/recaptcha-go"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	coinApi "github.com/miguelmota/go-coinmarketcap"
@@ -21,7 +22,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store"
 )
 
-func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
+func GetAPIService(store store.Store, agent newrelic.Application, captcha recaptcha.ReCAPTCHA) *gin.Engine {
 	mem := persistence.NewInMemoryStore(60 * time.Second)
 
 	r := gin.New()
@@ -63,7 +64,7 @@ func GetAPIService(store store.Store, agent newrelic.Application) *gin.Engine {
 	r.POST("/login", users.Login(store.Users, store.Sessions))
 	r.POST("/login/facebook", facebook.Login(store.Users, store.Incomes, store.Sessions))
 	r.DELETE("/logout", users.Logout(store.Sessions))
-	r.POST("/users", users.Create(store.Users, store.Incomes, store.Confirmations))
+	r.POST("/users", users.Create(store.Users, store.Incomes, store.Confirmations, captcha))
 	r.POST("/users/confirmation/:code",
 		users.Confirm(store.Confirmations, store.Users),
 	)
