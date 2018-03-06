@@ -13,12 +13,12 @@ type GravatarSuite struct{}
 var _ = Suite(&GravatarSuite{})
 
 func (s *GravatarSuite) TestAvatar(c *C) {
-	expected := "https://www.gravatar.com/avatar/d9290cc27176c6fc74f4002f40fc9db8?d=%2Fimg%2Favatars%2F1.png&s=256"
+	expected := "https://www.gravatar.com/avatar/d9290cc27176c6fc74f4002f40fc9db8?d=http%3A%2F%2Flocalhost%3A3000%2Fimg%2Favatars%2F1.png&s=256"
 	actual := Avatar("philipp@zoonman.com", 256)
 
 	c.Check(actual, Equals, expected)
 
-	expected = "https://www.gravatar.com/avatar/d8f4a1993546cc4b850cde3599e27aec?d=%2Fimg%2Favatars%2F5.png&s=100"
+	expected = "https://www.gravatar.com/avatar/d8f4a1993546cc4b850cde3599e27aec?d=http%3A%2F%2Flocalhost%3A3000%2Fimg%2Favatars%2F5.png&s=100"
 	actual = Avatar("not found", 100)
 	c.Check(actual, Equals, expected)
 }

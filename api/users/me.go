@@ -25,7 +25,7 @@ func Me(store user.Store) func(*gin.Context) {
 		seg := newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,
 			Collection: "users",
-			Operation:  "LIST",
+			Operation:  "GET",
 		}
 		seg.StartTime = newrelic.StartSegmentNow(txn)
 		record, err := store.Get(userId)
