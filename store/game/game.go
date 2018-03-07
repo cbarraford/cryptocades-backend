@@ -23,12 +23,12 @@ func (db *store) List() []Record {
 		{
 			Id:          1,
 			Name:        "Tallest Tower",
-			Description: "Earn lotto tickets as your tower builds taller and taller. Hit tower milestones to receive bonuses!",
+			Description: "Build your tower taller and taller. Hit tower milestones to get jackpot plays",
 		},
 		{
 			Id:          2,
 			Name:        "Asteroid Tycoon",
-			Description: "Mine asteroids to earn iron ore which can be used to buy lotto tickets or upgrade your mining rig.",
+			Description: "Mine asteroids to gather iron ore and upgrade your ship or trade for jackpot plays",
 		},
 	}
 }
