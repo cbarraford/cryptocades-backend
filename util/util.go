@@ -2,6 +2,7 @@ package util
 
 import (
 	"errors"
+	"math"
 	"math/rand"
 	"os"
 	"regexp"
@@ -42,4 +43,13 @@ func ValidateEmail(email string) error {
 		return errors.New("Invalid email format")
 	}
 	return nil
+}
+
+func Round(num float64) int {
+	return int(num + math.Copysign(1.0, num))
+}
+
+func ToFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(Round(num*output)) / output
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -236,6 +235,5 @@ func (r Record) MarshalJSON() ([]byte, error) {
 	e := json.NewEncoder(b)
 	e.SetEscapeHTML(false)
 	err := e.Encode(t)
-	log.Printf("JSON: %s", string(b.Bytes()))
 	return b.Bytes(), err
 }

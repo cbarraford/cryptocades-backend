@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 
 	coinApi "github.com/miguelmota/go-coinmarketcap"
@@ -12,9 +14,21 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util"
 )
 
 const MAX_JACKPOTS = 1
+
+var target_price int64
+
+func init() {
+	var err error
+	target_price, err = strconv.ParseInt(os.Getenv("TARGET_PRICE"), 10, 32)
+	if err != nil {
+		// TODO: we should alert on this error
+		log.Fatalf("Failed to read TARGET_PRICE")
+	}
+}
 
 func Start(store store.Store) {
 	// spawn jackpot(s)
@@ -51,7 +65,7 @@ func ManageJackpots(store jackpot.Store, entryStore entry.Store, userStore user.
 	if len(jackpots) == 0 {
 		coinInfo, err := coinApi.GetCoinData("bitcoin")
 		jackpot := jackpot.Record{
-			Jackpot: 100 / coinInfo.PriceUsd,
+			Jackpot: util.ToFixed(float64(target_price)/coinInfo.PriceUsd, 5),
 			// One week end time
 			EndTime: time.Now().UTC().Add(168 * time.Hour),
 		}
