@@ -38,7 +38,7 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowCredentials = true
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "https://lotto-ui-staging.herokuapp.com", "https://staging.cryptokade.com", "https://staging.cryptocades.com"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://staging-app.cryptocades.com"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "Session"},
 		ExposeHeaders:    []string{"Content-Length"},
