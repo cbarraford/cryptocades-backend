@@ -618,6 +618,14 @@
           "description": "Name of the game",
           "type": "string"
         },
+        "type": {
+          "description": "Type of game (active or passive)",
+          "type": "string"
+        },
+        "available": {
+          "description": "Is the game available to be played",
+          "type": "boolean"
+        },
         "description": {
           "description": "Description of the game",
           "type": "string"
@@ -766,6 +774,10 @@
           "description": "Number of bonus hashes. This is hashes awarded to a user by accomplishing something.",
           "type": "integer",
           "format": "int64"
+        },
+        "referral_code": {
+          "description": "a unique string to refer another user",
+          "type": "string"
         },
         "created_time": {
           "description": "timestamp of user creation",
