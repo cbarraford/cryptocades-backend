@@ -14,7 +14,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
 	"github.com/cbarraford/cryptocades-backend/store/user"
 	"github.com/cbarraford/cryptocades-backend/util"
-	emailer "github.com/cbarraford/cryptocades-backend/util/email"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 	"github.com/cbarraford/cryptocades-backend/util/url"
 )
 
@@ -102,7 +102,7 @@ func PasswordReset(confirmStore confirmation.Store, store user.Store) func(*gin.
 	}
 }
 
-func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*gin.Context) {
+func PasswordResetInit(confirmStore confirmation.Store, store user.Store, emailer email.Emailer) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 
@@ -156,13 +156,17 @@ func PasswordResetInit(confirmStore confirmation.Store, store user.Store) func(*
 		// TODO: Update language once we have an official company name
 		// TODO: support mobile url
 		u := url.Get(fmt.Sprintf("/password/reset/%s", confirm.Code))
-		mailer := emailer.DefaultEmailer()
 		segEmail := newrelic.StartSegment(txn, "email")
-		err = mailer.SendMessage(
+		emailTemplate := email.EmailTemplate{
+			Subject:          "Password Reset",
+			PasswordResetURL: u.String(),
+		}
+		err = emailer.SendHTML(
 			json.Email,
 			"noreply@cryptocades.com",
-			"Password Reset",
-			fmt.Sprintf("Hello! \nWe've recieved a request to reset your password. Please click the link below to continue. The link will expire after 12 hours.\n\n%s", u.String()),
+			emailTemplate.Subject,
+			"password_reset",
+			emailTemplate,
 		)
 		segEmail.End()
 		if err != nil {

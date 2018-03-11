@@ -13,6 +13,18 @@ type EmailSuite struct{}
 var _ = Suite(&EmailSuite{})
 
 func (s *EmailSuite) TestSendMessage(c *C) {
-	emailer := DefaultEmailer()
-	c.Assert(emailer.SendMessage("to@bobby.com", "from@bobby.com", "subject", "body of the message"), IsNil)
+	emailer, err := DefaultEmailer("../..")
+	c.Assert(err, IsNil)
+	c.Assert(emailer.SendMessage("cbarraford@gmail.com", "noreply@crytocades.com", "plain-text test", "body of the message"), IsNil)
+}
+
+func (s *EmailSuite) TestSendHTML(c *C) {
+	emailer, err := DefaultEmailer("../..")
+	c.Assert(err, IsNil)
+	data := EmailTemplate{
+		Subject:     "Confirm your cryptocades account",
+		ConfirmURL:  "google.com",
+		ReferralURL: "apple.com",
+	}
+	c.Assert(emailer.SendHTML("cbarraford@gmail.com", "noreply@crytocades.com", data.Subject, "confirm", data), IsNil)
 }

@@ -20,9 +20,10 @@ import (
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
 	"github.com/cbarraford/cryptocades-backend/api/users"
 	"github.com/cbarraford/cryptocades-backend/store"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 )
 
-func GetAPIService(store store.Store, agent newrelic.Application, captcha recaptcha.ReCAPTCHA) *gin.Engine {
+func GetAPIService(store store.Store, agent newrelic.Application, captcha recaptcha.ReCAPTCHA, emailer email.Emailer) *gin.Engine {
 	mem := persistence.NewInMemoryStore(60 * time.Second)
 
 	r := gin.New()
@@ -59,17 +60,17 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 	r.GET("/me/entries", middleware.AuthRequired(), users.Entries(store.Entries))
 	r.PUT("/me", middleware.EscalatedAuthRequired(), users.Update(store.Users))
 	// update specifically email
-	r.PUT("/me/email", middleware.EscalatedAuthRequired(), users.UpdateEmail(store.Users, store.Confirmations))
+	r.PUT("/me/email", middleware.EscalatedAuthRequired(), users.UpdateEmail(store.Users, store.Confirmations, emailer))
 	r.DELETE("/me", middleware.AuthRequired(), users.Delete(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))
 	r.POST("/login/facebook", facebook.Login(store.Users, store.Incomes, store.Sessions))
 	r.DELETE("/logout", users.Logout(store.Sessions))
-	r.POST("/users", users.Create(store.Users, store.Incomes, store.Confirmations, captcha))
+	r.POST("/users", users.Create(store.Users, store.Incomes, store.Confirmations, captcha, emailer))
 	r.POST("/users/confirmation/:code",
 		users.Confirm(store.Confirmations, store.Users),
 	)
 	r.POST("/users/password_reset",
-		users.PasswordResetInit(store.Confirmations, store.Users),
+		users.PasswordResetInit(store.Confirmations, store.Users, emailer),
 	)
 	r.POST("/users/password_reset/:code",
 		users.PasswordReset(store.Confirmations, store.Users),

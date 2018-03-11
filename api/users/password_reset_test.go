@@ -11,6 +11,7 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 )
 
 type UserPasswordResetSuite struct{}
@@ -68,9 +69,11 @@ func (s *UserPasswordResetSuite) TestPasswordReset(c *C) {
 	// happy path
 	confirmStore := &mockPasswordResetStore{email: "bob@cryptocades.com"}
 	userStore := &mockUserPasswordResetStore{}
+	emailer, err := email.DefaultEmailer("../..")
+	c.Assert(err, IsNil)
 
 	r := gin.New()
-	r.POST("/users/password_reset", PasswordResetInit(confirmStore, userStore))
+	r.POST("/users/password_reset", PasswordResetInit(confirmStore, userStore, emailer))
 	r.POST("/users/password_reset/:code", PasswordReset(confirmStore, userStore))
 
 	input := fmt.Sprintf(`{"email":"bob@cryptocades.com"}`)

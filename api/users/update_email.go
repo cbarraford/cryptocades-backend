@@ -18,7 +18,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/util/url"
 )
 
-func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Context) {
+func UpdateEmail(store user.Store, confirmStore confirmation.Store, emailer email.Emailer) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		var userId int64
@@ -74,7 +74,6 @@ func UpdateEmail(store user.Store, confirmStore confirmation.Store) func(*gin.Co
 
 		// TODO: support mobile url
 		u := url.Get(fmt.Sprintf("/confirmation/%s", confirm.Code))
-		emailer := email.DefaultEmailer()
 		emailSeg := newrelic.StartSegment(txn, "email")
 		err = emailer.SendMessage(
 			record.Email,

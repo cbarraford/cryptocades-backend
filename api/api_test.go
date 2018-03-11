@@ -29,7 +29,7 @@ func (s *ApiSuite) TestApiService(c *C) {
 	agent, err := newrelic.NewApplication(config)
 	c.Assert(err, IsNil)
 
-	r := GetAPIService(store, agent, recaptcha.ReCAPTCHA{})
+	r := GetAPIService(store, agent, recaptcha.ReCAPTCHA{}, emailer.Emailer{})
 
 	// check ping apiendpoint
 	req, _ := http.NewRequest("GET", "/ping", nil)

@@ -25,7 +25,7 @@ const (
 	MaxReferrals  = 10
 )
 
-func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store, captcha recaptcha.ReCAPTCHA) func(*gin.Context) {
+func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store, captcha recaptcha.ReCAPTCHA, emailer email.Emailer) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		record := user.Record{}
@@ -98,15 +98,32 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 			return
 		}
 
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "users",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		record, err = store.Get(record.Id)
+		seg.End()
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
 		// TODO: support mobile url
-		u := url.Get(fmt.Sprintf("/confirmation/%s", confirm.Code))
-		emailer := email.DefaultEmailer()
 		segEmail := newrelic.StartSegment(txn, "email")
-		err = emailer.SendMessage(
+		emailTemplate := email.EmailTemplate{
+			Subject:     "Confirm your Cryptocades account",
+			ConfirmURL:  url.Get(fmt.Sprintf("/confirmation/%s", confirm.Code)).String(),
+			ReferralURL: url.Get(fmt.Sprintf("/signup?referral=%s", record.ReferralCode)).String(),
+		}
+		err = emailer.SendHTML(
 			record.Email,
 			"noreply@cryptocades.com",
-			"Please confirm your email address",
-			fmt.Sprintf("Hello! \nThanks for signing up for Cryptocades. You must confirm your email address before you can start playing!\n\n%s", u.String()),
+			emailTemplate.Subject,
+			"confirm",
+			emailTemplate,
 		)
 		segEmail.End()
 		if err != nil {

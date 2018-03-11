@@ -14,6 +14,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/manager"
 	"github.com/cbarraford/cryptocades-backend/store"
 	"github.com/cbarraford/cryptocades-backend/store/context"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 )
 
 // TODO: need a mechanism to shutdown the service for emergencies
@@ -51,6 +52,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	emailer, err := email.DefaultEmailer(".")
+	if err != nil {
+		rollbar.Error(rollbar.ERR, err)
+		log.Fatal(err)
+	}
+
 	agentName := fmt.Sprintf("Cryptocades-%s", os.Getenv("ENVIRONMENT"))
 	key := os.Getenv("NEW_RELIC_LICENSE_KEY")
 	agentConfig := newrelic.NewConfig(agentName, key)
@@ -65,6 +72,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := api.GetAPIService(cstore, agent, captcha)
+	r := api.GetAPIService(cstore, agent, captcha, emailer)
 	r.Run()
 }

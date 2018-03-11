@@ -16,6 +16,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
 	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 )
 
 type UserCreateSuite struct{}
@@ -122,12 +123,14 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	captcha := recaptcha.ReCAPTCHA{
 		Client: &mockReCAPTCHAClient{},
 	}
+	emailer, err := email.DefaultEmailer("../..")
+	c.Assert(err, IsNil)
 
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
 	r.Use(middleware.HandleErrors())
-	r.POST("/users", Create(store, incomeStore, confirmStore, captcha))
+	r.POST("/users", Create(store, incomeStore, confirmStore, captcha, emailer))
 	input := fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
 	body := strings.NewReader(input)
 	req, _ := http.NewRequest("POST", "/users", body)
@@ -156,7 +159,7 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r = gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, incomeStore, confirmStore, captcha))
+	r.POST("/users", Create(store, incomeStore, confirmStore, captcha, emailer))
 	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/users", body)
@@ -172,7 +175,7 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r = gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, incomeStore, confirmStore, captcha))
+	r.POST("/users", Create(store, incomeStore, confirmStore, captcha, emailer))
 	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob+tag@bob.com","btc_address":"12345","referral_code":"code1"}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/users", body)

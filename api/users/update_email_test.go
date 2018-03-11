@@ -12,6 +12,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 )
 
 type UserUpdateEmailSuite struct{}
@@ -51,11 +52,13 @@ func (s *UserUpdateEmailSuite) TestUpdateEmail(c *C) {
 	// happy path
 	store := &mockUpdateEmailUserStore{}
 	confirmStore := &mockConfirmUpdateEmailStore{}
+	emailer, err := email.DefaultEmailer("../..")
+	c.Assert(err, IsNil)
 
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.EscalatedAuthRequired())
-	r.PUT("/me/email", UpdateEmail(store, confirmStore))
+	r.PUT("/me/email", UpdateEmail(store, confirmStore, emailer))
 	input := fmt.Sprintf(`{"email":"bob@bob.com"}`)
 	body := strings.NewReader(input)
 	req, _ := http.NewRequest("PUT", "/me/email", body)
