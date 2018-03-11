@@ -49,6 +49,7 @@ type Record struct {
 	Avatar       string    `json:"avatar" db:"-"`
 	Confirmed    bool      `json:"confirmed" db:"confirmed"`
 	ReferralCode string    `json:"referral_code" db:"referral_code"`
+	Admin        bool      `json:"-" db:"admin"`
 	CreatedTime  time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime  time.Time `json:"updated_time" db:"updated_time"`
 }

@@ -90,6 +90,11 @@ func ManageJackpots(store jackpot.Store, entryStore entry.Store, userStore user.
 			if err != nil {
 				return fmt.Errorf("Error getting jackpot winner: %+v", err)
 			}
+			// if user is admin, don't mark them as the winner and try again
+			// later
+			if user.Admin {
+				return nil
+			}
 			jackpot.WinnerBTCAddr = user.BTCAddr
 			err = store.Update(&jackpot)
 			if err != nil {
