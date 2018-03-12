@@ -9,6 +9,7 @@ import (
 
 	"github.com/cbarraford/cryptocades-backend/store"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 	recaptcha "github.com/ezzarghili/recaptcha-go"
 	newrelic "github.com/newrelic/go-agent"
 )
@@ -29,7 +30,7 @@ func (s *ApiSuite) TestApiService(c *C) {
 	agent, err := newrelic.NewApplication(config)
 	c.Assert(err, IsNil)
 
-	r := GetAPIService(store, agent, recaptcha.ReCAPTCHA{}, emailer.Emailer{})
+	r := GetAPIService(store, agent, recaptcha.ReCAPTCHA{}, email.Emailer{})
 
 	// check ping apiendpoint
 	req, _ := http.NewRequest("GET", "/ping", nil)
