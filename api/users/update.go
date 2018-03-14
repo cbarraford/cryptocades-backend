@@ -48,7 +48,7 @@ func Update(store user.Store) func(*gin.Context) {
 		if json.BTCAddr != "" {
 			record.BTCAddr = json.BTCAddr
 			if !util.BTCRegex.MatchString(record.BTCAddr) {
-				err = fmt.Errorf("Must have a valid bitcoin address to enter a jackpot.")
+				err = fmt.Errorf("Must have a valid bitcoin address.")
 				c.AbortWithError(http.StatusBadRequest, err)
 				return
 			}
