@@ -765,15 +765,17 @@
           "description": "email address",
           "type": "string"
         },
-        "mined_hases": {
-          "description": "Number of mined hashes. This increases the more a person mines.",
-          "type": "integer",
-          "format": "int64"
+        "fb_id": {
+          "description": "facebook id",
+          "type": "string"
         },
-        "bonus_hashes": {
-          "description": "Number of bonus hashes. This is hashes awarded to a user by accomplishing something.",
-          "type": "integer",
-          "format": "int64"
+        "confirmed": {
+          "description": "if account has been confirmed",
+          "type": "boolean"
+        },
+        "avatar_url": {
+          "description": "URL to avatar",
+          "type": "string"
         },
         "referral_code": {
           "description": "a unique string to refer another user",
