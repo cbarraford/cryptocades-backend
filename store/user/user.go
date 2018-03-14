@@ -45,7 +45,7 @@ type Record struct {
 	Username     string    `json:"username" db:"username"`
 	Password     string    `json:"-" db:"password"`
 	Email        string    `json:"email" db:"email"`
-	FacebookId   string    `json:"-" db:"fb_id"`
+	FacebookId   string    `json:"fb_id" db:"fb_id"`
 	Avatar       string    `json:"avatar" db:"-"`
 	Confirmed    bool      `json:"confirmed" db:"confirmed"`
 	ReferralCode string    `json:"referral_code" db:"referral_code"`
