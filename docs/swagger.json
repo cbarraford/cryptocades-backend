@@ -88,6 +88,44 @@
         }
       }
     },
+    "/login/facebook": {
+      "post": {
+        "description": "Log into the API as a Facebook user",
+        "tags": [
+          "Login"
+        ],
+        "operationId": "Create_Login Facebook_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/definitions/LoginFacebookrequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Session"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
     "/logout": {
       "delete": {
         "description": "Logout of the API.",
@@ -102,6 +140,34 @@
         "responses": {
           "200": {
             "description": ""
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/currency/price/btc": {
+      "get": {
+        "description": "",
+        "tags": [
+          "Currency"
+        ],
+        "operationId": "Get_Bitcoin_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Bitcoin_response"
+            }
           }
         },
         "x-unitTests": [],
@@ -254,6 +320,65 @@
             "description": "",
             "schema": {
               "$ref": "#/definitions/Balance_response"
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/me/incomes": {
+      "get": {
+        "description": "List of earned jackpot plays from gameplay, bonuses, etc",
+        "tags": [
+          "Me"
+        ],
+        "operationId": "Get_Incomes_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Income"
+              }
+            }
+          }
+        },
+        "x-unitTests": [],
+        "x-operation-settings": {
+          "CollectParameters": false,
+          "AllowDynamicQueryParameters": false,
+          "AllowDynamicFormParameters": false,
+          "IsMultiContentStreaming": false
+        }
+      }
+    },
+    "/me/incomes/rank": {
+      "get": {
+        "description": "User's rank by earnings across the Cryptocades platform",
+        "tags": [
+          "Me"
+        ],
+        "operationId": "Get_Rank_",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Rank_response"
             }
           }
         },
@@ -686,6 +811,49 @@
         }
       }
     },
+    "Income": {
+      "title": "Income",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "description": "user unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "game_id": {
+          "description": "game unique identifier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "session_id": {
+          "description": "session identifier",
+          "type": "string"
+        },
+        "amount": {
+          "description": "total amount earned",
+          "type": "integer",
+          "format": "int64"
+        },
+        "partial_amount": {
+          "description": "partial earned plays",
+          "type": "integer",
+          "format": "int64"
+        },
+        "created_time": {
+          "description": "timestamp of jackpot creation",
+          "type": "string"
+        },
+        "updated_time": {
+          "description": "timestamp of jackpot updated",
+          "type": "string"
+        }
+      }
+    },
     "Entry": {
       "title": "Entry",
       "type": "object",
@@ -816,6 +984,34 @@
         "password"
       ]
     },
+    "LoginFacebookrequest": {
+      "title": "Login Facebook request",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "accessToken": {
+          "type": "string"
+        },
+        "referral_code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "accessToken"
+      ]
+    },
+    "Bitcoin_response": {
+      "title": "Bitcoin_response",
+      "type": "object",
+      "properties": {
+        "usd": {
+          "type": "string"
+        }
+      }
+    },
     "Updaterequest": {
       "title": "Update request",
       "type": "object",
@@ -851,6 +1047,16 @@
       "required": [
         "balance"
       ]
+    },
+    "Rank_response": {
+      "title": "Rank_response",
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "number",
+          "format": "double"
+        }
+      }
     },
     "Createrequest": {
       "title": "Create request",

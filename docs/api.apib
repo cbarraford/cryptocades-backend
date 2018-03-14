@@ -33,6 +33,21 @@ Log into the API and receive a session token
 + Response 200 (application/json; charset=utf-8)
     + Attributes (Session)
 
+## Login Facebook [/login/facebook]
+#
+### Login Facebook [POST]
+Log into the API as a Facebook user
+
++ Request (application/json; charset=utf-8)
+    + Attributes
+        + email: email address (required)
+        + accessToken: facebook accessToken (required)
+        + referral_code: referral code (optional)
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (Session)
+
+
 # Group Logout
 Logout of the API (destroying the session token)
 
@@ -42,6 +57,18 @@ Logout of the API (destroying the session token)
 Logout of the API.
 
 + Response 200 (application/json; charset=utf-8)
+
+
+# Group Currency
+Get price of a cryptocurrency
+
+## Bitcoin [/currency/price/btc]
+
+### Bitcoin [GET]
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes
+        + usd: US Dollar price
 
 
 # Group Me
@@ -86,6 +113,23 @@ Delete the authenticated user
 + Response 200 (application/json; charset=utf-8)
     + Attributes 
         + balance: account balance (required)
+
+## My Incomes [/me/incomes]
+List of earned jackpot plays from gameplay, bonuses, etc
+
+### Incomes [GET]
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (array[Income])
+
+## My Rank [/me/incomes/rank]
+User's rank by earnings across the Cryptocades platform
+
+### Rank [GET]
+
++ Response 200 (application/json; charset=utf-8)
+    + Attribute
+        + rank: 78 (number)
 
 ## My Entries [/me/entries]
 
@@ -227,6 +271,16 @@ Enter a jackpot
 + jackpot_id: 1 (number) - {LONG} the unique identifier for a jackpot
 + total: 13 (number) - {LONG} the total number of entries into the jackpot
 + entries: 2 (number) - {LONG} the number of entries the authenticating user has
+
+### Income
++ id: 1 (number) - {LONG} unique identifier
++ user_id: 5 (number) - {LONG} user unique identifier
++ game_id: 5 (number) - {LONG} game unique identifier
++ session_id: 39jsfjeifu (string) - session identifier
++ amount: 44 (number) - {LONG} total amount earned
++ partial_amount: 44 (number) - {LONG} partial earned plays
++ created_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of jackpot creation
++ updated_time: `2017-07-14T03:18:29.502661Z` (string) - timestamp of jackpot updated
 
 ### Entry
 + id: 1 (number) - {LONG} unique identifier
