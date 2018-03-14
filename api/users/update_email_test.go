@@ -71,4 +71,12 @@ func (s *UserUpdateEmailSuite) TestUpdateEmail(c *C) {
 	c.Check(confirmStore.email, Equals, "bob@bob.com")
 	c.Check(confirmStore.userId, Equals, int64(5))
 	c.Check(confirmStore.code, Not(Equals), "")
+
+	input = fmt.Sprintf(`{"email":"bad email address"}`)
+	body = strings.NewReader(input)
+	req, _ = http.NewRequest("PUT", "/me/email", body)
+	req.Header.Set("Masquerade", "5")
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 400)
 }

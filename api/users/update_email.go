@@ -35,6 +35,11 @@ func UpdateEmail(store user.Store, confirmStore confirmation.Store, emailer emai
 			return
 		}
 
+		if err := util.ValidateEmail(newEmail); err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
 		if userId, err = context.GetUserId(c); err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
