@@ -18,9 +18,7 @@ type Store interface {
 	CountBonuses(userId int64, prefix string) (int, error)
 }
 
-// increase this number as we reach user count milestones (ie 10, 20, 50, 100)
-// TODO set to 100 once we have 100 users in the database
-const rankDivider = 5
+const rankDivider = 100
 
 type store struct {
 	Store
