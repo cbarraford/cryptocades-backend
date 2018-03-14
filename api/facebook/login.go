@@ -17,6 +17,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store/user"
 )
 
+// TODO: don't get email from request, could be forged
 type login struct {
 	Email        string `json:"email"`
 	ExpiresIn    int    `json:"expiresIn"`
@@ -34,15 +35,15 @@ func Login(store user.Store, incomeStore income.Store, sessionStore session.Stor
 		var err error
 		var record user.Record
 		var fb facebookMe
-		var l login
+		var _login login
 
 		txn := nrgin.Transaction(c)
 
-		err = c.BindJSON(&l)
+		err = c.BindJSON(&_login)
 		if err == nil {
 
 			client := &http.Client{}
-			q := fmt.Sprintf("https://graph.facebook.com/me?access_token=%s", l.AccessToken)
+			q := fmt.Sprintf("https://graph.facebook.com/me?access_token=%s", _login.AccessToken)
 
 			req, err := http.NewRequest("GET", q, nil)
 			if err != nil {
@@ -76,10 +77,10 @@ func Login(store user.Store, incomeStore income.Store, sessionStore session.Stor
 			if err != nil {
 				if err == sql.ErrNoRows {
 					// user doesn't exist, create them.
-					record.Email = l.Email
+					record.Email = _login.Email
 					record.Username = fb.UserId
 					record.FacebookId = fb.UserId
-					record.ReferralCode = l.ReferralCode
+					record.ReferralCode = _login.ReferralCode
 					// TODO Require ReCAPTCHA
 					err := store.Create(&record)
 					if err != nil {
