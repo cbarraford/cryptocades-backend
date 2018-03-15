@@ -206,7 +206,7 @@ func (s *DBSuite) TestUserIncomeRank(c *C) {
 
 	spent, err := s.store.UserIncomeRank(5)
 	c.Assert(err, IsNil)
-	c.Check(spent, Equals, 60)
+	c.Check(spent, Equals, 3)
 
 	spent, err = s.store.UserIncomeRank(9999)
 	c.Assert(err, IsNil)
