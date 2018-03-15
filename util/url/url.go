@@ -1,15 +1,15 @@
 package url
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 )
 
 func Get(path string) *url.URL {
-	u, err := url.Parse(os.Getenv("BASE_URL"))
+	u, err := url.Parse(fmt.Sprintf("%s%s", os.Getenv("BASE_URL"), path))
 	if err != nil {
 		return nil
 	}
-	u.Path = path
 	return u
 }
