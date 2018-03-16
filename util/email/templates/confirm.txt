@@ -3,5 +3,3 @@ Show us it's real.
 We just need you to confirm your email real quick. Then you can go outside and play.
 {{.ConfirmURL}}
 
-Also, don't forget to invite 10 friends. Once they all sign-up, you get 100 free plays for the next jackpot.
-{{.ReferralURL}}
