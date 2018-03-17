@@ -183,4 +183,19 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	c.Assert(w.Code, Equals, 400)
+
+	// test that a bad username fails
+	incomeStore.count = 0
+	incomeStore.session_id = nil
+	r = gin.New()
+	r.Use(middleware.Masquerade())
+	r.Use(middleware.AuthRequired())
+	r.POST("/users", Create(store, incomeStore, confirmStore, captcha, emailer))
+	input = fmt.Sprintf(`{"username":"bad username","password":"password","email":"bob@bobber.com","btc_address":"12345","referral_code":"code1"}`)
+	body = strings.NewReader(input)
+	req, _ = http.NewRequest("POST", "/users", body)
+	req.Header.Set("Masquerade", "5")
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 400)
 }

@@ -46,6 +46,10 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
+		if err := util.ValidateUsername(record.Username); err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
 
 		// verify captcha code
 		success, err := captcha.Verify(json.CaptchaCode, c.ClientIP())

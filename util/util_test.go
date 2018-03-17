@@ -26,3 +26,12 @@ func (s *UtilSuite) TestValidateEmail(c *C) {
 	c.Check(ValidateEmail("test+test@test.com"), NotNil)
 	c.Check(ValidateEmail(""), NotNil)
 }
+
+func (s *UtilSuite) TestValidateUsername(c *C) {
+	c.Check(ValidateUsername("slkf73-92h9"), IsNil)
+	c.Check(ValidateUsername("-bad"), NotNil)
+	c.Check(ValidateUsername("bad one"), NotNil)
+	c.Check(ValidateUsername(""), NotNil)
+	c.Check(ValidateUsername("111111111111111111111111111111111111111"), IsNil)
+	c.Check(ValidateUsername("1111111111111111111111111111111111111111"), NotNil)
+}

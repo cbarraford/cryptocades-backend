@@ -24,8 +24,9 @@ var LowerAlphaNumeric = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
 
 //// REGEX ////
 var (
-	BTCRegex    = regexp.MustCompile("^[13][a-km-zA-HJ-NP-Z0-9]{26,33}$")
-	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	BTCRegex      = regexp.MustCompile("^[13][a-km-zA-HJ-NP-Z0-9]{26,33}$")
+	emailRegexp   = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	usernameRegex = regexp.MustCompile("^[a-z\\d](?:[a-z\\d]|-(?:[a-z\\d])){0,38}$")
 )
 
 ///////////////
@@ -41,6 +42,13 @@ func RandSeq(n int, seq []rune) string {
 func ValidateEmail(email string) error {
 	if !emailRegexp.MatchString(email) {
 		return errors.New("Invalid email format")
+	}
+	return nil
+}
+
+func ValidateUsername(username string) error {
+	if !usernameRegex.MatchString(username) {
+		return errors.New("Invalid username, please try again. Must contain only letters, numbers, and dashes. Cannot start with a dash. Maximum of 39 characters")
 	}
 	return nil
 }
