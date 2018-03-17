@@ -26,7 +26,7 @@ var LowerAlphaNumeric = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
 var (
 	BTCRegex      = regexp.MustCompile("^[13][a-km-zA-HJ-NP-Z0-9]{26,33}$")
 	emailRegexp   = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-	usernameRegex = regexp.MustCompile("^[a-z\\d](?:[a-z\\d]|-(?:[a-z\\d])){0,38}$")
+	usernameRegex = regexp.MustCompile("^(?i)[a-z\\d](?:[a-z\\d]|-(?:[a-z\\d])){0,38}$")
 )
 
 ///////////////

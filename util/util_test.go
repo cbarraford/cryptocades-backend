@@ -29,6 +29,8 @@ func (s *UtilSuite) TestValidateEmail(c *C) {
 
 func (s *UtilSuite) TestValidateUsername(c *C) {
 	c.Check(ValidateUsername("slkf73-92h9"), IsNil)
+	c.Check(ValidateUsername("928371740934830"), IsNil)
+	c.Check(ValidateUsername("Aallingh64"), IsNil)
 	c.Check(ValidateUsername("-bad"), NotNil)
 	c.Check(ValidateUsername("bad one"), NotNil)
 	c.Check(ValidateUsername(""), NotNil)
