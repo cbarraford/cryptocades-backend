@@ -94,6 +94,8 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 	adminGroup := r.Group("/admin", middleware.AdminAuthRequired())
 	{
 		adminGroup.GET("/users/registered/total", admins.TotalRegisterUsers(store.Admins))
+		adminGroup.GET("/users/active/total", admins.TotalActiveUsers(store.Admins))
+		adminGroup.GET("/users/live/total", admins.TotalLiveUsers(store.Admins))
 	}
 
 	return r
