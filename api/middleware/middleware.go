@@ -53,17 +53,47 @@ func EscalatedAuthRequired() gin.HandlerFunc {
 	}
 }
 
+func AdminAuthRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, _ := c.Get("token")
+		// TODO: hard coded token key for admin api access (ie for bots to
+		// authenticate)
+		if token == "QieDpVTtcnBgFVDPccRmDa98" {
+			return
+		}
+		_, ok := c.Get("userId")
+		if !ok {
+			c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("Unauthorized"))
+			return
+		}
+		admin, ok := c.Get("admin")
+		if !ok {
+			c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("Access Denied"))
+			return
+		}
+		if !admin.(bool) {
+			c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("Access Denied"))
+			return
+		}
+	}
+}
+
 func Authenticate(store session.Store) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.Header["Session"] != nil {
 			token := c.Request.Header["Session"][0]
-			id, escalated, err := store.Authenticate(token)
+			id, escalated, admin, err := store.Authenticate(token)
 			if err != nil {
 				log.Printf("Unable to authorize given token: %+v", token)
 				return
 			}
 			c.Set("userId", strconv.FormatInt(id, 10))
+			c.Set("admin", admin)
 			c.Set("escalated", escalated)
+		}
+		if c.Request.Header["Token"] != nil {
+			token := c.Request.Header["Token"][0]
+			c.Set("token", token)
 		}
 	}
 }

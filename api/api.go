@@ -13,6 +13,7 @@ import (
 	newrelic "github.com/newrelic/go-agent"
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
+	"github.com/cbarraford/cryptocades-backend/api/admins"
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/api/facebook"
 	"github.com/cbarraford/cryptocades-backend/api/games"
@@ -88,6 +89,11 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		jackpotsGroup.GET("/", jackpots.List(store.Jackpots))
 		jackpotsGroup.GET("/:id/odds", jackpots.Odds(store.Entries))
 		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Entries, store.Users, store.Jackpots))
+	}
+
+	adminGroup := r.Group("/admin", middleware.AdminAuthRequired())
+	{
+		adminGroup.GET("/users/registered/total", admins.TotalRegisterUsers(store.Admins))
 	}
 
 	return r

@@ -54,17 +54,17 @@ func (s *DBSuite) TestAuthenticate(c *C) {
 
 	var id int64
 	var escalated bool
-	id, escalated, err = s.store.Authenticate(record.Token)
+	id, escalated, _, err = s.store.Authenticate(record.Token)
 	c.Assert(err, IsNil)
 	c.Check(escalated, Equals, true)
 	c.Check(id, Equals, int64(5))
 
 	err = s.store.Create(&record, -1)
 	c.Assert(err, IsNil)
-	_, _, err = s.store.Authenticate(record.Token)
+	_, _, _, err = s.store.Authenticate(record.Token)
 	c.Assert(err, ErrorMatches, "Token expired.")
 
-	_, _, err = s.store.Authenticate("bogus")
+	_, _, _, err = s.store.Authenticate("bogus")
 	c.Assert(err, NotNil)
 
 	record = Record{
@@ -75,7 +75,7 @@ func (s *DBSuite) TestAuthenticate(c *C) {
 	err = s.store.Create(&record, 60)
 	c.Assert(err, IsNil)
 
-	id, escalated, err = s.store.Authenticate(record.Token)
+	id, escalated, _, err = s.store.Authenticate(record.Token)
 	c.Assert(err, IsNil)
 	c.Check(escalated, Equals, false)
 	c.Check(id, Equals, int64(5))

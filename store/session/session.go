@@ -16,7 +16,7 @@ const (
 type Store interface {
 	Create(record *Record, i int) error
 	GetByToken(token string) (Record, error)
-	Authenticate(token string) (int64, bool, error)
+	Authenticate(token string) (int64, bool, bool, error)
 	Delete(token string) error
 }
 
@@ -34,6 +34,7 @@ const table string = "sessions"
 type Record struct {
 	Id            int64     `json:"id" db:"id"`
 	UserId        int64     `json:"user_id" db:"user_id"`
+	Admin         bool      `json:"admin" db:"admin"`
 	Token         string    `json:"token" db:"token"`
 	CreatedTime   time.Time `json:"created_time" db:"created_time"`
 	EscalatedTime time.Time `json:"escalated_time"`
@@ -62,9 +63,9 @@ func (db *store) Create(record *Record, session_length int) error {
 
 	query := fmt.Sprintf(`
         INSERT INTO %s
-			(user_id, token, expire_time, created_time)
+			(user_id, admin, token, expire_time, created_time)
         VALUES
-			(:user_id, :token, :expire_time, :created_time) RETURNING id`, table)
+			(:user_id, :admin, :token, :expire_time, :created_time) RETURNING id`, table)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
@@ -79,16 +80,16 @@ func (db *store) GetByToken(token string) (Record, error) {
 	return record, err
 }
 
-func (db *store) Authenticate(token string) (id int64, escalatedPriv bool, err error) {
+func (db *store) Authenticate(token string) (id int64, escalatedPriv bool, admin bool, err error) {
 	var record Record
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE token = ?", table))
 	err = db.sqlx.Get(&record, query, token)
 	if err != nil {
-		return 0, false, err
+		return 0, false, false, err
 	}
 
 	if record.ExpireTime.UnixNano() < time.Now().UTC().UnixNano() {
-		return 0, false, fmt.Errorf("Token expired.")
+		return 0, false, false, fmt.Errorf("Token expired.")
 	}
 
 	if record.CreatedTime.Add(escalatedTime*time.Minute).UnixNano() >= time.Now().UnixNano() {
@@ -96,6 +97,7 @@ func (db *store) Authenticate(token string) (id int64, escalatedPriv bool, err e
 	}
 
 	id = record.UserId
+	admin = record.Admin
 	return
 }
 

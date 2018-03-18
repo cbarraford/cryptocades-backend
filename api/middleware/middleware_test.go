@@ -49,11 +49,12 @@ type mockSessionStore struct {
 	session.Dummy
 	authed    bool
 	escalated bool
+	admin     bool
 }
 
-func (m *mockSessionStore) Authenticate(token string) (int64, bool, error) {
+func (m *mockSessionStore) Authenticate(token string) (int64, bool, bool, error) {
 	m.authed = true
-	return 5, m.escalated, nil
+	return 5, m.escalated, m.admin, nil
 }
 
 func (s *MiddlewareSuite) TestEscalatedAuthenticate(c *C) {
@@ -125,6 +126,46 @@ func (s *MiddlewareSuite) TestAuthenticate(c *C) {
 	// no auth in request
 	req, _ = http.NewRequest("GET", "/test", nil)
 	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 401)
+}
+
+func (s *MiddlewareSuite) TestAuthAuthentication(c *C) {
+	sessionStore := &mockSessionStore{
+		admin: true,
+	}
+
+	r := gin.New()
+	r.Use(Authenticate(sessionStore))
+	r.Use(AdminAuthRequired())
+
+	r.GET("/test", func(context *gin.Context) {
+		userId, _ := context.Get("userId")
+		c.Check(userId, Equals, "5", Commentf("UserId: %s", userId))
+		context.String(200, "OK")
+	})
+	r.GET("/test/bot", func(context *gin.Context) {
+		context.String(200, "OK")
+	})
+
+	// happy path
+	req, _ := http.NewRequest("GET", "/test", nil)
+	w := httptest.NewRecorder()
+	req.Header.Set("Session", "a session id is here")
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 200)
+
+	req, _ = http.NewRequest("GET", "/test/bot", nil)
+	w = httptest.NewRecorder()
+	req.Header.Set("Token", "QieDpVTtcnBgFVDPccRmDa98")
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, Equals, 200)
+
+	// non-admin
+	sessionStore.admin = false
+	req, _ = http.NewRequest("GET", "/test", nil)
+	w = httptest.NewRecorder()
+	req.Header.Set("Session", "a session id is here")
 	r.ServeHTTP(w, req)
 	c.Assert(w.Code, Equals, 401)
 }

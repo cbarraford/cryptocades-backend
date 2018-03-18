@@ -45,6 +45,7 @@ func Login(store user.Store, sessionStore session.Store) func(*gin.Context) {
 
 		sessionRecord := session.Record{
 			UserId: record.Id,
+			Admin:  record.Admin,
 		}
 		seg := newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,
