@@ -85,3 +85,37 @@ func TotalLiveUsers(store admin.Store) func(*gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"live": live})
 	}
 }
+
+type inputPlays struct {
+	Email  string `json:"email"`
+	Title  string `json:"title"`
+	Amount int    `json:"amount"`
+}
+
+func AwardPlays(store admin.Store) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+
+		var json inputPlays
+		err = c.BindJSON(&json)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "incomes",
+			Operation:  "AwardPlays",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		err = store.AwardPlays(json.Email, json.Amount, json.Title)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		seg.End()
+		c.JSON(http.StatusOK, gin.H{"message": "OK"})
+	}
+}

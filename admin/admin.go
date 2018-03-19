@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -9,6 +10,7 @@ import (
 type Store interface {
 	TotalRegisterUsers() (int, error)
 	TotalActiveUsers(minutes int) (int, error)
+	AwardPlays(email string, amount int, description string) error
 }
 
 type store struct {
@@ -32,4 +34,21 @@ func (db *store) TotalActiveUsers(minutes int) (i int, err error) {
 	)
 	err = db.sqlx.Get(&i, query)
 	return
+}
+
+func (db *store) AwardPlays(email string, amount int, title string) error {
+	var userId int64
+	query := db.sqlx.Rebind("SELECT id FROM users WHERE email = ?")
+	err := db.sqlx.Get(&userId, query, email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("Email not found")
+		} else {
+			return err
+		}
+	}
+
+	query = db.sqlx.Rebind("INSERT INTO incomes (user_id, game_id, session_id, amount, partial_amount) VALUES (?,0,?,?,0)")
+	_, err = db.sqlx.Exec(query, userId, title, amount)
+	return err
 }
