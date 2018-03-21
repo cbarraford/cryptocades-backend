@@ -12,6 +12,7 @@ import (
 	. "gopkg.in/check.v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
+	"github.com/cbarraford/cryptocades-backend/store/boost"
 	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/session"
 	"github.com/cbarraford/cryptocades-backend/store/user"
@@ -66,6 +67,16 @@ func (m *mockFacebookStore) Get(id int64) (user.Record, error) {
 	}, nil
 }
 
+type mockBoostStore struct {
+	boost.Dummy
+	count int
+}
+
+func (m *mockBoostStore) Create(record *boost.Record) error {
+	m.count = m.count + 1
+	return nil
+}
+
 type mockIncomeStore struct {
 	income.Dummy
 	session_id []string
@@ -96,13 +107,14 @@ func (s *FacebookLoginSuite) TestFacebookLogin(c *C) {
 	}
 	incomeStore := &mockIncomeStore{}
 	sessionStore := &mockSessionStore{}
+	boostStore := &mockBoostStore{}
 
 	r := gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
 	r.Use(middleware.HandleErrors())
-	r.POST("/login/facebook", Login(store, incomeStore, sessionStore))
-	input := fmt.Sprintf(`{"email":"bob@bob.com","accessToken":"1234566789","referral_code":"code1"}`)
+	r.POST("/login/facebook", Login(store, boostStore, incomeStore, sessionStore))
+	input := fmt.Sprintf(`{"email":"bob@bob.com","accessToken":"1234566789","referrer":"code1"}`)
 	body := strings.NewReader(input)
 	req, _ := http.NewRequest("POST", "/login/facebook", body)
 	req.Header.Set("Masquerade", "5")
@@ -113,7 +125,7 @@ func (s *FacebookLoginSuite) TestFacebookLogin(c *C) {
 	c.Check(store.user.Id, Equals, int64(12))
 
 	c.Check(incomeStore.freebe, Equals, true)
-	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up Bonus", "Referral - code1", "Referral - ref-12"})
-	c.Check(incomeStore.total, Equals, 25) // 5 for bonus, 10 for each user (2)
+	c.Check(incomeStore.total, Equals, 5) // 5 for bonus
+	c.Check(boostStore.count, Equals, 2)
 
 }

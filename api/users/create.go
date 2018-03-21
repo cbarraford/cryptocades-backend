@@ -11,6 +11,7 @@ import (
 	newrelic "github.com/newrelic/go-agent"
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
+	"github.com/cbarraford/cryptocades-backend/store/boost"
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
 	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/user"
@@ -25,7 +26,7 @@ const (
 	MaxReferrals  = 10
 )
 
-func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store, captcha recaptcha.ReCAPTCHA, emailer email.Emailer) func(*gin.Context) {
+func Create(store user.Store, incomeStore income.Store, confirmStore confirmation.Store, boostStore boost.Store, captcha recaptcha.ReCAPTCHA, emailer email.Emailer) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		record := user.Record{}
@@ -36,7 +37,7 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 			record.Email = json.Email
 			record.BTCAddr = json.BTCAddr
 			record.Password = json.Password
-			record.ReferralCode = json.ReferralCode
+			record.Referrer = json.Referrer
 		} else {
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
 			return
@@ -76,7 +77,7 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 			return
 		}
 
-		err = NewUserBonus(txn, record, store, incomeStore)
+		err = NewUserBonus(txn, record, store, incomeStore, boostStore)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -120,7 +121,7 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 		emailTemplate := email.EmailTemplate{
 			Subject:     "Confirm your Cryptocades account",
 			ConfirmURL:  url.Get(fmt.Sprintf("/confirmation/%s", confirm.Code)).String(),
-			ReferralURL: url.Get(fmt.Sprintf("/signup?referral=%s", record.ReferralCode)).String(),
+			ReferralURL: url.Get(fmt.Sprintf("/signup?referral=%s", record.Referrer)).String(),
 		}
 		err = emailer.SendHTML(
 			record.Email,
@@ -138,7 +139,7 @@ func Create(store user.Store, incomeStore income.Store, confirmStore confirmatio
 	}
 }
 
-func NewUserBonus(txn newrelic.Transaction, record user.Record, store user.Store, incomeStore income.Store) error {
+func NewUserBonus(txn newrelic.Transaction, record user.Record, store user.Store, incomeStore income.Store, boostStore boost.Store) error {
 
 	// give them free tickets for signing up
 	in := income.Record{
@@ -158,80 +159,44 @@ func NewUserBonus(txn newrelic.Transaction, record user.Record, store user.Store
 		return err
 	}
 
-	if record.ReferralCode != "" {
+	if record.Referrer != "" {
 
 		seg = newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,
-			Collection: "incomes",
-			Operation:  "Bonus Count",
+			Collection: "users",
+			Operation:  "GET",
 		}
 		seg.StartTime = newrelic.StartSegmentNow(txn)
-		count, err := incomeStore.CountBonuses(record.Id, "Referral")
+		referrer, err := store.GetByReferralCode(record.Referrer)
 		seg.End()
 		if err != nil {
 			return err
 		}
 
-		if count < MaxReferrals {
-			seg = newrelic.DatastoreSegment{
-				Product:    newrelic.DatastorePostgres,
-				Collection: "users",
-				Operation:  "GET",
-			}
-			seg.StartTime = newrelic.StartSegmentNow(txn)
-			referrer, err := store.GetByReferralCode(record.ReferralCode)
-			seg.End()
-			if err != nil {
-				return err
-			}
+		// grant referrer a boost
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "boosts",
+			Operation:  "CREATE",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		err = boostStore.Create(&boost.Record{UserId: referrer.Id})
+		seg.End()
+		if err != nil {
+			return err
+		}
 
-			seg = newrelic.DatastoreSegment{
-				Product:    newrelic.DatastorePostgres,
-				Collection: "users",
-				Operation:  "GET",
-			}
-			seg.StartTime = newrelic.StartSegmentNow(txn)
-			record, err = store.Get(record.Id)
-			seg.End()
-			if err != nil {
-				return err
-			}
-
-			// give them free tickets for using referral
-			in1 := income.Record{
-				UserId:    record.Id,
-				SessionId: fmt.Sprintf("Referral - %s", referrer.ReferralCode),
-				Amount:    ReferralBonus,
-			}
-			in2 := income.Record{
-				UserId:    referrer.Id,
-				SessionId: fmt.Sprintf("Referral - %s", record.ReferralCode),
-				Amount:    ReferralBonus,
-			}
-
-			seg = newrelic.DatastoreSegment{
-				Product:    newrelic.DatastorePostgres,
-				Collection: "incomes",
-				Operation:  "referral",
-			}
-			seg.StartTime = newrelic.StartSegmentNow(txn)
-			err = incomeStore.Create(&in1)
-			seg.End()
-			if err != nil {
-				return err
-			}
-
-			seg = newrelic.DatastoreSegment{
-				Product:    newrelic.DatastorePostgres,
-				Collection: "incomes",
-				Operation:  "referral",
-			}
-			seg.StartTime = newrelic.StartSegmentNow(txn)
-			err = incomeStore.Create(&in2)
-			seg.End()
-			if err != nil {
-				return err
-			}
+		// grant new user a boost
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "boosts",
+			Operation:  "CREATE",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		err = boostStore.Create(&boost.Record{UserId: record.Id})
+		seg.End()
+		if err != nil {
+			return err
 		}
 	}
 	return nil

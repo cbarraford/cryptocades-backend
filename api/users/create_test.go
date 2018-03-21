@@ -13,6 +13,7 @@ import (
 	. "gopkg.in/check.v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
+	"github.com/cbarraford/cryptocades-backend/store/boost"
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
 	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/user"
@@ -94,6 +95,16 @@ func (m *mockConfirmCreateStore) Create(record *confirmation.Record) error {
 	return nil
 }
 
+type mockBoostStore struct {
+	boost.Dummy
+	count int
+}
+
+func (m *mockBoostStore) Create(record *boost.Record) error {
+	m.count = m.count + 1
+	return nil
+}
+
 type mockReCAPTCHAClient struct{}
 
 func (*mockReCAPTCHAClient) Post(url string, contentType string, body io.Reader) (resp *http.Response, err error) {
@@ -116,6 +127,9 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 
 	// happy path
 	store := &mockCreateUserStore{}
+	boostStore := &mockBoostStore{
+		count: 0,
+	}
 	confirmStore := &mockConfirmCreateStore{}
 	incomeStore := &mockIncomeCreateStore{
 		count: 0,
@@ -130,8 +144,8 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
 	r.Use(middleware.HandleErrors())
-	r.POST("/users", Create(store, incomeStore, confirmStore, captcha, emailer))
-	input := fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
+	r.POST("/users", Create(store, incomeStore, confirmStore, boostStore, captcha, emailer))
+	input := fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referrer":"code1"}`)
 	body := strings.NewReader(input)
 	req, _ := http.NewRequest("POST", "/users", body)
 	req.Header.Set("Masquerade", "5")
@@ -150,8 +164,8 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	c.Check(confirmStore.code, Not(Equals), "")
 
 	c.Check(incomeStore.freebe, Equals, true)
-	c.Check(incomeStore.session_id, DeepEquals, []string{"Sign up Bonus", "Referral - code1", "Referral - ref-10"})
-	c.Check(incomeStore.total, Equals, 25) // 5 for bonus, 10 for each user (2)
+	c.Check(incomeStore.total, Equals, 5) // 5 for bonus
+	c.Check(boostStore.count, Equals, 2)
 
 	// make sure that when we have 10 referrals already, we don't award more
 	incomeStore.count = 10
@@ -159,8 +173,8 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r = gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, incomeStore, confirmStore, captcha, emailer))
-	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referral_code":"code1"}`)
+	r.POST("/users", Create(store, incomeStore, confirmStore, boostStore, captcha, emailer))
+	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob@bob.com","btc_address":"12345","referrer":"code1"}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/users", body)
 	req.Header.Set("Masquerade", "5")
@@ -175,8 +189,8 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r = gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, incomeStore, confirmStore, captcha, emailer))
-	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob+tag@bob.com","btc_address":"12345","referral_code":"code1"}`)
+	r.POST("/users", Create(store, incomeStore, confirmStore, boostStore, captcha, emailer))
+	input = fmt.Sprintf(`{"username":"bob","password":"password","email":"bob+tag@bob.com","btc_address":"12345","referrer":"code1"}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/users", body)
 	req.Header.Set("Masquerade", "5")
@@ -190,8 +204,8 @@ func (s *UserCreateSuite) TestCreate(c *C) {
 	r = gin.New()
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
-	r.POST("/users", Create(store, incomeStore, confirmStore, captcha, emailer))
-	input = fmt.Sprintf(`{"username":"bad username","password":"password","email":"bob@bobber.com","btc_address":"12345","referral_code":"code1"}`)
+	r.POST("/users", Create(store, incomeStore, confirmStore, boostStore, captcha, emailer))
+	input = fmt.Sprintf(`{"username":"bad username","password":"password","email":"bob@bobber.com","btc_address":"12345","referrer":"code1"}`)
 	body = strings.NewReader(input)
 	req, _ = http.NewRequest("POST", "/users", body)
 	req.Header.Set("Masquerade", "5")

@@ -12,6 +12,7 @@ import (
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/users"
+	"github.com/cbarraford/cryptocades-backend/store/boost"
 	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/session"
 	"github.com/cbarraford/cryptocades-backend/store/user"
@@ -19,10 +20,10 @@ import (
 
 // TODO: don't get email from request, could be forged
 type login struct {
-	Email        string `json:"email"`
-	ExpiresIn    int    `json:"expiresIn"`
-	AccessToken  string `json:"accessToken"`
-	ReferralCode string `json:"referral_code"`
+	Email       string `json:"email"`
+	ExpiresIn   int    `json:"expiresIn"`
+	AccessToken string `json:"accessToken"`
+	Referrer    string `json:"referrer"`
 }
 
 type facebookMe struct {
@@ -30,7 +31,7 @@ type facebookMe struct {
 	UserId string `json:"id"`
 }
 
-func Login(store user.Store, incomeStore income.Store, sessionStore session.Store) func(*gin.Context) {
+func Login(store user.Store, boostStore boost.Store, incomeStore income.Store, sessionStore session.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		var record user.Record
@@ -80,7 +81,7 @@ func Login(store user.Store, incomeStore income.Store, sessionStore session.Stor
 					record.Email = _login.Email
 					record.Username = fb.UserId
 					record.FacebookId = fb.UserId
-					record.ReferralCode = _login.ReferralCode
+					record.Referrer = _login.Referrer
 					// TODO Require ReCAPTCHA
 					err := store.Create(&record)
 					if err != nil {
@@ -88,7 +89,7 @@ func Login(store user.Store, incomeStore income.Store, sessionStore session.Stor
 						return
 					}
 
-					err = users.NewUserBonus(txn, record, store, incomeStore)
+					err = users.NewUserBonus(txn, record, store, incomeStore, boostStore)
 					if err != nil {
 						c.AbortWithError(http.StatusBadRequest, err)
 						return

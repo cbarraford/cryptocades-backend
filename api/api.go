@@ -67,9 +67,9 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 	r.PUT("/me/email", middleware.EscalatedAuthRequired(), users.UpdateEmail(store.Users, store.Confirmations, emailer))
 	r.DELETE("/me", middleware.AuthRequired(), users.Delete(store.Users))
 	r.POST("/login", users.Login(store.Users, store.Sessions))
-	r.POST("/login/facebook", facebook.Login(store.Users, store.Incomes, store.Sessions))
+	r.POST("/login/facebook", facebook.Login(store.Users, store.Boosts, store.Incomes, store.Sessions))
 	r.DELETE("/logout", users.Logout(store.Sessions))
-	r.POST("/users", users.Create(store.Users, store.Incomes, store.Confirmations, captcha, emailer))
+	r.POST("/users", users.Create(store.Users, store.Incomes, store.Confirmations, store.Boosts, captcha, emailer))
 	r.POST("/users/confirmation/:code",
 		users.Confirm(store.Confirmations, store.Users),
 	)

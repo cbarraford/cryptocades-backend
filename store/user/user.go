@@ -48,6 +48,7 @@ type Record struct {
 	FacebookId   string    `json:"fb_id" db:"fb_id"`
 	Avatar       string    `json:"avatar" db:"-"`
 	Confirmed    bool      `json:"confirmed" db:"confirmed"`
+	Referrer     string    `json:"-" db:"referrer"`
 	ReferralCode string    `json:"-" db:"referral_code"`
 	Admin        bool      `json:"-" db:"admin"`
 	CreatedTime  time.Time `json:"created_time" db:"created_time"`
@@ -84,9 +85,9 @@ func (db *store) Create(record *Record) error {
 
 	query := fmt.Sprintf(`
         INSERT INTO %s
-			(username, password, btc_address, email, fb_id, confirmed)
+			(username, password, btc_address, email, fb_id, confirmed, referrer)
         VALUES
-			(:username, :password, :btc_address, :email, :fb_id, :confirmed) RETURNING id`, table)
+			(:username, :password, :btc_address, :email, :fb_id, :confirmed, :referrer) RETURNING id`, table)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(record).Scan(&record.Id)
