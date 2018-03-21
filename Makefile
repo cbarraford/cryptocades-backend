@@ -21,10 +21,10 @@ start-internal:
 	~/bin/cryptocades-backend
 
 test-short-internal:
-	go test -short ${TARGET}
+	ENVIRONMENT=testing go test -short ${TARGET}
 
 test-internal:
-	go test ${TARGET}
+	ENVIRONMENT=testing go test ${TARGET}
 
 test-cover-internal:
 	./scripts/cover.sh
