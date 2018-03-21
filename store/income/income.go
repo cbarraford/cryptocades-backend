@@ -118,9 +118,9 @@ func (db *store) List() (records []Record, err error) {
 	return
 }
 
-func (db *store) ListByUser(id int64) (records []Record, err error) {
+func (db *store) ListByUser(userId int64) (records []Record, err error) {
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE user_id = ?", table))
-	err = db.sqlx.Select(&records, query, id)
+	err = db.sqlx.Select(&records, query, userId)
 	return
 }
 
@@ -134,7 +134,7 @@ func (db *store) UserIncome(userId int64) (earned int, err error) {
 	// If you update the query here, also update it in entry.go. This isn't
 	// very DRY, but felt like it wasn't worth the import, getting this func to
 	// work within a transaction, etc
-	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COALESCE(SUM(amount),0) FROM %s WHERE user_id = ?", table))
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT COALESCE(SUM(%s.amount * COALESCE(boosts.multiplier,1)),0) FROM %s LEFT OUTER JOIN boosts ON boosts.income_id = %s.id WHERE %s.user_id = ?", table, table, table, table))
 	err = db.sqlx.Get(&earned, query, userId)
 	return
 }

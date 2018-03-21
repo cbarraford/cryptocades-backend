@@ -79,7 +79,7 @@ func (db *store) Create(record *Record) error {
 
 	var totalIncome int
 	// this query should stay in sync with income.go:UserIncome
-	query = db.sqlx.Rebind("SELECT COALESCE(SUM(amount),0) FROM incomes WHERE user_id = ?")
+	query = db.sqlx.Rebind("SELECT COALESCE(SUM(incomes.amount * COALESCE(boosts.multiplier,1)),0) FROM incomes LEFT OUTER JOIN boosts ON boosts.income_id = incomes.id WHERE incomes.user_id = ?")
 	err = tx.Get(&totalIncome, query, record.UserId)
 	if err != nil {
 		tx.Rollback()

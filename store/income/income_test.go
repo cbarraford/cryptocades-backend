@@ -7,6 +7,8 @@ import (
 
 	. "gopkg.in/check.v1"
 
+	"github.com/cbarraford/cryptocades-backend/store/boost"
+	"github.com/cbarraford/cryptocades-backend/store/user"
 	"github.com/cbarraford/cryptocades-backend/test"
 )
 
@@ -137,10 +139,21 @@ func (s *DBSuite) TestListByUser(c *C) {
 }
 
 func (s *DBSuite) TestUserIncome(c *C) {
+	// with a boost
+	userStore := user.NewStore(s.store.sqlx)
+	user := user.Record{
+		Username: "bob",
+		Email:    "bob@cryptocades.com",
+		BTCAddr:  "1MiJFQvupX5kSZcUtfSoD9NtLevUgjv3uq",
+		Password: "password",
+	}
+
+	c.Assert(userStore.Create(&user), IsNil)
+
 	record := Record{
 		GameId:    4,
 		SessionId: "sign up",
-		UserId:    5,
+		UserId:    user.Id,
 		Amount:    60,
 	}
 	c.Assert(s.store.Create(&record), IsNil)
@@ -148,7 +161,7 @@ func (s *DBSuite) TestUserIncome(c *C) {
 	record = Record{
 		GameId:    4,
 		SessionId: "referral-2",
-		UserId:    5,
+		UserId:    user.Id,
 		Amount:    50,
 	}
 	c.Assert(s.store.Create(&record), IsNil)
@@ -161,9 +174,23 @@ func (s *DBSuite) TestUserIncome(c *C) {
 	}
 	c.Assert(s.store.Create(&record), IsNil)
 
-	spent, err := s.store.UserIncome(5)
+	spent, err := s.store.UserIncome(user.Id)
 	c.Assert(err, IsNil)
 	c.Check(spent, Equals, 110)
+
+	boostStore := boost.NewStore(s.store.sqlx)
+	boost := boost.Record{
+		UserId: user.Id,
+	}
+	c.Assert(boostStore.Create(&boost), IsNil)
+	records, err := s.store.ListByUser(user.Id)
+	c.Assert(err, IsNil)
+	c.Assert(records, HasLen, 2)
+	c.Assert(boostStore.Assign(boost.Id, records[0].Id), IsNil)
+
+	spent, err = s.store.UserIncome(user.Id)
+	c.Assert(err, IsNil)
+	c.Check(spent, Equals, 170)
 
 	spent, err = s.store.UserIncome(9999)
 	c.Assert(err, IsNil)
