@@ -99,7 +99,7 @@ func (db *store) Assign(id, income_id int64) error {
 	}
 
 	var incUserId int64
-	query := db.sqlx.Rebind("SELECT user_id FROM incomes WHERE id = ?")
+	query := db.sqlx.Rebind("SELECT user_id FROM incomes WHERE id = ? AND game_id > 0")
 	err = db.sqlx.Get(&incUserId, query, income_id)
 	if err != nil {
 		if err == sql.ErrNoRows {
