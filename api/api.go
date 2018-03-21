@@ -14,6 +14,7 @@ import (
 	nrgin "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 
 	"github.com/cbarraford/cryptocades-backend/api/admins"
+	"github.com/cbarraford/cryptocades-backend/api/boosts"
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/api/facebook"
 	"github.com/cbarraford/cryptocades-backend/api/games"
@@ -59,6 +60,8 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 	r.GET("/me/incomes", middleware.AuthRequired(), users.Incomes(store.Incomes))
 	r.GET("/me/incomes/rank", middleware.AuthRequired(), users.IncomeRank(store.Incomes))
 	r.GET("/me/entries", middleware.AuthRequired(), users.Entries(store.Entries))
+	r.GET("/me/boosts", middleware.AuthRequired(), boosts.ListByUser(store.Boosts))
+	r.PUT("/me/boosts", middleware.AuthRequired(), boosts.Assign(store.Boosts))
 	r.PUT("/me", middleware.EscalatedAuthRequired(), users.Update(store.Users))
 	// update specifically email
 	r.PUT("/me/email", middleware.EscalatedAuthRequired(), users.UpdateEmail(store.Users, store.Confirmations, emailer))

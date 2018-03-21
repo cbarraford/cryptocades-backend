@@ -5,6 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	admin "github.com/cbarraford/cryptocades-backend/admin"
+	"github.com/cbarraford/cryptocades-backend/store/boost"
 	"github.com/cbarraford/cryptocades-backend/store/confirmation"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/game"
@@ -23,6 +24,7 @@ type Store struct {
 	Confirmations confirmation.Store
 	Games         game.Store
 	Admins        admin.Store
+	Boosts        boost.Store
 }
 
 // Get a database connection
@@ -45,5 +47,6 @@ func GetStore(db *sqlx.DB, red redis.Conn) Store {
 		Confirmations: confirmation.NewStore(db),
 		Games:         game.NewStore(),
 		Admins:        admin.NewStore(db),
+		Boosts:        boost.NewStore(db),
 	}
 }
