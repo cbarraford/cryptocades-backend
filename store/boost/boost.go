@@ -81,10 +81,11 @@ func (db *store) List() (records []Record, err error) {
 	return
 }
 
-func (db *store) ListByUser(id int64) (records []Record, err error) {
+func (db *store) ListByUser(id int64) ([]Record, error) {
+	records := []Record{}
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE user_id = ?", table))
-	err = db.sqlx.Select(&records, query, id)
-	return
+	err := db.sqlx.Select(&records, query, id)
+	return records, err
 }
 
 func (db *store) Assign(id, income_id int64) error {

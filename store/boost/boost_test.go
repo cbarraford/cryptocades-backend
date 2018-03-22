@@ -98,6 +98,10 @@ func (s *DBSuite) TestListByUser(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(records, HasLen, 1)
 	c.Check(records[0].UserId, Equals, s.user2.Id)
+
+	records, err = s.store.ListByUser(45)
+	c.Assert(err, IsNil)
+	c.Assert(records, HasLen, 0)
 }
 
 func (s *DBSuite) TestAssign(c *C) {
