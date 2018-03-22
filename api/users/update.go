@@ -45,6 +45,26 @@ func Update(store user.Store) func(*gin.Context) {
 			return
 		}
 
+		if json.Username != "" {
+			record.Username = json.Username
+			if err := util.ValidateUsername(record.Username); err != nil {
+				c.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+			seg = newrelic.DatastoreSegment{
+				Product:    newrelic.DatastorePostgres,
+				Collection: "users",
+				Operation:  "Update",
+			}
+			seg.StartTime = newrelic.StartSegmentNow(txn)
+			err = store.Update(&record)
+			seg.End()
+			if err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		}
+
 		if json.BTCAddr != "" {
 			record.BTCAddr = json.BTCAddr
 			if !util.BTCRegex.MatchString(record.BTCAddr) {

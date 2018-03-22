@@ -189,6 +189,7 @@ func (db *store) MarkAsConfirmed(record *Record) error {
 
 	query := fmt.Sprintf(`
         UPDATE %s SET
+			username		= :username,
 			email			= :email,
             confirmed       = :confirmed,
             updated_time    = :updated_time
