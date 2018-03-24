@@ -85,7 +85,6 @@ func (db *store) GetTopPerformers(matchup string, offset int, top int) ([]Record
 		return nil, fmt.Errorf("Invalid matchup interval: %s", matchup)
 	}
 	scores, err := redis.Strings(db.redis.Do("ZREVRANGE", keyname, 0, top, "WITHSCORES"))
-	log.Printf("Scores: %+v", scores)
 	if err != nil {
 		return nil, err
 	}
