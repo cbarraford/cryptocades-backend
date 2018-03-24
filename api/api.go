@@ -19,6 +19,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/api/facebook"
 	"github.com/cbarraford/cryptocades-backend/api/games"
 	"github.com/cbarraford/cryptocades-backend/api/jackpots"
+	"github.com/cbarraford/cryptocades-backend/api/matchups"
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
 	"github.com/cbarraford/cryptocades-backend/api/users"
 	"github.com/cbarraford/cryptocades-backend/store"
@@ -92,6 +93,12 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		jackpotsGroup.GET("/", jackpots.List(store.Jackpots))
 		jackpotsGroup.GET("/:id/odds", jackpots.Odds(store.Entries))
 		jackpotsGroup.POST("/:id/enter", jackpots.Enter(store.Entries, store.Users, store.Jackpots))
+	}
+
+	matchupsGroup := r.Group("/matchups")
+	{
+		matchupsGroup.GET("/:event/:offset", matchups.List(store.Matchups))
+		matchupsGroup.GET("/:event/:offset/me", matchups.Get(store.Matchups))
 	}
 
 	adminGroup := r.Group("/admin", middleware.AdminAuthRequired())

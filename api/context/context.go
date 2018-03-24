@@ -13,6 +13,14 @@ func GetString(param string, c *gin.Context) string {
 	return c.Param(param)
 }
 
+func GetInt(param string, c *gin.Context) (id int, err error) {
+	id, err = strconv.Atoi(c.Param(param))
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("URL id must be a number"))
+	}
+	return
+}
+
 func GetInt64(param string, c *gin.Context) (id int64, err error) {
 	id, err = strconv.ParseInt(c.Param(param), 10, 64)
 	if err != nil {
