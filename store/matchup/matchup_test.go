@@ -93,6 +93,12 @@ func (s *DBSuite) TestGet(c *C) {
 	c.Check(record.Rank, Equals, 2)
 	c.Check(record.Username, Equals, s.user.Username)
 
+	// try a user that doesn't have any recent activity
+	record, err = s.store.Get("daily", 0, 9)
+	c.Assert(err, IsNil)
+	c.Check(record.Score, Equals, 0)
+	c.Check(record.Rank, Equals, 0)
+
 }
 
 func (s *DBSuite) TestTopPerformers(c *C) {

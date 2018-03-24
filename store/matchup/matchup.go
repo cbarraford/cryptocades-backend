@@ -66,9 +66,12 @@ func (db *store) Get(matchup string, offset int, userId int64) (record Record, e
 	}
 
 	record.UserId = userId
-	record.Rank, err = redis.Int(db.redis.Do("ZRANK", keyname, userId))
+	record.Rank, err = redis.Int(db.redis.Do("ZREVRANK", keyname, userId))
 	if err != nil && err != redis.ErrNil {
 		return record, err
+	}
+	if err == redis.ErrNil {
+		record.Rank = -1
 	}
 	// rank starts with zero being top rank. Increment by one to offset
 	record.Rank = record.Rank + 1
