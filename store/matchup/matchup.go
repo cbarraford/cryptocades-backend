@@ -39,6 +39,9 @@ type Record struct {
 // "matchup" should be a string (ie 'daily') while offset which one to retrieve
 // (ie current aka, previous aka -1, etc)
 func (db *store) KeyName(matchup string, offset int) string {
+	if offset > 0 {
+		offset = -offset
+	}
 	now := time.Now().UTC()
 	if matchup == "daily" {
 		now = now.Add(time.Duration(offset) * 24 * time.Hour)
