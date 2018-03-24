@@ -11,6 +11,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store/game"
 	"github.com/cbarraford/cryptocades-backend/store/income"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/matchup"
 	"github.com/cbarraford/cryptocades-backend/store/session"
 	"github.com/cbarraford/cryptocades-backend/store/user"
 )
@@ -25,6 +26,7 @@ type Store struct {
 	Games         game.Store
 	Admins        admin.Store
 	Boosts        boost.Store
+	Matchups      matchup.Store
 }
 
 // Get a database connection
@@ -48,5 +50,6 @@ func GetStore(db *sqlx.DB, red redis.Conn) Store {
 		Games:         game.NewStore(),
 		Admins:        admin.NewStore(db),
 		Boosts:        boost.NewStore(db),
+		Matchups:      matchup.NewStore(db, red),
 	}
 }
