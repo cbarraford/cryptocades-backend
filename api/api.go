@@ -98,7 +98,7 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 	matchupsGroup := r.Group("/matchups")
 	{
 		matchupsGroup.GET("/:event/:offset", matchups.List(store.Matchups))
-		matchupsGroup.GET("/:event/:offset/:userId", matchups.Get(store.Matchups))
+		matchupsGroup.GET("/:event/:offset/me", matchups.Get(store.Matchups))
 	}
 
 	adminGroup := r.Group("/admin", middleware.AdminAuthRequired())

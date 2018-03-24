@@ -53,9 +53,8 @@ func Get(store matchup.Store) func(*gin.Context) {
 		var err error
 		var userId int64
 
-		userId, err = context.GetInt64("userId", c)
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
+		if userId, err = context.GetUserId(c); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 

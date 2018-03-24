@@ -31,8 +31,8 @@ func NewStore(db *sqlx.DB, redis redis.Conn) Store {
 type Record struct {
 	UserId   int64  `json:"-"`
 	Username string `json:"username"`
-	Rank     int    `json:"place"`
-	Score    int64  `json:"score"`
+	Rank     int    `json:"rank"`
+	Score    int    `json:"score"`
 }
 
 // Keyname generates the redis key for a specific matchup
@@ -65,8 +65,10 @@ func (db *store) Get(matchup string, offset int, userId int64) (record Record, e
 	if err != nil && err != redis.ErrNil {
 		return record, err
 	}
+	// rank starts with zero being top rank. Increment by one to offset
+	record.Rank = record.Rank + 1
 
-	record.Score, err = redis.Int64(db.redis.Do("ZSCORE", keyname, userId))
+	record.Score, err = redis.Int(db.redis.Do("ZSCORE", keyname, userId))
 	if err != nil && err != redis.ErrNil {
 		return record, err
 	}
@@ -83,6 +85,7 @@ func (db *store) GetTopPerformers(matchup string, offset int, top int) ([]Record
 		return nil, fmt.Errorf("Invalid matchup interval: %s", matchup)
 	}
 	scores, err := redis.Strings(db.redis.Do("ZREVRANGE", keyname, 0, top, "WITHSCORES"))
+	log.Printf("Scores: %+v", scores)
 	if err != nil {
 		return nil, err
 	}
@@ -91,14 +94,17 @@ func (db *store) GetTopPerformers(matchup string, offset int, top int) ([]Record
 	// score. Because of that, we do some work to convery an array of ints, to
 	// an array of Records
 	for i, v := range scores {
-		value, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			log.Printf("Error converting value to int: %s", v)
-		}
-
 		if i%2 == 0 {
-			records = append(records, Record{UserId: value, Rank: i + 1})
+			value, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				log.Printf("Error converting value to int: %s", v)
+			}
+			records = append(records, Record{UserId: value, Rank: i/2 + 1})
 		} else {
+			value, err := strconv.Atoi(v)
+			if err != nil {
+				log.Printf("Error converting value to int: %s", v)
+			}
 			records[len(records)-1].Score = value
 		}
 	}
