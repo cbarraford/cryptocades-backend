@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util/gravatar"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 )
@@ -31,6 +32,7 @@ func NewStore(db *sqlx.DB, redis redis.Conn) Store {
 type Record struct {
 	UserId   int64  `json:"-"`
 	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
 	Rank     int    `json:"rank"`
 	Score    int    `json:"score"`
 }
@@ -117,6 +119,10 @@ func (db *store) GetTopPerformers(matchup string, offset int, top int) ([]Record
 func (db *store) ExpandRecords(records []Record) ([]Record, error) {
 	var err error
 
+	if len(records) == 0 {
+		return []Record{}, nil
+	}
+
 	ids := make([]int64, len(records))
 	questionMarks := make([]string, len(records))
 	for i, _ := range records {
@@ -127,13 +133,13 @@ func (db *store) ExpandRecords(records []Record) ([]Record, error) {
 	var userRecords []user.Record
 	query, args, err := sqlx.In("SELECT * FROM users WHERE id IN (?);", ids)
 	if err != nil {
-		return nil, err
+		return []Record{}, err
 	}
 	query = db.sqlx.Rebind(query)
 
 	err = db.sqlx.Select(&userRecords, query, args...)
 	if err != nil {
-		return nil, err
+		return []Record{}, err
 	}
 
 	for i, r := range records {
@@ -141,6 +147,7 @@ func (db *store) ExpandRecords(records []Record) ([]Record, error) {
 		for _, user := range userRecords {
 			if r.UserId == user.Id {
 				records[i].Username = user.Username
+				records[i].Avatar = gravatar.Avatar(user.Email, 256)
 			}
 		}
 	}
