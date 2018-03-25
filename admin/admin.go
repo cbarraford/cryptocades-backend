@@ -30,7 +30,7 @@ func (db *store) TotalRegisterUsers() (i int, err error) {
 
 func (db *store) TotalActiveUsers(minutes int) (i int, err error) {
 	query := db.sqlx.Rebind(
-		fmt.Sprintf("SELECT COUNT(id) FROM incomes WHERE game_id > 0 AND updated_time >= (now() - '%d minute'::INTERVAL) GROUP BY user_id;", minutes),
+		fmt.Sprintf("SELECT COUNT(DISTINCT user_id) FROM incomes WHERE game_id > 0 AND updated_time >= (now() - '%d minute'::INTERVAL)", minutes),
 	)
 	err = db.sqlx.Get(&i, query)
 	return
