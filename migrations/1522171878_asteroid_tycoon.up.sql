@@ -1,0 +1,50 @@
+CREATE TABLE g2_accounts(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+    credits INTEGER NOT NULL DEFAULT 0 CHECK (credits >= 0),
+    resources INTEGER NOT NULL DEFAULT 0 CHECK (resources >= 0),
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE g2_ships(
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL DEFAULT '',
+    state INTEGER NOT NULL DEFAULT 0,
+    total_asteroids INTEGER NOT NULL DEFAULT 0,
+    total_resources INTEGER NOT NULL DEFAULT 0,
+    account_id INTEGER REFERENCES g2_accounts(id) ON DELETE CASCADE,
+    health INTEGER NOT NULL DEFAULT 0,
+    drill_bit INTEGER NOT NULL DEFAULT 0,
+    solar_system INTEGER NOT NULL DEFAULT 0,
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE g2_ship_upgrades(
+    id SERIAL PRIMARY KEY,
+    ship_id INTEGER REFERENCES g2_ships(id) ON DELETE CASCADE,
+    category_id INTEGER NOT NULL DEFAULT 0,
+    asset_id INTEGER NOT NULL DEFAULT 0,
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX g2_ship_upgrades_ship_id_category_id ON g2_ship_upgrades(ship_id, category_id);
+
+CREATE TABLE g2_asteroids(
+    id BIGSERIAL PRIMARY KEY,
+    total INTEGER NOT NULL DEFAULT 0 CHECK (total > 0),
+    remaining INTEGER NOT NULL DEFAULT 0 CHECK (remaining >= 0),
+    distance INTEGER NOT NULL DEFAULT 0 CHECK (distance > 0),
+    ship_id INTEGER NOT NULL DEFAULT 0,
+    solar_system INTEGER NOT NULL DEFAULT 0,
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE g2_logs(
+    id BIGSERIAL PRIMARY KEY,
+    ship_id INTEGER NOT NULL DEFAULT 0,
+    level INTEGER NOT NULL DEFAULT 1,
+    log TEXT NOT NULL DEFAULT '',
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
