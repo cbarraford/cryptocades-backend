@@ -18,6 +18,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/api/facebook"
 	"github.com/cbarraford/cryptocades-backend/api/games"
+	"github.com/cbarraford/cryptocades-backend/api/games/tycoon"
 	"github.com/cbarraford/cryptocades-backend/api/jackpots"
 	"github.com/cbarraford/cryptocades-backend/api/matchups"
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
@@ -86,8 +87,6 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		usersGroup.GET("/:id", users.Get(store.Users))
 	}
 
-	r.GET("/games", games.List(store.Games))
-
 	jackpotsGroup := r.Group("/jackpots")
 	{
 		jackpotsGroup.GET("/", jackpots.List(store.Jackpots))
@@ -107,6 +106,16 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		adminGroup.GET("/users/active/total", admins.TotalActiveUsers(store.Admins))
 		adminGroup.GET("/users/live/total", admins.TotalLiveUsers(store.Admins))
 		adminGroup.POST("/users/plays/free", admins.AwardPlays(store.Admins))
+	}
+
+	r.GET("/games", games.List(store.Games))
+	tycoonGroup := r.Group("/games/2")
+	{
+		tycoonGroup.GET("/account", tycoon.GetAccount(store.TycoonGame))
+		tycoonGroup.POST("/account", tycoon.CreateAccount(store.TycoonGame))
+		tycoonGroup.GET("/ships", tycoon.GetShips(store.TycoonGame))
+		tycoonGroup.POST("/ships", tycoon.CreateShip(store.TycoonGame))
+		tycoonGroup.PUT("/ships/:id", tycoon.UpdateShip(store.TycoonGame))
 	}
 
 	return r

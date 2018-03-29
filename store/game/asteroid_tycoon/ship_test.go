@@ -62,6 +62,15 @@ func (s *ShipSuite) TestGetShipsByUser(c *C) {
 	c.Check(ships[0].AccountId, Equals, int64(s.account.Id))
 }
 
+func (s *ShipSuite) TestGetShipUserId(c *C) {
+	ship := Ship{AccountId: s.account.Id}
+	c.Assert(s.store.CreateShip(&ship), IsNil)
+
+	userId, err := s.store.GetShipUserId(ship.Id)
+	c.Assert(err, IsNil)
+	c.Check(userId, Equals, s.user.Id)
+}
+
 func (s *ShipSuite) TestUpdate(c *C) {
 	var err error
 	ship := Ship{AccountId: s.account.Id}

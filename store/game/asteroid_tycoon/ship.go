@@ -56,6 +56,22 @@ func (db *store) GetShipsByAccountId(accountId int64) ([]Ship, error) {
 	return ships, err
 }
 
+func (db *store) GetShipUserId(id int64) (int64, error) {
+	var err error
+	var userId int64
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT %s.user_id FROM %s JOIN %s ON %s.id = %s.account_id WHERE %s.id = ?", accountsTable, accountsTable, shipsTable, accountsTable, shipsTable, shipsTable))
+	err = db.sqlx.Get(&userId, query, id)
+	return userId, err
+}
+
+func (db *store) GetShip(id int64) (Ship, error) {
+	var err error
+	var ship Ship
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE id = ?", shipsTable))
+	err = db.sqlx.Get(&ship, query, id)
+	return ship, err
+}
+
 func (db *store) UpdateShip(ship *Ship) error {
 	// touch updated time
 	ship.UpdatedTime = time.Now()

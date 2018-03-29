@@ -10,8 +10,10 @@ type Store interface {
 	DeleteAccount(id int64) error
 
 	// Ship
-	CreateShipt(ship *Ship) error
+	CreateShip(ship *Ship) error
 	GetShipsByAccountId(acctId int64) ([]Ship, error)
+	GetShipUserId(id int64) (int64, error)
+	GetShip(id int64) (Ship, error)
 	UpdateShip(ship *Ship) error
 	AddResources(a, r int) error
 	AddDamage(h, d int) error
