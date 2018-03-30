@@ -12,11 +12,15 @@ func TestPackage(t *testing.T) { check.TestingT(t) }
 
 type mockStore struct {
 	asteroid_tycoon.Dummy
-	created   bool
-	updated   bool
-	name      string
-	userId    int64
-	accountId int64
+	created    bool
+	updated    bool
+	name       string
+	userId     int64
+	accountId  int64
+	categoryId int
+	assetId    int
+	asteroidId int64
+	shipId     int64
 }
 
 func (m *mockStore) GetAccountByUserId(userId int64) (asteroid_tycoon.Account, error) {
@@ -59,4 +63,36 @@ func (m *mockStore) UpdateShip(ship *asteroid_tycoon.Ship) error {
 	m.updated = true
 	m.name = ship.Name
 	return nil
+}
+
+func (m *mockStore) GetShipLogs(shipId int64) ([]asteroid_tycoon.Log, error) {
+	return []asteroid_tycoon.Log{
+		{Log: "log-line-text"},
+	}, nil
+}
+
+func (m *mockStore) ApplyUpgrade(upgrade *asteroid_tycoon.AppliedUpgrade) error {
+	m.updated = true
+	m.categoryId = upgrade.CategoryId
+	m.assetId = upgrade.AssetId
+	return nil
+}
+
+func (m *mockStore) AssignAsteroid(id, shipId int64) error {
+	m.created = true
+	m.shipId = shipId
+	m.asteroidId = id
+	return nil
+}
+
+func (m *mockStore) OwnedAsteroids(shipId int64) ([]asteroid_tycoon.Asteroid, error) {
+	return []asteroid_tycoon.Asteroid{
+		{ShipId: shipId},
+	}, nil
+}
+
+func (m *mockStore) AvailableAsteroids() ([]asteroid_tycoon.Asteroid, error) {
+	return []asteroid_tycoon.Asteroid{
+		{ShipId: 0},
+	}, nil
 }

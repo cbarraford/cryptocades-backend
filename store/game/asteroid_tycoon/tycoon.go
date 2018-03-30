@@ -21,10 +21,11 @@ type Store interface {
 
 	// Upgrades
 	ApplyUpgrade(up *AppliedUpgrade) error
+	GetUpgradesByShipId(shipId int64) ([]AppliedUpgrade, error)
 
 	// Asteroids
 	CreateAsteroid(ast *Asteroid) error
-	AssignAsteroid(id int64, ship *Ship) error
+	AssignAsteroid(id, shipId int64) error
 	OwnedAsteroids(shipId int64) ([]Asteroid, error)
 	AvailableAsteroids() ([]Asteroid, error)
 	DestroyAsteroids() error

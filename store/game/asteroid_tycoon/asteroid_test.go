@@ -44,7 +44,7 @@ func (s *AsteroidSuite) TestAssign(c *C) {
 	ast := Asteroid{}
 	c.Assert(s.store.CreateAsteroid(&ast), IsNil)
 
-	c.Assert(s.store.AssignAsteroid(ast.Id, &s.ship), IsNil)
+	c.Assert(s.store.AssignAsteroid(ast.Id, s.ship.Id), IsNil)
 }
 
 func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
@@ -58,7 +58,7 @@ func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
 		Remaining: 0,
 	}
 	c.Assert(s.store.CreateAsteroid(&ast2), IsNil)
-	c.Assert(s.store.AssignAsteroid(ast2.Id, &Ship{Id: 1}), IsNil)
+	c.Assert(s.store.AssignAsteroid(ast2.Id, 1), IsNil)
 
 	asts, err := s.store.AvailableAsteroids()
 	c.Assert(err, IsNil)

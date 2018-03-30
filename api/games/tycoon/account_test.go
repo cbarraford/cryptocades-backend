@@ -17,6 +17,7 @@ type AccountSuite struct{}
 var _ = check.Suite(&AccountSuite{})
 
 func (s *AccountSuite) TestCreateAccount(c *check.C) {
+	gin.SetMode(gin.ReleaseMode)
 	store := &mockStore{}
 
 	r := gin.New()
@@ -39,6 +40,7 @@ func (s *AccountSuite) TestCreateAccount(c *check.C) {
 }
 
 func (s *AccountSuite) TestGetAccount(c *check.C) {
+	gin.SetMode(gin.ReleaseMode)
 	store := &mockStore{}
 
 	r := gin.New()

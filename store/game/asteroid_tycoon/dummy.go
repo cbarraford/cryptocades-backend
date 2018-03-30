@@ -23,11 +23,12 @@ func (*Dummy) AddDamage(h, d int) error                         { return kaboom 
 func (*Dummy) DeleteShip(id int64) error                        { return kaboom }
 
 // Upgrades
-func (*Dummy) ApplyUpgrade(up *AppliedUpgrade) error { return kaboom }
+func (*Dummy) ApplyUpgrade(up *AppliedUpgrade) error                      { return kaboom }
+func (*Dummy) GetUpgradesByShipId(shipId int64) ([]AppliedUpgrade, error) { return nil, kaboom }
 
 // Asteroids
 func (*Dummy) CreateAsteroid(ast *Asteroid) error              { return kaboom }
-func (*Dummy) AssignAsteroid(id int64, ship *Ship) error       { return kaboom }
+func (*Dummy) AssignAsteroid(id, shipId int64) error           { return kaboom }
 func (*Dummy) OwnedAsteroids(shipId int64) ([]Asteroid, error) { return nil, kaboom }
 func (*Dummy) AvailableAsteroids() ([]Asteroid, error)         { return nil, kaboom }
 func (*Dummy) DestroyAsteroids() error                         { return kaboom }

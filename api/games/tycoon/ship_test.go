@@ -86,3 +86,78 @@ func (s *ShipSuite) TestShipUpdate(c *check.C) {
 	c.Check(store.updated, check.Equals, true)
 	c.Check(store.name, check.Equals, "bulldozer")
 }
+
+func (s *ShipSuite) TestShipLogs(c *check.C) {
+	gin.SetMode(gin.ReleaseMode)
+	// happy path
+	store := &mockStore{
+		userId: 12,
+	}
+
+	r := gin.New()
+	r.Use(middleware.TestSuite())
+	r.Use(middleware.Masquerade())
+	r.Use(middleware.AuthRequired())
+	r.GET("/games/2/ships/:id/logs", GetShipLogs(store))
+
+	req, _ := http.NewRequest("GET", "/games/2/ships/8/logs", nil)
+	w := httptest.NewRecorder()
+	req.Header.Set("Masquerade", "12")
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, check.Equals, 200)
+
+	var lines []asteroid_tycoon.Log
+	c.Assert(json.Unmarshal(w.Body.Bytes(), &lines), check.IsNil)
+	c.Assert(lines, check.HasLen, 1)
+	line := lines[0]
+	c.Check(line.Log, check.Equals, "log-line-text")
+}
+
+func (s *ShipSuite) TestShipUpgrade(c *check.C) {
+	gin.SetMode(gin.ReleaseMode)
+	// happy path
+	store := &mockStore{
+		userId: 12,
+	}
+
+	r := gin.New()
+	r.Use(middleware.TestSuite())
+	r.Use(middleware.Masquerade())
+	r.Use(middleware.AuthRequired())
+	r.PUT("/games/2/ships/:id/upgrade", ApplyUpgrade(store))
+	body := strings.NewReader(`{"category_id": 1, "asset_id": 2}`)
+	req, _ := http.NewRequest("PUT", "/games/2/ships/8/upgrade", body)
+	req.Header.Set("Masquerade", "12")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, check.Equals, 200)
+	c.Check(store.updated, check.Equals, true)
+	c.Check(store.assetId, check.Equals, 2)
+	c.Check(store.categoryId, check.Equals, 1)
+}
+
+func (s *ShipSuite) TestMyAsteroids(c *check.C) {
+	gin.SetMode(gin.ReleaseMode)
+	store := &mockStore{
+		userId: 12,
+	}
+
+	r := gin.New()
+	r.Use(middleware.TestSuite())
+	r.Use(middleware.Masquerade())
+	r.Use(middleware.AuthRequired())
+	r.GET("/games/2/ships/:id/asteroids", GetMyAsteroids(store))
+
+	// happy path
+	req, _ := http.NewRequest("GET", "/games/2/ships/8/asteroids", nil)
+	w := httptest.NewRecorder()
+	req.Header.Set("Masquerade", "12")
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, check.Equals, 200)
+
+	var asteroids []asteroid_tycoon.Asteroid
+	c.Assert(json.Unmarshal(w.Body.Bytes(), &asteroids), check.IsNil)
+	c.Assert(asteroids, check.HasLen, 1)
+	asteroid := asteroids[0]
+	c.Check(asteroid.ShipId, check.Equals, int64(8))
+}

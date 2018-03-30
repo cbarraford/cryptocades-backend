@@ -65,14 +65,14 @@ func (db *store) AvailableAsteroids() ([]Asteroid, error) {
 	return asteroids, err
 }
 
-func (db *store) AssignAsteroid(id int64, ship *Ship) error {
+func (db *store) AssignAsteroid(id, shipId int64) error {
 	query := fmt.Sprintf(`
         UPDATE %s SET
             ship_id         = ?,
             updated_time    = now()
         WHERE id = ? AND ship_id = 0`, asteroidsTable)
 	query = db.sqlx.Rebind(query)
-	_, err := db.sqlx.Exec(query, ship.Id, id)
+	_, err := db.sqlx.Exec(query, shipId, id)
 	return err
 }
 

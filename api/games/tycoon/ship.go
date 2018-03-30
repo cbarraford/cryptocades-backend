@@ -3,7 +3,6 @@ package tycoon
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +15,47 @@ import (
 
 type inputShip struct {
 	Name string `json:"name" db:"name"`
+}
+
+type inputUpgrade struct {
+	CategoryId int `json:"category_id" db:"category_id"`
+	AssetId    int `json:"asset_id" db:"asset_id"`
+}
+
+func authShip(c *gin.Context, store asteroid_tycoon.Store) error {
+	var err error
+	userId, err := context.GetUserId(c)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return err
+	}
+
+	shipId, err := context.GetInt64("id", c)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return err
+	}
+
+	txn := nrgin.Transaction(c)
+	seg := newrelic.DatastoreSegment{
+		Product:    newrelic.DatastorePostgres,
+		Collection: "g2_ships",
+		Operation:  "AUTH",
+	}
+	seg.StartTime = newrelic.StartSegmentNow(txn)
+	shipUserId, err := store.GetShipUserId(shipId)
+	seg.End()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return err
+	}
+	if shipUserId != userId {
+		err = fmt.Errorf("Ship Access Denied")
+		c.AbortWithError(http.StatusForbidden, err)
+		return err
+	}
+
+	return nil
 }
 
 func CreateShip(store asteroid_tycoon.Store) func(*gin.Context) {
@@ -102,11 +142,6 @@ func GetShips(store asteroid_tycoon.Store) func(*gin.Context) {
 func UpdateShip(store asteroid_tycoon.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
-		userId, err := context.GetUserId(c)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
 
 		shipId, err := context.GetInt64("id", c)
 		if err != nil {
@@ -118,29 +153,16 @@ func UpdateShip(store asteroid_tycoon.Store) func(*gin.Context) {
 		err = c.BindJSON(&json)
 		if err != nil {
 
-			log.Printf("Error: %+v", err)
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
+			return
+		}
+
+		if err := authShip(c, store); err != nil {
 			return
 		}
 
 		txn := nrgin.Transaction(c)
 		seg := newrelic.DatastoreSegment{
-			Product:    newrelic.DatastorePostgres,
-			Collection: "g2_ships",
-			Operation:  "AUTH",
-		}
-		seg.StartTime = newrelic.StartSegmentNow(txn)
-		shipUserId, err := store.GetShipUserId(shipId)
-		seg.End()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
-			return
-		}
-		if shipUserId != userId {
-			c.AbortWithError(http.StatusForbidden, fmt.Errorf("Ship Access Denied"))
-		}
-		log.Print("FOO")
-		seg = newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,
 			Collection: "g2_ships",
 			Operation:  "GET",
@@ -149,7 +171,6 @@ func UpdateShip(store asteroid_tycoon.Store) func(*gin.Context) {
 		ship, err := store.GetShip(shipId)
 		seg.End()
 		if err != nil {
-			log.Printf("FOOBAR %+v", err)
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
@@ -167,6 +188,141 @@ func UpdateShip(store asteroid_tycoon.Store) func(*gin.Context) {
 			c.JSON(http.StatusInternalServerError, err)
 		} else {
 			c.JSON(http.StatusOK, ship)
+		}
+	}
+}
+
+func GetShipLogs(store asteroid_tycoon.Store) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+
+		if err := authShip(c, store); err != nil {
+			return
+		}
+
+		shipId, err := context.GetInt64("id", c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_logs",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		lines, err := store.GetShipLogs(shipId)
+		seg.End()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusOK, lines)
+		}
+	}
+}
+
+func GetShipUpgrades(store asteroid_tycoon.Store) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+
+		if err := authShip(c, store); err != nil {
+			return
+		}
+
+		shipId, err := context.GetInt64("id", c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_logs",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		lines, err := store.GetUpgradesByShipId(shipId)
+		seg.End()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusOK, lines)
+		}
+	}
+}
+
+func ApplyUpgrade(store asteroid_tycoon.Store) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+
+		shipId, err := context.GetInt64("id", c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		var json inputUpgrade
+		err = c.BindJSON(&json)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
+			return
+		}
+		up := asteroid_tycoon.AppliedUpgrade{
+			ShipId:     shipId,
+			CategoryId: json.CategoryId,
+			AssetId:    json.AssetId,
+		}
+		if err := authShip(c, store); err != nil {
+			return
+		}
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_ship_upgrades",
+			Operation:  "UPDATE",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		err = store.ApplyUpgrade(&up)
+		seg.End()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusOK, up)
+		}
+	}
+}
+
+func GetMyAsteroids(store asteroid_tycoon.Store) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+
+		shipId, err := context.GetInt64("id", c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		if err := authShip(c, store); err != nil {
+			return
+		}
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_asteroids",
+			Operation:  "LIST",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		asteroids, err := store.OwnedAsteroids(shipId)
+		seg.End()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusOK, asteroids)
 		}
 	}
 }
