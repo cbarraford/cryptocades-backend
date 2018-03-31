@@ -12,6 +12,8 @@ type Store interface {
 	AddAccountCredits(id int64, amount int) error
 	SubtractAccountCredits(id int64, amount int) error
 	DeleteAccount(id int64) error
+	TradeForCredits(accountId int64, amount int) error
+	TradeForPlays(accountId int64, amount int) error
 
 	// Ship
 	CreateShip(ship *Ship) error

@@ -3,9 +3,14 @@ package asteroid_tycoon
 import (
 	"fmt"
 	"time"
+
+	"github.com/cbarraford/cryptocades-backend/util"
+	"github.com/lib/pq"
 )
 
 const accountsTable string = "g2_accounts"
+const ResourceForCredits int = 200
+const CreditsForPlays int = 100
 
 type Account struct {
 	Id          int64     `json:"id" db:"id"`
@@ -103,4 +108,75 @@ func (db *store) DeleteAccount(id int64) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", accountsTable)
 	_, err := db.sqlx.Exec(db.sqlx.Rebind(query), id)
 	return err
+}
+
+func (db *store) TradeForCredits(accountId int64, amount int) error {
+	resourceNeeded := ResourceForCredits * amount
+
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+        UPDATE %s SET
+			credits		= credits + ?,
+			resources	= resources - ?,
+            updated_time    = now()
+        WHERE id = ?`, accountsTable))
+	_, err := db.sqlx.Exec(query, amount, resourceNeeded, accountId)
+	if serr, ok := err.(*pq.Error); ok {
+		// https://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
+		if serr.Code.Name() == "check_violation" {
+			return fmt.Errorf("Insufficient funds.")
+		}
+	}
+	return err
+}
+
+func (db *store) TradeForPlays(accountId int64, amount int) error {
+	creditNeeded := CreditsForPlays * amount
+	tx, err := db.sqlx.Beginx()
+
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+        UPDATE %s SET
+			credits		= credits - ?,
+            updated_time    = now()
+        WHERE id = ?`, accountsTable))
+	_, err = tx.Exec(query, creditNeeded, accountId)
+	if serr, ok := err.(*pq.Error); ok {
+		// https://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
+		if serr.Code.Name() == "check_violation" {
+			tx.Rollback()
+			return fmt.Errorf("Insufficient funds.")
+		}
+	}
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	var userId int64
+
+	query = db.sqlx.Rebind(fmt.Sprintf("SELECT user_id FROM %s WHERE id = ?", accountsTable))
+	err = tx.Get(&userId, query, accountId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	query = db.sqlx.Rebind(`
+        INSERT INTO incomes
+            (game_id, session_id, user_id, amount, partial_amount)
+        VALUES
+            (?, ?, ?, ?, 0) ON CONFLICT (game_id, session_id, user_id) DO UPDATE SET amount = incomes.amount + ?, updated_time = now()`)
+
+	_, err = tx.Exec(
+		query,
+		2,
+		util.RandSeq(16, util.LowerAlphaNumeric),
+		userId,
+		amount,
+		amount,
+	)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit()
 }

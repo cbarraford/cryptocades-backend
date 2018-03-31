@@ -2,8 +2,9 @@ package asteroid_tycoon
 
 import (
 	"fmt"
-	"log"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type Category struct {
@@ -126,15 +127,20 @@ func (db *store) ApplyUpgrade(shipId int64, upgrade ShipUpgrade) error {
 	// subtract the cost of the upgrade
 	query = db.sqlx.Rebind(fmt.Sprintf(`
         UPDATE %s AS acct SET  
-            credits		= credits - ?,
-            updated_time   = now()
+            credits			= credits - ?,
+            updated_time	= now()
         FROM %s AS ship
 		WHERE ship.account_id = acct.Id AND ship.Id = ?`, accountsTable, shipsTable))
 	_, err = tx.Exec(query, upgrade.Cost, shipId)
+	if serr, ok := err.(*pq.Error); ok {
+		if serr.Code.Name() == "check_violation" {
+			tx.Rollback()
+			return fmt.Errorf("Insufficient funds.")
+		}
+	}
 	if err != nil {
 		tx.Rollback()
-		log.Printf("Not enough credits: %s", err)
-		return fmt.Errorf("Not enough credits.")
+		return err
 	}
 
 	query = db.sqlx.Rebind(fmt.Sprintf(`

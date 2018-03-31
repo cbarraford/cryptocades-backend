@@ -68,7 +68,7 @@ func (s *ShipUpgradeSuite) TestApplyUpgrade(c *C) {
 	upgrade := ShipUpgrade{CategoryId: 1, AssetId: 6}
 	c.Assert(s.store.ApplyUpgrade(ship.Id, upgrade), ErrorMatches, "Upgrades can only be applied in sequential order")
 	upgrade = ShipUpgrade{CategoryId: 1, AssetId: 2, Cost: 100}
-	c.Assert(s.store.ApplyUpgrade(ship.Id, upgrade), ErrorMatches, "Not enough credits.")
+	c.Assert(s.store.ApplyUpgrade(ship.Id, upgrade), ErrorMatches, "Insufficient funds.")
 	upgrade = ShipUpgrade{CategoryId: 1, AssetId: 2, Cost: 0}
 	c.Assert(s.store.ApplyUpgrade(ship.Id, upgrade), IsNil)
 }

@@ -97,3 +97,23 @@ func (s *AccountSuite) TestDelete(c *C) {
 	acct, err = s.store.GetAccountByUserId(s.user.Id)
 	c.Assert(err, NotNil)
 }
+
+func (s *AccountSuite) TestTradeForCredits(c *C) {
+	acct := Account{UserId: s.user.Id}
+	c.Assert(s.store.CreateAccount(&acct), IsNil)
+
+	c.Assert(s.store.AddAccountResources(acct.Id, 1000), IsNil)
+	c.Assert(s.store.TradeForCredits(acct.Id, 1000), ErrorMatches, "Insufficient funds.")
+	c.Assert(s.store.TradeForCredits(acct.Id, 1), IsNil)
+
+}
+
+func (s *AccountSuite) TestTradeForPlays(c *C) {
+	acct := Account{UserId: s.user.Id}
+	c.Assert(s.store.CreateAccount(&acct), IsNil)
+
+	c.Assert(s.store.AddAccountCredits(acct.Id, 1000), IsNil)
+	c.Assert(s.store.TradeForPlays(acct.Id, 1000), ErrorMatches, "Insufficient funds.")
+	c.Assert(s.store.TradeForPlays(acct.Id, 1), IsNil)
+
+}

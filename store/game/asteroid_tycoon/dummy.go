@@ -15,6 +15,8 @@ func (*Dummy) AddAccountResources(id int64, amount int) error      { return kabo
 func (*Dummy) SubtractAccountResources(id int64, amount int) error { return kaboom }
 func (*Dummy) AddAccountCredits(id int64, amount int) error        { return kaboom }
 func (*Dummy) SubtractAccountCredits(id int64, amount int) error   { return kaboom }
+func (*Dummy) TradeForCredits(accountId int64, amount int) error   { return kaboom }
+func (*Dummy) TradeForPlays(accountId int64, amount int) error     { return kaboom }
 
 // Ship
 func (*Dummy) CreateShipt(ship *Ship) error                     { return kaboom }
