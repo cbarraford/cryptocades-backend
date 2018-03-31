@@ -59,6 +59,46 @@ func (db *store) UpdateAccount(acct *Account) error {
 	return err
 }
 
+func (db *store) AddAccountCredits(id int64, amount int) error {
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+        UPDATE %s SET  
+            credits       = credits + ?,
+            updated_time    = now()
+        WHERE id = ?`, accountsTable))
+	_, err := db.sqlx.Exec(query, amount, id)
+	return err
+}
+
+func (db *store) SubtractAccountCredits(id int64, amount int) error {
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+        UPDATE %s SET  
+            credits       = credits - ?,
+            updated_time    = now()
+        WHERE id = ?`, accountsTable))
+	_, err := db.sqlx.Exec(query, amount, id)
+	return err
+}
+
+func (db *store) AddAccountResources(id int64, amount int) error {
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+        UPDATE %s SET  
+            resources       = resources + ?,
+            updated_time    = now()
+        WHERE id = ?`, accountsTable))
+	_, err := db.sqlx.Exec(query, amount, id)
+	return err
+}
+
+func (db *store) SubtractAccountResources(id int64, amount int) error {
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+        UPDATE %s SET  
+            resources       = resources - ?,
+            updated_time    = now()
+        WHERE id = ?`, accountsTable))
+	_, err := db.sqlx.Exec(query, amount, id)
+	return err
+}
+
 func (db *store) DeleteAccount(id int64) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", accountsTable)
 	_, err := db.sqlx.Exec(db.sqlx.Rebind(query), id)

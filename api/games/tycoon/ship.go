@@ -279,20 +279,33 @@ func ApplyUpgrade(store asteroid_tycoon.Store) func(*gin.Context) {
 			return
 		}
 
-		txn := nrgin.Transaction(c)
-		seg := newrelic.DatastoreSegment{
-			Product:    newrelic.DatastorePostgres,
-			Collection: "g2_ship_upgrades",
-			Operation:  "UPDATE",
+		for _, cat := range asteroid_tycoon.Categories {
+			if cat.Id == json.CategoryId {
+				for _, asset := range cat.Upgrades {
+					if asset.AssetId == json.AssetId {
+
+						txn := nrgin.Transaction(c)
+						seg := newrelic.DatastoreSegment{
+							Product:    newrelic.DatastorePostgres,
+							Collection: "g2_ship_upgrades",
+							Operation:  "UPDATE",
+						}
+						seg.StartTime = newrelic.StartSegmentNow(txn)
+						err = store.ApplyUpgrade(shipId, asset)
+						seg.End()
+						if err != nil {
+							c.JSON(http.StatusInternalServerError, err)
+							return
+						} else {
+							c.JSON(http.StatusOK, up)
+							return
+						}
+
+					}
+				}
+			}
 		}
-		seg.StartTime = newrelic.StartSegmentNow(txn)
-		err = store.ApplyUpgrade(&up)
-		seg.End()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
-		} else {
-			c.JSON(http.StatusOK, up)
-		}
+		c.JSON(http.StatusBadRequest, errors.New("Category or Asset Not found."))
 	}
 }
 

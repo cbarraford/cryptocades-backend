@@ -119,9 +119,8 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		tycoonGroup.GET("/ships/:id/logs", tycoon.GetShipLogs(store.TycoonGame))
 		tycoonGroup.GET("/ships/:id/upgrades", tycoon.GetShipUpgrades(store.TycoonGame))
 		tycoonGroup.PUT("/ships/:id/upgrade", tycoon.ApplyUpgrade(store.TycoonGame))
-		tycoonGroup.GET("/ships/:id/asteroids", tycoon.GetMyAsteriods(store.TycoonGame))
+		tycoonGroup.GET("/ships/:id/asteroids", tycoon.GetMyAsteroids(store.TycoonGame))
 		tycoonGroup.GET("/upgrades", tycoon.GetUpgrades(store.TycoonGame))
-		tycoonGroup.GET("/categories", tycoon.GetCategories(store.TycoonGame))
 		tycoonGroup.GET("/asteroids/available", tycoon.GetAvailableAsteroids(store.TycoonGame))
 		tycoonGroup.POST("/asteroids/assign", tycoon.AssignAsteroid(store.TycoonGame))
 	}

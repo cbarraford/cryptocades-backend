@@ -7,6 +7,10 @@ type Store interface {
 	CreateAccount(acct *Account) error
 	GetAccountByUserId(userId int64) (Account, error)
 	UpdateAccount(acct *Account) error
+	AddAccountResources(id int64, amount int) error
+	SubtractAccountResources(id int64, amount int) error
+	AddAccountCredits(id int64, amount int) error
+	SubtractAccountCredits(id int64, amount int) error
 	DeleteAccount(id int64) error
 
 	// Ship
@@ -15,13 +19,14 @@ type Store interface {
 	GetShipUserId(id int64) (int64, error)
 	GetShip(id int64) (Ship, error)
 	UpdateShip(ship *Ship) error
-	AddResources(a, r int) error
-	AddDamage(h, d int) error
+	AddShipResources(a, r int) error
+	AddShipDamage(h, d int) error
 	DeleteShip(id int64) error
 
 	// Upgrades
-	ApplyUpgrade(up *AppliedUpgrade) error
+	ApplyUpgrade(shipId int64, up ShipUpgrade) error
 	GetUpgradesByShipId(shipId int64) ([]AppliedUpgrade, error)
+	InitShip(shipId int64) error
 
 	// Asteroids
 	CreateAsteroid(ast *Asteroid) error

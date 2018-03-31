@@ -100,12 +100,12 @@ func (s *ShipSuite) TestUpdate(c *C) {
 	c.Check(originalUpdateTime.UnixNano(), Not(Equals), ship.UpdatedTime.UnixNano())
 }
 
-func (s *ShipSuite) TestAddResources(c *C) {
+func (s *ShipSuite) TestAddShipResources(c *C) {
 	var err error
 	ship := Ship{AccountId: s.account.Id, TotalAsteroids: 3, TotalResources: 445}
 	c.Assert(s.store.CreateShip(&ship), IsNil)
 
-	c.Assert(s.store.AddResources(2, 44), IsNil)
+	c.Assert(s.store.AddShipResources(2, 44), IsNil)
 	ships, err := s.store.GetShipsByAccountId(s.account.Id)
 	c.Assert(err, IsNil)
 	c.Assert(ships, HasLen, 1)
@@ -114,12 +114,12 @@ func (s *ShipSuite) TestAddResources(c *C) {
 	c.Check(ship.TotalResources, Equals, 489)
 }
 
-func (s *ShipSuite) TestAddDamage(c *C) {
+func (s *ShipSuite) TestAddShipDamage(c *C) {
 	var err error
 	ship := Ship{AccountId: s.account.Id, Health: 100, DrillBit: 500}
 	c.Assert(s.store.CreateShip(&ship), IsNil)
 
-	c.Assert(s.store.AddDamage(40, 60), IsNil)
+	c.Assert(s.store.AddShipDamage(40, 60), IsNil)
 	ships, err := s.store.GetShipsByAccountId(s.account.Id)
 	c.Assert(err, IsNil)
 	c.Assert(ships, HasLen, 1)

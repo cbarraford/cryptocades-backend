@@ -125,7 +125,7 @@ func (s *ShipSuite) TestShipUpgrade(c *check.C) {
 	r.Use(middleware.Masquerade())
 	r.Use(middleware.AuthRequired())
 	r.PUT("/games/2/ships/:id/upgrade", ApplyUpgrade(store))
-	body := strings.NewReader(`{"category_id": 1, "asset_id": 2}`)
+	body := strings.NewReader(`{"category_id": 4, "asset_id": 2}`)
 	req, _ := http.NewRequest("PUT", "/games/2/ships/8/upgrade", body)
 	req.Header.Set("Masquerade", "12")
 	w := httptest.NewRecorder()
@@ -133,7 +133,7 @@ func (s *ShipSuite) TestShipUpgrade(c *check.C) {
 	c.Assert(w.Code, check.Equals, 200)
 	c.Check(store.updated, check.Equals, true)
 	c.Check(store.assetId, check.Equals, 2)
-	c.Check(store.categoryId, check.Equals, 1)
+	c.Check(store.categoryId, check.Equals, 4)
 }
 
 func (s *ShipSuite) TestMyAsteroids(c *check.C) {

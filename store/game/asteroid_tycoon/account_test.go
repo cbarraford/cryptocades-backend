@@ -58,6 +58,32 @@ func (s *AccountSuite) TestUpdate(c *C) {
 
 }
 
+func (s *AccountSuite) TestCredits(c *C) {
+	var err error
+	acct := Account{UserId: s.user.Id}
+	c.Assert(s.store.CreateAccount(&acct), IsNil)
+
+	c.Assert(s.store.AddAccountCredits(acct.Id, 100), IsNil)
+	c.Assert(s.store.SubtractAccountCredits(acct.Id, 40), IsNil)
+
+	acct, err = s.store.GetAccountByUserId(s.user.Id)
+	c.Assert(err, IsNil)
+	c.Check(acct.Credits, Equals, 60)
+}
+
+func (s *AccountSuite) TestResources(c *C) {
+	var err error
+	acct := Account{UserId: s.user.Id}
+	c.Assert(s.store.CreateAccount(&acct), IsNil)
+
+	c.Assert(s.store.AddAccountResources(acct.Id, 100), IsNil)
+	c.Assert(s.store.SubtractAccountResources(acct.Id, 40), IsNil)
+
+	acct, err = s.store.GetAccountByUserId(s.user.Id)
+	c.Assert(err, IsNil)
+	c.Check(acct.Resources, Equals, 60)
+}
+
 func (s *AccountSuite) TestDelete(c *C) {
 	var err error
 	acct := Account{UserId: s.user.Id}

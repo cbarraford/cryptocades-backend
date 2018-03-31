@@ -45,7 +45,11 @@ func (db *store) CreateShip(ship *Ship) error {
 
 	stmt, err := db.sqlx.PrepareNamed(query)
 	err = stmt.QueryRowx(ship).Scan(&ship.Id)
-	return err
+	if err != nil {
+		return err
+	}
+
+	return db.InitShip(ship.Id)
 }
 
 func (db *store) GetShipsByAccountId(accountId int64) ([]Ship, error) {
@@ -91,7 +95,7 @@ func (db *store) UpdateShip(ship *Ship) error {
 	return err
 }
 
-func (db *store) AddResources(asteroids, resources int) error {
+func (db *store) AddShipResources(asteroids, resources int) error {
 	query := db.sqlx.Rebind(fmt.Sprintf(
 		"UPDATE %s SET total_asteroids = total_asteroids + ?, total_resources = total_resources + ?", shipsTable,
 	))
@@ -99,7 +103,7 @@ func (db *store) AddResources(asteroids, resources int) error {
 	return err
 }
 
-func (db *store) AddDamage(health, drillbit int) error {
+func (db *store) AddShipDamage(health, drillbit int) error {
 	query := db.sqlx.Rebind(fmt.Sprintf(
 		"UPDATE %s SET health = health - ?, drill_bit = drill_bit - ?", shipsTable,
 	))

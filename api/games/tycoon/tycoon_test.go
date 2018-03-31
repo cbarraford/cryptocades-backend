@@ -71,7 +71,7 @@ func (m *mockStore) GetShipLogs(shipId int64) ([]asteroid_tycoon.Log, error) {
 	}, nil
 }
 
-func (m *mockStore) ApplyUpgrade(upgrade *asteroid_tycoon.AppliedUpgrade) error {
+func (m *mockStore) ApplyUpgrade(shipId int64, upgrade asteroid_tycoon.ShipUpgrade) error {
 	m.updated = true
 	m.categoryId = upgrade.CategoryId
 	m.assetId = upgrade.AssetId
