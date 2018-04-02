@@ -108,6 +108,7 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		adminGroup.POST("/users/plays/free", admins.AwardPlays(store.Admins))
 	}
 
+	// Games
 	r.GET("/games", games.List(store.Games))
 	tycoonGroup := r.Group("/games/2")
 	{
