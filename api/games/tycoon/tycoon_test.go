@@ -21,6 +21,7 @@ type mockStore struct {
 	assetId    int
 	asteroidId int64
 	shipId     int64
+	amount     int
 }
 
 func (m *mockStore) GetAccountByUserId(userId int64) (asteroid_tycoon.Account, error) {
@@ -95,4 +96,16 @@ func (m *mockStore) AvailableAsteroids() ([]asteroid_tycoon.Asteroid, error) {
 	return []asteroid_tycoon.Asteroid{
 		{ShipId: 0},
 	}, nil
+}
+
+func (m *mockStore) TradeForPlays(accountId int64, amount int) error {
+	m.accountId = accountId
+	m.amount = amount
+	return nil
+}
+
+func (m *mockStore) TradeForCredits(accountId int64, amount int) error {
+	m.accountId = accountId
+	m.amount = amount
+	return nil
 }

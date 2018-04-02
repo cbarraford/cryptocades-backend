@@ -123,6 +123,8 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		tycoonGroup.GET("/upgrades", tycoon.GetUpgrades(store.TycoonGame))
 		tycoonGroup.GET("/asteroids/available", tycoon.GetAvailableAsteroids(store.TycoonGame))
 		tycoonGroup.POST("/asteroids/assign", tycoon.AssignAsteroid(store.TycoonGame))
+		tycoonGroup.POST("/trade/credits", tycoon.TradeForCredits(store.TycoonGame))
+		tycoonGroup.POST("/trade/plays", tycoon.TradeForPlays(store.TycoonGame))
 	}
 
 	return r
