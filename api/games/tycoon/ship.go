@@ -330,12 +330,12 @@ func GetMyAsteroids(store asteroid_tycoon.Store) func(*gin.Context) {
 			Operation:  "LIST",
 		}
 		seg.StartTime = newrelic.StartSegmentNow(txn)
-		asteroids, err := store.OwnedAsteroids(shipId)
+		asteroid, err := store.OwnedAsteroid(shipId)
 		seg.End()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		} else {
-			c.JSON(http.StatusOK, asteroids)
+			c.JSON(http.StatusOK, asteroid)
 		}
 	}
 }

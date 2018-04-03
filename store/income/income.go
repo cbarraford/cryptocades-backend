@@ -6,6 +6,8 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
+
+	"github.com/cbarraford/cryptocades-backend/store/game/asteroid_tycoon"
 )
 
 type Store interface {
@@ -14,7 +16,7 @@ type Store interface {
 	ListByUser(userId int64) ([]Record, error)
 	UserIncome(userId int64) (int, error)
 	UserIncomeRank(userId int64) (int, error)
-	UpdateScores() error
+	UpdateScores(tyGame asteroid_tycoon.Store) error
 	CountBonuses(userId int64, prefix string) (int, error)
 }
 

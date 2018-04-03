@@ -155,9 +155,7 @@ func (s *ShipSuite) TestMyAsteroids(c *check.C) {
 	r.ServeHTTP(w, req)
 	c.Assert(w.Code, check.Equals, 200)
 
-	var asteroids []asteroid_tycoon.Asteroid
-	c.Assert(json.Unmarshal(w.Body.Bytes(), &asteroids), check.IsNil)
-	c.Assert(asteroids, check.HasLen, 1)
-	asteroid := asteroids[0]
+	var asteroid asteroid_tycoon.Asteroid
+	c.Assert(json.Unmarshal(w.Body.Bytes(), &asteroid), check.IsNil)
 	c.Check(asteroid.ShipId, check.Equals, int64(8))
 }

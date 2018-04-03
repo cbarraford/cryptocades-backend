@@ -86,9 +86,9 @@ func (m *mockStore) AssignAsteroid(id, shipId int64) error {
 	return nil
 }
 
-func (m *mockStore) OwnedAsteroids(shipId int64) ([]asteroid_tycoon.Asteroid, error) {
-	return []asteroid_tycoon.Asteroid{
-		{ShipId: shipId},
+func (m *mockStore) OwnedAsteroid(shipId int64) (asteroid_tycoon.Asteroid, error) {
+	return asteroid_tycoon.Asteroid{
+		ShipId: shipId,
 	}, nil
 }
 

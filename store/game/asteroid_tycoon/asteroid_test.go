@@ -58,17 +58,16 @@ func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
 		Remaining: 0,
 	}
 	c.Assert(s.store.CreateAsteroid(&ast2), IsNil)
-	c.Assert(s.store.AssignAsteroid(ast2.Id, 1), IsNil)
+	c.Assert(s.store.AssignAsteroid(ast2.Id, s.ship.Id), IsNil)
 
 	asts, err := s.store.AvailableAsteroids()
 	c.Assert(err, IsNil)
 	c.Assert(asts, HasLen, 1)
 	c.Assert(asts[0].Id, Equals, ast.Id)
 
-	asts, err = s.store.OwnedAsteroids(1)
+	ast, err = s.store.OwnedAsteroid(s.ship.Id)
 	c.Assert(err, IsNil)
-	c.Assert(asts, HasLen, 1)
-	c.Assert(asts[0].Id, Equals, ast2.Id)
+	c.Assert(ast.Id, Equals, ast2.Id)
 }
 
 func (s *AsteroidSuite) TestDelete(c *C) {

@@ -40,6 +40,8 @@ CREATE TABLE g2_asteroids(
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+CREATE UNIQUE INDEX g2_asteroids_ship_id ON g2_asteroids (ship_id)
+WHERE ship_id > 0;
 
 CREATE TABLE g2_logs(
     id BIGSERIAL PRIMARY KEY,

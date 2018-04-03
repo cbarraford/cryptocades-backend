@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/cbarraford/cryptocades-backend/util"
+	"github.com/jmoiron/sqlx"
 )
 
 const asteroidsTable string = "g2_asteroids"
@@ -50,12 +51,27 @@ func (db *store) CreateAsteroid(ast *Asteroid) error {
 	return err
 }
 
-func (db *store) OwnedAsteroids(shipId int64) ([]Asteroid, error) {
-	asteroids := []Asteroid{}
+func (db *store) Mined(sessionId string, shares int, tx *sqlx.Tx) error {
+	var err error
+
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+		UPDATE %s AS ast SET
+			remaining = remaining - ?,
+			updated_time = now()
+		FROM %s AS sessions
+		WHERE sessions.session_id = ? AND sessions.ship_id = ast.ship_id
+	`, asteroidsTable, ledgersTable))
+
+	_, err = tx.Exec(query, shares*ResourceToShareRatio, sessionId)
+	return err
+}
+
+func (db *store) OwnedAsteroid(shipId int64) (Asteroid, error) {
+	asteroid := Asteroid{}
 	query := fmt.Sprintf("SELECT * FROM %s WHERE ship_id = ?", asteroidsTable)
 	query = db.sqlx.Rebind(query)
-	err := db.sqlx.Select(&asteroids, query, shipId)
-	return asteroids, err
+	err := db.sqlx.Get(&asteroid, query, shipId)
+	return asteroid, err
 }
 
 func (db *store) AvailableAsteroids() ([]Asteroid, error) {

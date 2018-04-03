@@ -1,6 +1,10 @@
 package asteroid_tycoon
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/jmoiron/sqlx"
+)
 
 var kaboom = errors.New("Not Implemented")
 
@@ -36,13 +40,14 @@ func (*Dummy) ApplyUpgrade(shipId int64, up ShipUpgrade) error {
 func (*Dummy) GetUpgradesByShipId(shipId int64) ([]AppliedUpgrade, error) { return nil, kaboom }
 
 // Asteroids
-func (*Dummy) CreateAsteroid(ast *Asteroid) error              { return kaboom }
-func (*Dummy) AssignAsteroid(id, shipId int64) error           { return kaboom }
-func (*Dummy) OwnedAsteroids(shipId int64) ([]Asteroid, error) { return nil, kaboom }
-func (*Dummy) AvailableAsteroids() ([]Asteroid, error)         { return nil, kaboom }
-func (*Dummy) DestroyAsteroids() error                         { return kaboom }
+func (*Dummy) CreateAsteroid(ast *Asteroid) error           { return kaboom }
+func (*Dummy) AssignAsteroid(id, shipId int64) error        { return kaboom }
+func (*Dummy) OwnedAsteroid(shipId int64) (Asteroid, error) { return Asteroid{}, kaboom }
+func (*Dummy) AvailableAsteroids() ([]Asteroid, error)      { return nil, kaboom }
+func (*Dummy) DestroyAsteroids() error                      { return kaboom }
 
 // Logs
-func (*Dummy) CreateLog(line *Log) error               { return kaboom }
-func (*Dummy) GetShipLogs(shipId int64) ([]Log, error) { return nil, kaboom }
-func (*Dummy) DeleteOldLogs() error                    { return kaboom }
+func (*Dummy) CreateLog(line *Log) error                             { return kaboom }
+func (*Dummy) GetShipLogs(shipId int64) ([]Log, error)               { return nil, kaboom }
+func (*Dummy) DeleteOldLogs() error                                  { return kaboom }
+func (*Dummy) Mined(sessionId string, shares int, tx *sqlx.Tx) error { return kaboom }

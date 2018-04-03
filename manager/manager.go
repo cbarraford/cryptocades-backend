@@ -48,7 +48,7 @@ func Start(store store.Store, emailer email.Emailer) {
 					log.Printf("Manage Jackpot Error: %+v", err)
 				}
 			case <-tickScores.C:
-				if err := store.Incomes.UpdateScores(); err != nil {
+				if err := store.Incomes.UpdateScores(store.TycoonGame); err != nil {
 					// TODO: we should alert on this error
 					log.Printf("Update Scores Error: %+v", err)
 				}

@@ -32,8 +32,9 @@ type Store interface {
 
 	// Asteroids
 	CreateAsteroid(ast *Asteroid) error
+	Mined(sessionId string, shares int, tx *sqlx.Tx) error
 	AssignAsteroid(id, shipId int64) error
-	OwnedAsteroids(shipId int64) ([]Asteroid, error)
+	OwnedAsteroid(shipId int64) (Asteroid, error)
 	AvailableAsteroids() ([]Asteroid, error)
 	DestroyAsteroids() error
 

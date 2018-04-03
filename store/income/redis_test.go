@@ -5,6 +5,7 @@ import (
 
 	. "gopkg.in/check.v1"
 
+	"github.com/cbarraford/cryptocades-backend/store/game/asteroid_tycoon"
 	"github.com/cbarraford/cryptocades-backend/test"
 )
 
@@ -73,8 +74,9 @@ func (s *RedisSuite) TestZPop(c *C) {
 		c.Assert(err, IsNil)
 	}
 
-	c.Assert(s.store.UpdateScores(), IsNil)
-	c.Assert(s.store.UpdateScores(), IsNil)
+	ty := asteroid_tycoon.NewStore(s.store.sqlx)
+	c.Assert(s.store.UpdateScores(ty), IsNil)
+	c.Assert(s.store.UpdateScores(ty), IsNil)
 
 	total, err := s.store.UserIncome(1)
 	c.Assert(err, IsNil)
