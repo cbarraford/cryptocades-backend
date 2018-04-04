@@ -123,7 +123,7 @@ func (db *store) DeleteShip(id int64) error {
 	return err
 }
 
-func (db *store) GetStatus(ast Asteroid) (status ShipStatus, err error) {
+func (db *store) GetStatus(ast Asteroid) (status ShipStatus) {
 	status.Asteroid = ast
 	status.Status = "Docked"
 	if ast.Id == 0 {

@@ -94,6 +94,14 @@ func (m *mockStore) AssignAsteroid(id, shipId int64) error {
 	return nil
 }
 
+func (m *mockStore) GetStatus(asteroid asteroid_tycoon.Asteroid) asteroid_tycoon.ShipStatus {
+	return asteroid_tycoon.ShipStatus{
+		Status:        "Docked",
+		RemainingTime: 0,
+		Asteroid:      asteroid,
+	}
+}
+
 func (m *mockStore) OwnedAsteroid(shipId int64) (asteroid_tycoon.Asteroid, error) {
 	return asteroid_tycoon.Asteroid{
 		ShipId: shipId,

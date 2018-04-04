@@ -24,6 +24,7 @@ type Store interface {
 	AddShipResources(a, r int) error
 	AddShipDamage(h, d int) error
 	DeleteShip(id int64) error
+	GetStatus(ast Asteroid) (status ShipStatus)
 
 	// Upgrades
 	ApplyUpgrade(shipId int64, up ShipUpgrade) error

@@ -331,3 +331,34 @@ func GetMyAsteroids(store asteroid_tycoon.Store) func(*gin.Context) {
 		}
 	}
 }
+
+func GetStatus(store asteroid_tycoon.Store) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+
+		shipId, err := context.GetInt64("id", c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		if err := authShip(c, store); err != nil {
+			return
+		}
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_asteroids",
+			Operation:  "LIST",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		asteroid, err := store.OwnedAsteroid(shipId)
+		seg.End()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusOK, store.GetStatus(asteroid))
+	}
+}

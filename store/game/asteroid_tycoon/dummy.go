@@ -28,6 +28,7 @@ func (*Dummy) InitShip(shipId int64) error                      { return kaboom 
 func (*Dummy) GetShipsByAccountId(acctId int64) ([]Ship, error) { return nil, kaboom }
 func (*Dummy) GetShipUserId(id int64) (int64, error)            { return 0, kaboom }
 func (*Dummy) GetShip(id int64) (Ship, error)                   { return Ship{}, kaboom }
+func (*Dummy) GetStatus(ast Asteroid) (status ShipStatus)       { return ShipStatus{} }
 func (*Dummy) UpdateShip(ship *Ship) error                      { return kaboom }
 func (*Dummy) AddShipResources(a, r int) error                  { return kaboom }
 func (*Dummy) AddShipDamage(h, d int) error                     { return kaboom }

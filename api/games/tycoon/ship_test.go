@@ -159,3 +159,27 @@ func (s *ShipSuite) TestMyAsteroids(c *check.C) {
 	c.Assert(json.Unmarshal(w.Body.Bytes(), &asteroid), check.IsNil)
 	c.Check(asteroid.ShipId, check.Equals, int64(8))
 }
+
+func (s *ShipSuite) TestGetStatus(c *check.C) {
+	gin.SetMode(gin.ReleaseMode)
+	store := &mockStore{
+		userId: 12,
+	}
+
+	r := gin.New()
+	r.Use(middleware.TestSuite())
+	r.Use(middleware.Masquerade())
+	r.Use(middleware.AuthRequired())
+	r.GET("/games/2/ships/:id/status", GetStatus(store))
+
+	// happy path
+	req, _ := http.NewRequest("GET", "/games/2/ships/8/status", nil)
+	w := httptest.NewRecorder()
+	req.Header.Set("Masquerade", "12")
+	r.ServeHTTP(w, req)
+	c.Assert(w.Code, check.Equals, 200)
+
+	var status asteroid_tycoon.ShipStatus
+	c.Assert(json.Unmarshal(w.Body.Bytes(), &status), check.IsNil)
+	c.Check(status.Asteroid.ShipId, check.Equals, int64(8))
+}
