@@ -8,13 +8,20 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const asteroidsTable string = "g2_asteroids"
+const (
+	asteroidsTable string = "g2_asteroids"
+	minDistance    int    = 1000
+	maxDistance    int    = 10000
+	minTotal       int    = 100
+	maxTotal       int    = 500
+)
 
 type Asteroid struct {
 	Id          int64     `json:"id" db:"id"`
 	Total       int       `json:"total" db:"total"`
 	Remaining   int       `json:"remaining" db:"remaining"`
 	Distance    int       `json:"distance" db:"distance"`
+	ShipSpeed   int       `json:"ship_speed" db:"ship_speed"`
 	ShipId      int64     `json:"ship_id" db:"ship_id"`
 	SolarSystem int       `json:"solar_system" db:"solar_system"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
@@ -29,11 +36,11 @@ func (db *store) CreateAsteroid(ast *Asteroid) error {
 	}
 
 	if ast.Distance == 0 {
-		ast.Distance = util.Random(10, 100)
+		ast.Distance = util.Random(minDistance, maxDistance)
 	}
 
 	if ast.Total == 0 {
-		ast.Total = util.Random(100, 500)
+		ast.Total = util.Random(minTotal, maxTotal)
 	}
 
 	query := fmt.Sprintf(`
@@ -82,13 +89,22 @@ func (db *store) AvailableAsteroids() ([]Asteroid, error) {
 }
 
 func (db *store) AssignAsteroid(id, shipId int64) error {
-	query := fmt.Sprintf(`
-        UPDATE %s SET
+	var speed int
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+		SELECT list.value FROM %s AS ups JOIN %s AS list ON list.category_id = ups.category_id AND list.asset_id = ups.asset_id AND ups.ship_id = ?`, upgradesTable, listUpgradesTable))
+	err := db.sqlx.Get(&speed, query, shipId)
+	if err != nil {
+		return err
+	}
+
+	query = db.sqlx.Rebind(fmt.Sprintf(`
+        UPDATE %s AS ast SET
             ship_id         = ?,
+			ship_speed		= ?,
             updated_time    = now()
-        WHERE id = ? AND ship_id = 0`, asteroidsTable)
-	query = db.sqlx.Rebind(query)
-	_, err := db.sqlx.Exec(query, shipId, id)
+        WHERE ast.id = ? AND ast.ship_id = 0`,
+		asteroidsTable))
+	_, err = db.sqlx.Exec(query, shipId, speed, id)
 	return err
 }
 

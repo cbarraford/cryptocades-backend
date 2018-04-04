@@ -118,7 +118,7 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		tycoonGroup.POST("/ships", tycoon.CreateShip(store.TycoonGame))
 		tycoonGroup.PUT("/ships/:id", tycoon.UpdateShip(store.TycoonGame))
 		tycoonGroup.GET("/ships/:id/logs", tycoon.GetShipLogs(store.TycoonGame))
-		tycoonGroup.GET("/ships/:id/upgrades", tycoon.GetShipUpgrades(store.TycoonGame))
+		tycoonGroup.GET("/ships/:id/upgrades", cache.CachePage(mem, time.Minute, tycoon.GetShipUpgrades(store.TycoonGame)))
 		tycoonGroup.PUT("/ships/:id/upgrade", tycoon.ApplyUpgrade(store.TycoonGame))
 		tycoonGroup.GET("/ships/:id/asteroids", tycoon.GetMyAsteroids(store.TycoonGame))
 		tycoonGroup.GET("/upgrades", tycoon.GetUpgrades(store.TycoonGame))

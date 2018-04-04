@@ -10,6 +10,11 @@ import (
 
 func GetUpgrades(store asteroid_tycoon.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, asteroid_tycoon.Categories)
+		upgrades, err := store.ListUpgrades()
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusOK, upgrades)
+		}
 	}
 }

@@ -1,6 +1,8 @@
 package asteroid_tycoon
 
 import (
+	"time"
+
 	. "gopkg.in/check.v1"
 
 	"github.com/cbarraford/cryptocades-backend/store/user"
@@ -141,4 +143,40 @@ func (s *ShipSuite) TestDelete(c *C) {
 	c.Assert(s.store.DeleteShip(ship.Id), IsNil)
 	ships, err = s.store.GetShipsByAccountId(s.account.Id)
 	c.Assert(ships, HasLen, 0)
+}
+
+func (s *ShipSuite) TestGetStatus(c *C) {
+	status, err := s.store.GetStatus(Asteroid{})
+	c.Assert(err, IsNil)
+	c.Assert(status.Status, Equals, "Docked")
+
+	ast := Asteroid{Id: 1, Distance: 1000, ShipSpeed: 100, Total: 5000, Remaining: 5000, UpdatedTime: time.Now()}
+	status, err = s.store.GetStatus(ast)
+	c.Assert(err, IsNil)
+	c.Assert(status.Status, Equals, "Approaching Asteroid", Commentf("Status: %+v", status))
+	c.Assert(status.RemainingTime, Equals, 10)
+
+	ast = Asteroid{Id: 1, Distance: 1000, ShipSpeed: 100, Total: 5000, Remaining: 5000, UpdatedTime: time.Now().Add(-100 * time.Second)}
+	status, err = s.store.GetStatus(ast)
+	c.Assert(err, IsNil)
+	c.Assert(status.Status, Equals, "Mining", Commentf("Status: %+v", status))
+	c.Assert(status.RemainingTime, Equals, -90)
+
+	ast = Asteroid{Id: 1, Distance: 2000, ShipSpeed: 100, Total: 5000, Remaining: 400, UpdatedTime: time.Now()}
+	status, err = s.store.GetStatus(ast)
+	c.Assert(err, IsNil)
+	c.Assert(status.Status, Equals, "Mining")
+	c.Assert(status.RemainingTime, Equals, 20)
+
+	ast = Asteroid{Id: 1, Distance: 2000, ShipSpeed: 100, Total: 5000, Remaining: 0, UpdatedTime: time.Now()}
+	status, err = s.store.GetStatus(ast)
+	c.Assert(err, IsNil)
+	c.Assert(status.Status, Equals, "Approaching Space Station")
+	c.Assert(status.RemainingTime, Equals, 20)
+
+	ast = Asteroid{Id: 1, Distance: 2000, ShipSpeed: 100, Total: 5000, Remaining: 0, UpdatedTime: time.Now().Add(-100 * time.Second)}
+	status, err = s.store.GetStatus(ast)
+	c.Assert(err, IsNil)
+	c.Assert(status.Status, Equals, "Docked")
+	c.Assert(status.RemainingTime, Equals, -80)
 }

@@ -270,42 +270,34 @@ func ApplyUpgrade(store asteroid_tycoon.Store) func(*gin.Context) {
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
 			return
 		}
-		up := asteroid_tycoon.AppliedUpgrade{
-			ShipId:     shipId,
-			CategoryId: json.CategoryId,
-			AssetId:    json.AssetId,
-		}
+
 		if err := authShip(c, store); err != nil {
 			return
 		}
 
-		for _, cat := range asteroid_tycoon.Categories {
-			if cat.Id == json.CategoryId {
-				for _, asset := range cat.Upgrades {
-					if asset.AssetId == json.AssetId {
-
-						txn := nrgin.Transaction(c)
-						seg := newrelic.DatastoreSegment{
-							Product:    newrelic.DatastorePostgres,
-							Collection: "g2_ship_upgrades",
-							Operation:  "UPDATE",
-						}
-						seg.StartTime = newrelic.StartSegmentNow(txn)
-						err = store.ApplyUpgrade(shipId, asset)
-						seg.End()
-						if err != nil {
-							c.JSON(http.StatusInternalServerError, err)
-							return
-						} else {
-							c.JSON(http.StatusOK, up)
-							return
-						}
-
-					}
-				}
-			}
+		up, err := store.GetUpgrade(json.CategoryId, json.AssetId)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
 		}
-		c.JSON(http.StatusBadRequest, errors.New("Category or Asset Not found."))
+		up.ShipId = shipId
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_applied_ship_upgrades",
+			Operation:  "UPDATE",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		err = store.ApplyUpgrade(shipId, up)
+		seg.End()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		} else {
+			c.JSON(http.StatusOK, up)
+			return
+		}
 	}
 }
 

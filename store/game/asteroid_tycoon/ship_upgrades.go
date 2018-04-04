@@ -7,77 +7,22 @@ import (
 	"github.com/lib/pq"
 )
 
-type Category struct {
-	Id          int           `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Upgrades    []ShipUpgrade `json:"upgrades"`
-}
-
 type ShipUpgrade struct {
-	CategoryId int    `json:"category_id"`
-	AssetId    int    `json:"asset_id"`
-	Value      int    `json:"value"`
-	Name       string `json:"name"`
-	Cost       int    `json:"cost"`
-	//Description string `json:"description"`
-}
-
-type AppliedUpgrade struct {
+	CategoryId  int       `json:"category_id" db:"category_id"`
+	AssetId     int       `json:"asset_id" db:"asset_id"`
+	Value       int       `json:"value"`
+	Name        string    `json:"name"`
+	Cost        int       `json:"cost"`
 	Id          int64     `json:"id" db:"id"`
-	ShipId      int64     `json:"-" db:"ship_id"`
-	CategoryId  int       `json:"-" db:"category_id"`
-	AssetId     int       `json:"-" db:"asset_id"`
+	ShipId      int64     `json:"ship_id" db:"ship_id"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 }
 
-var Categories = []Category{
-	{
-		1,
-		"Engines",
-		"Engines push your ship through space. Faster engines means faster top speed",
-		[]ShipUpgrade{
-			{1, 1, 100, "Basic Engine", 100},
-		},
-	},
-	{
-		2,
-		"Cargo",
-		"Cargo is where you store your mined resources. A larger cargo allows you to mine larger asteroids as well as make less trips back and forth to the hanger.",
-		[]ShipUpgrade{
-			{2, 1, 100, "500 Cargo", 100},
-		},
-	},
-	{
-		3,
-		"Drill",
-		"Drill is what collects resources from asteroids. The better the drill, the longer your drill bits last before they need to be replaced.",
-		[]ShipUpgrade{
-			{3, 1, 100, "Copper Drill", 100},
-		},
-	},
-	{
-		4,
-		"Hull",
-		"The hull protects your from the debris and raditation that damages your ship over time. A stronger hull ensures you can stay out longer collecting those valuable resources",
-		[]ShipUpgrade{
-			{4, 1, 100, "Copper Hull", 100},
-			{4, 2, 200, "Aluminium Hull", 200},
-			{4, 3, 300, "Iron Hull", 300},
-			{4, 4, 400, "Steel Hull", 400},
-			{4, 5, 500, "Titanium Hull", 500},
-			{4, 6, 600, "Titanium Aluminide Hull", 600},
-			{4, 7, 700, "Tungsten Hull", 700},
-			{4, 8, 800, "Tungsten Carbide Hull", 800},
-			{4, 9, 900, "Inconel Hull", 900},
-			{4, 10, 1000, "Carbon Steel", 1000},
-		},
-	},
-}
-
-const upgradesTable string = "g2_ship_upgrades"
+const upgradesTable string = "g2_applied_ship_upgrades"
+const listUpgradesTable string = "g2_ship_upgrades"
 
 func (db *store) InitShip(shipId int64) error {
+	var err error
 
 	query := db.sqlx.Rebind(fmt.Sprintf(`
 		INSERT INTO %s
@@ -86,13 +31,23 @@ func (db *store) InitShip(shipId int64) error {
 			(?, ?, ?)
 	`, upgradesTable))
 
-	for _, cat := range Categories {
-		up := cat.Upgrades[0]
-		_, err := db.sqlx.Exec(query, shipId, up.CategoryId, up.AssetId)
-		if err != nil {
-			return err
-		}
+	_, err = db.sqlx.Exec(query, shipId, 1, 1)
+	if err != nil {
+		return err
 	}
+	_, err = db.sqlx.Exec(query, shipId, 2, 1)
+	if err != nil {
+		return err
+	}
+	_, err = db.sqlx.Exec(query, shipId, 3, 1)
+	if err != nil {
+		return err
+	}
+	_, err = db.sqlx.Exec(query, shipId, 4, 1)
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 }
@@ -162,10 +117,28 @@ func (db *store) ApplyUpgrade(shipId int64, upgrade ShipUpgrade) error {
 	return tx.Commit()
 }
 
-func (db *store) GetUpgradesByShipId(shipId int64) ([]AppliedUpgrade, error) {
+func (db *store) GetUpgrade(categoryId, assetId int) (ShipUpgrade, error) {
 	var err error
-	upgrades := []AppliedUpgrade{}
+	upgrade := ShipUpgrade{}
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE category_id = ? AND asset_id = ?", listUpgradesTable))
+	err = db.sqlx.Get(&upgrade, query, categoryId, assetId)
+	return upgrade, err
+}
+
+func (db *store) ListUpgrades() ([]ShipUpgrade, error) {
+	var err error
+	upgrades := []ShipUpgrade{}
+	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s", listUpgradesTable))
+	err = db.sqlx.Select(&upgrades, query)
+
+	return upgrades, err
+}
+
+func (db *store) GetUpgradesByShipId(shipId int64) ([]ShipUpgrade, error) {
+	var err error
+	upgrades := []ShipUpgrade{}
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE ship_id = ?", upgradesTable))
 	err = db.sqlx.Select(&upgrades, query, shipId)
+
 	return upgrades, err
 }

@@ -37,7 +37,9 @@ func (*Dummy) DeleteShip(id int64) error                        { return kaboom 
 func (*Dummy) ApplyUpgrade(shipId int64, up ShipUpgrade) error {
 	return kaboom
 }
-func (*Dummy) GetUpgradesByShipId(shipId int64) ([]AppliedUpgrade, error) { return nil, kaboom }
+func (*Dummy) GetUpgradesByShipId(shipId int64) ([]ShipUpgrade, error) { return nil, kaboom }
+func (*Dummy) ListUpgrades() ([]ShipUpgrade, error)                    { return nil, kaboom }
+func (*Dummy) GetUpgrade(categoryId, assetId int) (ShipUpgrade, error) { return ShipUpgrade{}, kaboom }
 
 // Asteroids
 func (*Dummy) CreateAsteroid(ast *Asteroid) error           { return kaboom }

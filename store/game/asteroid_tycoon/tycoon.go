@@ -27,8 +27,10 @@ type Store interface {
 
 	// Upgrades
 	ApplyUpgrade(shipId int64, up ShipUpgrade) error
-	GetUpgradesByShipId(shipId int64) ([]AppliedUpgrade, error)
+	GetUpgradesByShipId(shipId int64) ([]ShipUpgrade, error)
 	InitShip(shipId int64) error
+	ListUpgrades() ([]ShipUpgrade, error)
+	GetUpgrade(categoryId, assetId int) (ShipUpgrade, error)
 
 	// Asteroids
 	CreateAsteroid(ast *Asteroid) error

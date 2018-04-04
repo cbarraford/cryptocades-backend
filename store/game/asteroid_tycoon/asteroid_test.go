@@ -68,6 +68,7 @@ func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
 	ast, err = s.store.OwnedAsteroid(s.ship.Id)
 	c.Assert(err, IsNil)
 	c.Assert(ast.Id, Equals, ast2.Id)
+	c.Assert(ast.ShipSpeed, Equals, 100)
 }
 
 func (s *AsteroidSuite) TestDelete(c *C) {

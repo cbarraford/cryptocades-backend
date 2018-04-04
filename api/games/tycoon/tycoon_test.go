@@ -79,6 +79,14 @@ func (m *mockStore) ApplyUpgrade(shipId int64, upgrade asteroid_tycoon.ShipUpgra
 	return nil
 }
 
+func (m *mockStore) GetUpgrade(c, a int) (asteroid_tycoon.ShipUpgrade, error) {
+	return asteroid_tycoon.ShipUpgrade{
+		Cost:       100,
+		CategoryId: c,
+		AssetId:    a,
+	}, nil
+}
+
 func (m *mockStore) AssignAsteroid(id, shipId int64) error {
 	m.created = true
 	m.shipId = shipId
