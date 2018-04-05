@@ -2,7 +2,6 @@ CREATE TABLE g2_accounts(
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
     credits INTEGER NOT NULL DEFAULT 0 CHECK (credits >= 0),
-    resources INTEGER NOT NULL DEFAULT 0 CHECK (resources >= 0),
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -38,6 +37,7 @@ CREATE TABLE g2_asteroids(
     ship_id INTEGER NOT NULL DEFAULT 0,
     ship_speed INTEGER NOT NULL DEFAULT 1 CHECK (ship_speed > 0),
     solar_system INTEGER NOT NULL DEFAULT 0,
+    session_id VARCHAR(12) DEFAULT '',
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -50,6 +50,22 @@ CREATE TABLE g2_logs(
     level INTEGER NOT NULL DEFAULT 1,
     log TEXT NOT NULL DEFAULT '',
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE g2_ledgers(
+    id BIGSERIAL PRIMARY KEY,
+    account_id INTEGER REFERENCES g2_accounts(id) ON DELETE CASCADE,
+    session_id VARCHAR(12),
+    amount INTEGER NOT NULL,
+    description TEXT,
+    created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX g2_mining_account_id_session_id ON g2_ledgers (account_id, session_id);
+
+CREATE TABLE g2_sessions(
+    id BIGSERIAL PRIMARY KEY,
+    asteroid_id INTEGER REFERENCES g2_asteroids(id) ON DELETE CASCADE UNIQUE,
+    session_id VARCHAR(12)
 );
 
 CREATE TABLE g2_ship_upgrades(

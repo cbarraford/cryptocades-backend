@@ -97,7 +97,7 @@ func (db *store) UpdateScores(ty asteroid_tycoon.Store) error {
 	for _, record := range records {
 		if record.GameId == 2 {
 			// Specific to Asteroid Tycoon
-			err := ty.Mined(record.SessionId, record.PartialAmount, tx)
+			err := ty.Mined(record.SessionId, record.PartialAmount, record.UserId, tx)
 			if err != nil {
 				tx.Rollback()
 				return err

@@ -50,7 +50,7 @@ func (*Dummy) AvailableAsteroids() ([]Asteroid, error)      { return nil, kaboom
 func (*Dummy) DestroyAsteroids() error                      { return kaboom }
 
 // Logs
-func (*Dummy) CreateLog(line *Log) error                             { return kaboom }
-func (*Dummy) GetShipLogs(shipId int64) ([]Log, error)               { return nil, kaboom }
-func (*Dummy) DeleteOldLogs() error                                  { return kaboom }
-func (*Dummy) Mined(sessionId string, shares int, tx *sqlx.Tx) error { return kaboom }
+func (*Dummy) CreateLog(line *Log) error                                           { return kaboom }
+func (*Dummy) GetShipLogs(shipId int64) ([]Log, error)                             { return nil, kaboom }
+func (*Dummy) DeleteOldLogs() error                                                { return kaboom }
+func (*Dummy) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) error { return kaboom }

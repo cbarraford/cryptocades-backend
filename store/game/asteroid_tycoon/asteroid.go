@@ -23,6 +23,7 @@ type Asteroid struct {
 	Distance    int       `json:"distance" db:"distance"`
 	ShipSpeed   int       `json:"ship_speed" db:"ship_speed"`
 	ShipId      int64     `json:"ship_id" db:"ship_id"`
+	SessionId   string    `json:"-" db:"session_id"`
 	SolarSystem int       `json:"solar_system" db:"solar_system"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
@@ -58,16 +59,17 @@ func (db *store) CreateAsteroid(ast *Asteroid) error {
 	return err
 }
 
-func (db *store) Mined(sessionId string, shares int, tx *sqlx.Tx) error {
+func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) error {
 	var err error
 
 	query := db.sqlx.Rebind(fmt.Sprintf(`
 		UPDATE %s AS ast SET
 			remaining = remaining - ?,
+			session_id = ?,
 			updated_time = now()
-		FROM %s AS sessions
-		WHERE sessions.session_id = ? AND sessions.ship_id = ast.ship_id
-	`, asteroidsTable, ledgersTable))
+		FROM %s AS accts JOIN %s AS ships ON ships.account_id = accts.id
+		WHERE ships.id = ast.ship_id
+	`, asteroidsTable, accountsTable, shipsTable))
 
 	_, err = tx.Exec(query, shares*ResourceToShareRatio, sessionId)
 	return err
@@ -97,6 +99,11 @@ func (db *store) AssignAsteroid(id, shipId int64) error {
 		return err
 	}
 
+	tx, err := db.sqlx.Beginx()
+	if err != nil {
+		return err
+	}
+
 	query = db.sqlx.Rebind(fmt.Sprintf(`
         UPDATE %s AS ast SET
             ship_id         = ?,
@@ -104,8 +111,13 @@ func (db *store) AssignAsteroid(id, shipId int64) error {
             updated_time    = now()
         WHERE ast.id = ? AND ast.ship_id = 0`,
 		asteroidsTable))
-	_, err = db.sqlx.Exec(query, shipId, speed, id)
-	return err
+	_, err = tx.Exec(query, shipId, speed, id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (db *store) DestroyAsteroids() error {

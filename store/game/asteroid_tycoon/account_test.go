@@ -16,7 +16,6 @@ func (s *AccountSuite) TestCreateRequirements(c *C) {
 
 	// ensure a user cannot have two accounts
 	acct.UserId = s.user.Id
-	acct.Resources = 1000
 	c.Assert(s.store.CreateAccount(&acct), IsNil)
 	c.Assert(s.store.CreateAccount(&acct), NotNil)
 }
@@ -41,21 +40,15 @@ func (s *AccountSuite) TestUpdate(c *C) {
 	originalUpdateTime := acct.UpdatedTime
 
 	acct.Credits = 100
-	acct.Resources = 300
 	c.Assert(s.store.UpdateAccount(&acct), IsNil)
 	acct, err = s.store.GetAccountByUserId(s.user.Id)
 	c.Assert(err, IsNil)
 	c.Check(acct.Credits, Equals, 100)
-	c.Check(acct.Resources, Equals, 300)
 	c.Check(originalUpdateTime.UnixNano(), Not(Equals), acct.UpdatedTime.UnixNano())
 
 	// ensure we can't go negative
 	acct.Credits = -100
 	c.Assert(s.store.UpdateAccount(&acct), NotNil)
-	acct.Credits = 100
-	acct.Resources = -400
-	c.Assert(s.store.UpdateAccount(&acct), NotNil)
-
 }
 
 func (s *AccountSuite) TestCredits(c *C) {
@@ -69,19 +62,6 @@ func (s *AccountSuite) TestCredits(c *C) {
 	acct, err = s.store.GetAccountByUserId(s.user.Id)
 	c.Assert(err, IsNil)
 	c.Check(acct.Credits, Equals, 60)
-}
-
-func (s *AccountSuite) TestResources(c *C) {
-	var err error
-	acct := Account{UserId: s.user.Id}
-	c.Assert(s.store.CreateAccount(&acct), IsNil)
-
-	c.Assert(s.store.AddAccountResources(acct.Id, 100), IsNil)
-	c.Assert(s.store.SubtractAccountResources(acct.Id, 40), IsNil)
-
-	acct, err = s.store.GetAccountByUserId(s.user.Id)
-	c.Assert(err, IsNil)
-	c.Check(acct.Resources, Equals, 60)
 }
 
 func (s *AccountSuite) TestDelete(c *C) {
@@ -98,16 +78,6 @@ func (s *AccountSuite) TestDelete(c *C) {
 	c.Assert(err, NotNil)
 }
 
-func (s *AccountSuite) TestTradeForCredits(c *C) {
-	acct := Account{UserId: s.user.Id}
-	c.Assert(s.store.CreateAccount(&acct), IsNil)
-
-	c.Assert(s.store.AddAccountResources(acct.Id, 1000), IsNil)
-	c.Assert(s.store.TradeForCredits(acct.Id, 1000), ErrorMatches, "Insufficient funds.")
-	c.Assert(s.store.TradeForCredits(acct.Id, 1), IsNil)
-
-}
-
 func (s *AccountSuite) TestTradeForPlays(c *C) {
 	acct := Account{UserId: s.user.Id}
 	c.Assert(s.store.CreateAccount(&acct), IsNil)
@@ -116,4 +86,14 @@ func (s *AccountSuite) TestTradeForPlays(c *C) {
 	c.Assert(s.store.TradeForPlays(acct.Id, 1000), ErrorMatches, "Insufficient funds.")
 	c.Assert(s.store.TradeForPlays(acct.Id, 1), IsNil)
 
+}
+
+func (s *AccountSuite) TestTradeForCredits(c *C) {
+	acct := Account{UserId: s.user.Id}
+	c.Assert(s.store.CreateAccount(&acct), IsNil)
+
+	c.Assert(s.store.TradeForCredits(acct.Id, 1000), ErrorMatches, "Insufficient funds.")
+	c.Assert(s.store.AddEntry(acct.Id, 5000, "test"), IsNil)
+	c.Assert(s.store.TradeForCredits(acct.Id, 5), IsNil)
+	c.Assert(s.store.TradeForCredits(acct.Id, 1), ErrorMatches, "Insufficient funds.")
 }

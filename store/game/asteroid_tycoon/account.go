@@ -9,14 +9,12 @@ import (
 )
 
 const accountsTable string = "g2_accounts"
-const ResourceForCredits int = 200
 const CreditsForPlays int = 100
 
 type Account struct {
 	Id          int64     `json:"id" db:"id"`
 	UserId      int64     `json:"user_id" db:"user_id"`
 	Credits     int       `json:"credits" db:"credits"`
-	Resources   int       `json:"resources" db:"resources"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
 }
@@ -51,14 +49,10 @@ func (db *store) GetAccountByUserId(userId int64) (acct Account, err error) {
 }
 
 func (db *store) UpdateAccount(acct *Account) error {
-	// touch updated time
-	acct.UpdatedTime = time.Now()
-
 	query := fmt.Sprintf(`
         UPDATE %s SET  
             credits         = :credits,
-            resources       = :resources,
-            updated_time    = :updated_time
+            updated_time    = now()
         WHERE id = :id`, accountsTable)
 	_, err := db.sqlx.NamedExec(query, acct)
 	return err
@@ -84,48 +78,9 @@ func (db *store) SubtractAccountCredits(id int64, amount int) error {
 	return err
 }
 
-func (db *store) AddAccountResources(id int64, amount int) error {
-	query := db.sqlx.Rebind(fmt.Sprintf(`
-        UPDATE %s SET  
-            resources       = resources + ?,
-            updated_time    = now()
-        WHERE id = ?`, accountsTable))
-	_, err := db.sqlx.Exec(query, amount, id)
-	return err
-}
-
-func (db *store) SubtractAccountResources(id int64, amount int) error {
-	query := db.sqlx.Rebind(fmt.Sprintf(`
-        UPDATE %s SET  
-            resources       = resources - ?,
-            updated_time    = now()
-        WHERE id = ?`, accountsTable))
-	_, err := db.sqlx.Exec(query, amount, id)
-	return err
-}
-
 func (db *store) DeleteAccount(id int64) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = ?", accountsTable)
 	_, err := db.sqlx.Exec(db.sqlx.Rebind(query), id)
-	return err
-}
-
-func (db *store) TradeForCredits(accountId int64, amount int) error {
-	resourceNeeded := ResourceForCredits * amount
-
-	query := db.sqlx.Rebind(fmt.Sprintf(`
-        UPDATE %s SET
-			credits		= credits + ?,
-			resources	= resources - ?,
-            updated_time    = now()
-        WHERE id = ?`, accountsTable))
-	_, err := db.sqlx.Exec(query, amount, resourceNeeded, accountId)
-	if serr, ok := err.(*pq.Error); ok {
-		// https://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
-		if serr.Code.Name() == "check_violation" {
-			return fmt.Errorf("Insufficient funds.")
-		}
-	}
 	return err
 }
 
@@ -174,6 +129,54 @@ func (db *store) TradeForPlays(accountId int64, amount int) error {
 		amount,
 		amount,
 	)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit()
+}
+
+func (db *store) TradeForCredits(accountId int64, amount int) error {
+	var query string
+
+	tx, err := db.sqlx.Beginx()
+
+	var balance int
+	query = db.sqlx.Rebind(fmt.Sprintf("SELECT COALESCE(SUM(amount),0) FROM %s WHERE account_id = ?", ledgersTable))
+	err = db.sqlx.Get(&balance, query, accountId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if balance < amount*ResourcesForCredits {
+		tx.Rollback()
+		return fmt.Errorf("Insufficient funds.")
+	}
+
+	query = db.sqlx.Rebind(fmt.Sprintf(`
+		INSERT INTO %s AS ledger
+			(account_id, session_id, amount, description)
+		VALUES
+			(?, ?, ?, ?)`, ledgersTable))
+	_, err = tx.Exec(
+		query,
+		accountId,
+		util.RandSeq(12, util.LowerAlphaNumeric),
+		-amount*ResourcesForCredits,
+		"Trade for credits",
+	)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	query = db.sqlx.Rebind(fmt.Sprintf(`
+        UPDATE %s SET
+			credits		= credits + ?,
+            updated_time    = now()
+        WHERE id = ?`, accountsTable))
+	_, err = tx.Exec(query, amount, accountId)
 	if err != nil {
 		tx.Rollback()
 		return err

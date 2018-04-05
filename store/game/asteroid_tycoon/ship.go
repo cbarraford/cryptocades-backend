@@ -130,7 +130,10 @@ func (db *store) GetStatus(ast Asteroid) (status ShipStatus) {
 		return
 	}
 
-	travelTime := status.Asteroid.Distance / status.Asteroid.ShipSpeed
+	travelTime := status.Asteroid.Distance
+	if status.Asteroid.ShipSpeed > 0 {
+		travelTime = status.Asteroid.Distance / status.Asteroid.ShipSpeed
+	}
 	diffTime := time.Now().Unix() - status.Asteroid.UpdatedTime.Unix()
 	status.RemainingTime = travelTime - int(diffTime)
 	if status.Asteroid.Remaining > 0 && status.Asteroid.Remaining < status.Asteroid.Total {
