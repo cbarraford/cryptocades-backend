@@ -47,6 +47,8 @@ func (s *LedgerSuite) TestCompletedAsteroid(c *C) {
 	c.Assert(s.store.CreateAsteroid(&ast), IsNil)
 	ship, err := s.store.GetShip(s.ship.Id)
 	c.Assert(err, IsNil)
+	c.Check(ship.TotalAsteroids, Equals, 0)
+	c.Check(ship.TotalResources, Equals, 0)
 	c.Assert(s.store.AssignAsteroid(ast.Id, ship), IsNil)
 
 	balance, err = s.store.ResourceBalance(s.account.Id)
@@ -58,4 +60,9 @@ func (s *LedgerSuite) TestCompletedAsteroid(c *C) {
 	balance, err = s.store.ResourceBalance(s.account.Id)
 	c.Assert(err, IsNil)
 	c.Check(balance, Equals, ast.Total)
+
+	ship, err = s.store.GetShip(s.ship.Id)
+	c.Assert(err, IsNil)
+	c.Check(ship.TotalAsteroids, Equals, 1)
+	c.Check(ship.TotalResources, Equals, ast.Total)
 }

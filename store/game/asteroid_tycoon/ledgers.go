@@ -70,6 +70,15 @@ func (db *store) CompletedAsteroid(ast Asteroid) error {
 		return err
 	}
 
+	query = db.sqlx.Rebind(fmt.Sprintf(
+		"UPDATE %s SET total_asteroids = total_asteroids + ?, total_resources = total_resources + ? WHERE id = ?", shipsTable,
+	))
+	_, err = tx.Exec(query, 1, amount, ship.Id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	return tx.Commit()
 }
 
