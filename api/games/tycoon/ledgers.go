@@ -13,33 +13,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store/game/asteroid_tycoon"
 )
 
-func GetAvailableAsteroids(store asteroid_tycoon.Store) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var err error
-
-		txn := nrgin.Transaction(c)
-		seg := newrelic.DatastoreSegment{
-			Product:    newrelic.DatastorePostgres,
-			Collection: "g2_asteroids",
-			Operation:  "LIST",
-		}
-		seg.StartTime = newrelic.StartSegmentNow(txn)
-		asteroids, err := store.AvailableAsteroids()
-		seg.End()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
-		} else {
-			c.JSON(http.StatusOK, asteroids)
-		}
-	}
-}
-
-type inputAsteroid struct {
-	ShipId     int64 `json:"ship_id"`
-	AsteroidId int64 `json:"asteroid_id"`
-}
-
-func AssignAsteroid(store asteroid_tycoon.Store) func(*gin.Context) {
+func CompletedAsteroid(store asteroid_tycoon.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 
@@ -77,24 +51,24 @@ func AssignAsteroid(store asteroid_tycoon.Store) func(*gin.Context) {
 
 		seg = newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,
-			Collection: "g2_ships",
+			Collection: "g2_asteroids",
 			Operation:  "GET",
 		}
 		seg.StartTime = newrelic.StartSegmentNow(txn)
-		ship, err := store.GetShip(json.ShipId)
+		ast, err := store.OwnedAsteroid(json.ShipId)
 		seg.End()
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
 
 		seg = newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,
-			Collection: "g2_asteroids",
-			Operation:  "ASSIGN",
+			Collection: "g2_ledgers",
+			Operation:  "CREATE",
 		}
 		seg.StartTime = newrelic.StartSegmentNow(txn)
-		err = store.AssignAsteroid(json.AsteroidId, ship)
+		err = store.CompletedAsteroid(ast)
 		seg.End()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)

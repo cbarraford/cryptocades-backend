@@ -1,6 +1,7 @@
 package asteroid_tycoon
 
 import (
+	"testing"
 	"time"
 
 	. "gopkg.in/check.v1"
@@ -42,8 +43,10 @@ func (s *LogSuite) SetUpTest(c *C) {
 }
 
 func (s *LogSuite) TearDownSuite(c *C) {
-	_, err := s.store.sqlx.Exec("Truncate users CASCADE")
-	c.Assert(err, IsNil)
+	if !testing.Short() {
+		_, err := s.store.sqlx.Exec("Truncate users CASCADE")
+		c.Assert(err, IsNil)
+	}
 }
 
 func (s *LogSuite) TestCreateLogRequirements(c *C) {

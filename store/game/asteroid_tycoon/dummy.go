@@ -44,7 +44,7 @@ func (*Dummy) GetUpgrade(categoryId, assetId int) (ShipUpgrade, error) { return 
 
 // Asteroids
 func (*Dummy) CreateAsteroid(ast *Asteroid) error           { return kaboom }
-func (*Dummy) AssignAsteroid(id, shipId int64) error        { return kaboom }
+func (*Dummy) AssignAsteroid(id int64, ship Ship) error     { return kaboom }
 func (*Dummy) OwnedAsteroid(shipId int64) (Asteroid, error) { return Asteroid{}, kaboom }
 func (*Dummy) AvailableAsteroids() ([]Asteroid, error)      { return nil, kaboom }
 func (*Dummy) DestroyAsteroids() error                      { return kaboom }

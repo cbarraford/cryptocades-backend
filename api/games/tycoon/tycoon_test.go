@@ -87,9 +87,9 @@ func (m *mockStore) GetUpgrade(c, a int) (asteroid_tycoon.ShipUpgrade, error) {
 	}, nil
 }
 
-func (m *mockStore) AssignAsteroid(id, shipId int64) error {
+func (m *mockStore) AssignAsteroid(id int64, ship asteroid_tycoon.Ship) error {
 	m.created = true
-	m.shipId = shipId
+	m.shipId = ship.Id
 	m.asteroidId = id
 	return nil
 }
@@ -104,6 +104,7 @@ func (m *mockStore) GetStatus(asteroid asteroid_tycoon.Asteroid) asteroid_tycoon
 
 func (m *mockStore) OwnedAsteroid(shipId int64) (asteroid_tycoon.Asteroid, error) {
 	return asteroid_tycoon.Asteroid{
+		Id:     4,
 		ShipId: shipId,
 	}, nil
 }
@@ -124,4 +125,18 @@ func (m *mockStore) TradeForCredits(accountId int64, amount int) error {
 	m.accountId = accountId
 	m.amount = amount
 	return nil
+}
+
+func (m *mockStore) AddEntry(accountId int64, amount int, description string) error {
+	return nil
+}
+
+func (m *mockStore) CompletedAsteroid(ast asteroid_tycoon.Asteroid) error {
+	m.updated = true
+	m.asteroidId = ast.Id
+	return nil
+}
+
+func (m *mockStore) ListByAccountId(id int64) ([]asteroid_tycoon.Ledger, error) {
+	return nil, nil
 }

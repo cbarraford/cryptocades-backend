@@ -44,7 +44,11 @@ func (s *AsteroidSuite) TestAssign(c *C) {
 	ast := Asteroid{}
 	c.Assert(s.store.CreateAsteroid(&ast), IsNil)
 
-	c.Assert(s.store.AssignAsteroid(ast.Id, s.ship.Id), IsNil)
+	ship, err := s.store.GetShip(s.ship.Id)
+	c.Assert(err, IsNil)
+	c.Assert(s.store.AssignAsteroid(ast.Id, ship), IsNil)
+	ship.Cargo = 0
+	c.Assert(s.store.AssignAsteroid(ast.Id, ship), ErrorMatches, "This asteroid is too large for your cargo hold.")
 }
 
 func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
@@ -58,7 +62,9 @@ func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
 		Remaining: 0,
 	}
 	c.Assert(s.store.CreateAsteroid(&ast2), IsNil)
-	c.Assert(s.store.AssignAsteroid(ast2.Id, s.ship.Id), IsNil)
+	ship, err := s.store.GetShip(s.ship.Id)
+	c.Assert(err, IsNil)
+	c.Assert(s.store.AssignAsteroid(ast2.Id, ship), IsNil)
 
 	asts, err := s.store.AvailableAsteroids()
 	c.Assert(err, IsNil)

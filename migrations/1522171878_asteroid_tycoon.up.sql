@@ -85,7 +85,7 @@ INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost, name) VALUES
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost, name) VALUES 
     (2, 1, 500, 100, '500 Cargo');
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost, name) VALUES 
-    (3, 1, 100, 100, 'Copper Drill');
+    (3, 1, 10, 100, 'Copper Drill');
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost, name) VALUES 
     (4, 1, 100, 100, 'Copper Hull');
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost, name) VALUES 

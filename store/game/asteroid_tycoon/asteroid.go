@@ -90,18 +90,24 @@ func (db *store) AvailableAsteroids() ([]Asteroid, error) {
 	return asteroids, err
 }
 
-func (db *store) AssignAsteroid(id, shipId int64) error {
-	var speed int
-	query := db.sqlx.Rebind(fmt.Sprintf(`
-		SELECT list.value FROM %s AS ups JOIN %s AS list ON list.category_id = ups.category_id AND list.asset_id = ups.asset_id AND ups.ship_id = ?`, upgradesTable, listUpgradesTable))
-	err := db.sqlx.Get(&speed, query, shipId)
+func (db *store) AssignAsteroid(id int64, ship Ship) error {
+	tx, err := db.sqlx.Beginx()
 	if err != nil {
 		return err
 	}
 
-	tx, err := db.sqlx.Beginx()
+	var size int
+	query := db.sqlx.Rebind(
+		fmt.Sprintf(`SELECT total FROM %s WHERE id = ?`, asteroidsTable),
+	)
+	err = tx.Get(&size, query, id)
 	if err != nil {
+		tx.Rollback()
 		return err
+	}
+
+	if size > ship.Cargo {
+		return fmt.Errorf("This asteroid is too large for your cargo hold.")
 	}
 
 	query = db.sqlx.Rebind(fmt.Sprintf(`
@@ -111,7 +117,7 @@ func (db *store) AssignAsteroid(id, shipId int64) error {
             updated_time    = now()
         WHERE ast.id = ? AND ast.ship_id = 0`,
 		asteroidsTable))
-	_, err = tx.Exec(query, shipId, speed, id)
+	_, err = tx.Exec(query, ship.Id, ship.Speed, id)
 	if err != nil {
 		tx.Rollback()
 		return err

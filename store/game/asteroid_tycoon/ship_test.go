@@ -1,6 +1,7 @@
 package asteroid_tycoon
 
 import (
+	"testing"
 	"time"
 
 	. "gopkg.in/check.v1"
@@ -36,8 +37,10 @@ func (s *ShipSuite) SetUpTest(c *C) {
 }
 
 func (s *ShipSuite) TearDownSuite(c *C) {
-	_, err := s.store.sqlx.Exec("Truncate users CASCADE")
-	c.Assert(err, IsNil)
+	if !testing.Short() {
+		_, err := s.store.sqlx.Exec("Truncate users CASCADE")
+		c.Assert(err, IsNil)
+	}
 }
 
 func (s *ShipSuite) TearDownTest(c *C) {
@@ -71,6 +74,18 @@ func (s *ShipSuite) TestGetShipUserId(c *C) {
 	userId, err := s.store.GetShipUserId(ship.Id)
 	c.Assert(err, IsNil)
 	c.Check(userId, Equals, s.user.Id)
+}
+
+func (s *ShipSuite) TestGetShip(c *C) {
+	ship := Ship{AccountId: s.account.Id}
+	c.Assert(s.store.CreateShip(&ship), IsNil)
+
+	ship, err := s.store.GetShip(ship.Id)
+	c.Assert(err, IsNil)
+	c.Check(ship.Speed, Equals, 100)
+	c.Check(ship.Cargo, Equals, 500)
+	c.Check(ship.Drill, Equals, 10)
+	c.Check(ship.Hull, Equals, 100)
 }
 
 func (s *ShipSuite) TestUpdate(c *C) {

@@ -30,6 +30,8 @@ func (s *TycoonSuite) SetUpTest(c *C) {
 }
 
 func (s *TycoonSuite) TearDownSuite(c *C) {
-	_, err := s.store.sqlx.Exec("Truncate users CASCADE")
-	c.Assert(err, IsNil)
+	if !testing.Short() {
+		_, err := s.store.sqlx.Exec("Truncate users CASCADE")
+		c.Assert(err, IsNil)
+	}
 }

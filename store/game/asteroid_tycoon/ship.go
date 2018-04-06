@@ -17,6 +17,10 @@ type Ship struct {
 	Health         int       `json:"health" db:"health"`
 	DrillBit       int       `json:"drill_bit" db:"drill_bit"`
 	SolarSystem    int       `json:"-" db:"solar_system"`
+	Speed          int       `json:"speed" db:"speed"`
+	Hull           int       `json:"hull" db:"hull"`
+	Cargo          int       `json:"cargo" db:"cargo"`
+	Drill          int       `json:"drill" db:"drill"`
 	CreatedTime    time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime    time.Time `json:"updated_time" db:"updated_time"`
 }
@@ -63,6 +67,15 @@ func (db *store) GetShipsByAccountId(accountId int64) ([]Ship, error) {
 	ships := []Ship{}
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE account_id = ?", shipsTable))
 	err = db.sqlx.Select(&ships, query, accountId)
+	if err != nil {
+		return ships, err
+	}
+	for i, _ := range ships {
+		err = db.ExpandShip(&ships[i])
+		if err != nil {
+			return ships, err
+		}
+	}
 	return ships, err
 }
 
@@ -79,6 +92,10 @@ func (db *store) GetShip(id int64) (Ship, error) {
 	var ship Ship
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE id = ?", shipsTable))
 	err = db.sqlx.Get(&ship, query, id)
+	if err != nil {
+		return ship, err
+	}
+	err = db.ExpandShip(&ship)
 	return ship, err
 }
 
@@ -115,6 +132,29 @@ func (db *store) AddShipDamage(health, drillbit int) error {
 	))
 	_, err := db.sqlx.Exec(query, health, drillbit)
 	return err
+}
+
+func (db *store) ExpandShip(ship *Ship) error {
+	var err error
+	query := db.sqlx.Rebind(fmt.Sprintf(`
+		SELECT list.value FROM %s AS ups JOIN %s AS list ON list.category_id = ups.category_id AND list.asset_id = ups.asset_id AND ups.ship_id = ? AND ups.category_id = ?`, upgradesTable, listUpgradesTable))
+	err = db.sqlx.Get(&ship.Speed, query, ship.Id, 1)
+	if err != nil {
+		return err
+	}
+	err = db.sqlx.Get(&ship.Cargo, query, ship.Id, 2)
+	if err != nil {
+		return err
+	}
+	err = db.sqlx.Get(&ship.Drill, query, ship.Id, 3)
+	if err != nil {
+		return err
+	}
+	err = db.sqlx.Get(&ship.Hull, query, ship.Id, 4)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db *store) DeleteShip(id int64) error {
