@@ -21,6 +21,7 @@ type mockStore struct {
 	assetId    int
 	asteroidId int64
 	shipId     int64
+	sessionId  string
 	amount     int
 }
 
@@ -87,10 +88,11 @@ func (m *mockStore) GetUpgrade(c, a int) (asteroid_tycoon.ShipUpgrade, error) {
 	}, nil
 }
 
-func (m *mockStore) AssignAsteroid(id int64, ship asteroid_tycoon.Ship) error {
+func (m *mockStore) AssignAsteroid(id int64, sessionId string, ship asteroid_tycoon.Ship) error {
 	m.created = true
 	m.shipId = ship.Id
 	m.asteroidId = id
+	m.sessionId = sessionId
 	return nil
 }
 

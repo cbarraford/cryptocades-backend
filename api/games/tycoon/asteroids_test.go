@@ -30,7 +30,7 @@ func (s *AsteroidSuite) TestAssignAsteroid(c *check.C) {
 	r.POST("/games/2/asteroids/assign", AssignAsteroid(store))
 
 	// happy path
-	body := strings.NewReader(`{"ship_id": 5, "asteroid_id": 4}`)
+	body := strings.NewReader(`{"ship_id": 5, "asteroid_id": 4, "session_id": "abcde"}`)
 	req, _ := http.NewRequest("POST", "/games/2/asteroids/assign", body)
 	w := httptest.NewRecorder()
 	req.Header.Set("Masquerade", "12")
@@ -40,6 +40,7 @@ func (s *AsteroidSuite) TestAssignAsteroid(c *check.C) {
 	c.Check(store.created, check.Equals, true)
 	c.Check(store.shipId, check.Equals, int64(5))
 	c.Check(store.asteroidId, check.Equals, int64(4))
+	c.Check(store.sessionId, check.Equals, "abcde")
 }
 
 func (s *AsteroidSuite) TestAvailableAsteroids(c *check.C) {

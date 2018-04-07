@@ -1,6 +1,8 @@
 package asteroid_tycoon
 
 import (
+	"time"
+
 	"github.com/cbarraford/cryptocades-backend/store/user"
 	"github.com/cbarraford/cryptocades-backend/test"
 	. "gopkg.in/check.v1"
@@ -32,6 +34,8 @@ func (s *AsteroidSuite) SetUpTest(c *C) {
 
 	s.ship = Ship{
 		AccountId: s.account.Id,
+		Health:    100,
+		DrillBit:  1000,
 	}
 	c.Assert(s.store.CreateShip(&s.ship), IsNil)
 }
@@ -40,15 +44,46 @@ func (s *AsteroidSuite) TestCreateAsteroid(c *C) {
 	c.Assert(s.store.CreateAsteroid(&Asteroid{}), IsNil)
 }
 
+func (s *AsteroidSuite) TestMined(c *C) {
+	sessionId := "abcde"
+	ast := Asteroid{Total: 500, Remaining: 500, UpdatedTime: time.Now().Add(-5 * time.Second)}
+
+	c.Assert(s.store.CreateAsteroid(&ast), IsNil)
+	ship, err := s.store.GetShip(s.ship.Id)
+	c.Assert(err, IsNil)
+	c.Assert(s.store.AssignAsteroid(ast.Id, sessionId, ship), IsNil)
+
+	tx, err := s.store.sqlx.Beginx()
+	c.Assert(err, IsNil)
+
+	c.Assert(s.store.Mined(sessionId, 1, s.user.Id, tx), IsNil)
+	c.Assert(tx.Commit(), IsNil)
+
+	ast, err = s.store.OwnedAsteroid(s.ship.Id)
+	c.Assert(err, IsNil)
+	c.Check(ast.Remaining, Equals, 500-(1*ResourceToShareRatio))
+
+	ship, err = s.store.GetShip(s.ship.Id)
+	c.Assert(err, IsNil)
+	//c.Check(ship.Health, Equals, 50)
+	c.Check(ship.DrillBit, Equals, 900)
+
+	tx, err = s.store.sqlx.Beginx()
+	c.Assert(err, IsNil)
+	c.Assert(s.store.Mined(sessionId, 10000, s.user.Id, tx), IsNil)
+	c.Assert(s.store.Mined(sessionId, 1, s.user.Id, tx), NotNil)
+	c.Assert(tx.Commit(), IsNil)
+}
+
 func (s *AsteroidSuite) TestAssign(c *C) {
 	ast := Asteroid{}
 	c.Assert(s.store.CreateAsteroid(&ast), IsNil)
 
 	ship, err := s.store.GetShip(s.ship.Id)
 	c.Assert(err, IsNil)
-	c.Assert(s.store.AssignAsteroid(ast.Id, ship), IsNil)
+	c.Assert(s.store.AssignAsteroid(ast.Id, "abcde", ship), IsNil)
 	ship.Cargo = 0
-	c.Assert(s.store.AssignAsteroid(ast.Id, ship), ErrorMatches, "This asteroid is too large for your cargo hold.")
+	c.Assert(s.store.AssignAsteroid(ast.Id, "abcde", ship), ErrorMatches, "This asteroid is too large for your cargo hold.")
 }
 
 func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
@@ -64,7 +99,7 @@ func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
 	c.Assert(s.store.CreateAsteroid(&ast2), IsNil)
 	ship, err := s.store.GetShip(s.ship.Id)
 	c.Assert(err, IsNil)
-	c.Assert(s.store.AssignAsteroid(ast2.Id, ship), IsNil)
+	c.Assert(s.store.AssignAsteroid(ast2.Id, "abcde", ship), IsNil)
 
 	asts, err := s.store.AvailableAsteroids()
 	c.Assert(err, IsNil)

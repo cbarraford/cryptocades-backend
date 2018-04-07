@@ -32,7 +32,7 @@ CREATE UNIQUE INDEX g2_ship_upgrades_ship_id_category_id ON g2_applied_ship_upgr
 CREATE TABLE g2_asteroids(
     id BIGSERIAL PRIMARY KEY,
     total INTEGER NOT NULL DEFAULT 0 CHECK (total > 0),
-    remaining INTEGER NOT NULL DEFAULT 0 CHECK (remaining >= 0),
+    remaining INTEGER NOT NULL DEFAULT 0,
     distance INTEGER NOT NULL DEFAULT 0 CHECK (distance > 0),
     ship_id INTEGER NOT NULL DEFAULT 0,
     ship_speed INTEGER NOT NULL DEFAULT 1 CHECK (ship_speed > 0),

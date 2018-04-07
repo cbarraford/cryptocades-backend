@@ -35,8 +35,9 @@ func GetAvailableAsteroids(store asteroid_tycoon.Store) func(*gin.Context) {
 }
 
 type inputAsteroid struct {
-	ShipId     int64 `json:"ship_id"`
-	AsteroidId int64 `json:"asteroid_id"`
+	ShipId     int64  `json:"ship_id"`
+	AsteroidId int64  `json:"asteroid_id"`
+	SessionId  string `json:"session_id"`
 }
 
 func AssignAsteroid(store asteroid_tycoon.Store) func(*gin.Context) {
@@ -94,7 +95,7 @@ func AssignAsteroid(store asteroid_tycoon.Store) func(*gin.Context) {
 			Operation:  "ASSIGN",
 		}
 		seg.StartTime = newrelic.StartSegmentNow(txn)
-		err = store.AssignAsteroid(json.AsteroidId, ship)
+		err = store.AssignAsteroid(json.AsteroidId, json.SessionId, ship)
 		seg.End()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)

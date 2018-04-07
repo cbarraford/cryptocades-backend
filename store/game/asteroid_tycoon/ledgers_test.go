@@ -1,6 +1,8 @@
 package asteroid_tycoon
 
 import (
+	"time"
+
 	"github.com/cbarraford/cryptocades-backend/store/user"
 	"github.com/cbarraford/cryptocades-backend/test"
 	. "gopkg.in/check.v1"
@@ -41,7 +43,8 @@ func (s *LedgerSuite) TestCompletedAsteroid(c *C) {
 	var balance int
 
 	ast := Asteroid{
-		ShipId: s.ship.Id,
+		ShipId:      s.ship.Id,
+		UpdatedTime: time.Now().Add(-100000 * time.Hour),
 	}
 
 	c.Assert(s.store.CreateAsteroid(&ast), IsNil)
@@ -49,7 +52,7 @@ func (s *LedgerSuite) TestCompletedAsteroid(c *C) {
 	c.Assert(err, IsNil)
 	c.Check(ship.TotalAsteroids, Equals, 0)
 	c.Check(ship.TotalResources, Equals, 0)
-	c.Assert(s.store.AssignAsteroid(ast.Id, ship), IsNil)
+	c.Assert(s.store.AssignAsteroid(ast.Id, "abcde", ship), IsNil)
 
 	balance, err = s.store.ResourceBalance(s.account.Id)
 	c.Assert(err, IsNil)
