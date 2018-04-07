@@ -1,6 +1,7 @@
 package tycoon
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
 
@@ -60,7 +61,11 @@ func GetAccount(store asteroid_tycoon.Store) func(*gin.Context) {
 		account, err := store.GetAccountByUserId(userId)
 		seg.End()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, err)
+			} else {
+				c.JSON(http.StatusInternalServerError, err)
+			}
 		} else {
 			c.JSON(http.StatusOK, account)
 		}
