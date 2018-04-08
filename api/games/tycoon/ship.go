@@ -332,6 +332,68 @@ func GetMyAsteroids(store asteroid_tycoon.Store) func(*gin.Context) {
 	}
 }
 
+func Heal(store asteroid_tycoon.Store) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+
+		shipId, err := context.GetInt64("id", c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		if err := authShip(c, store); err != nil {
+			return
+		}
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_ships",
+			Operation:  "HEAL",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		err = store.Heal(shipId)
+		seg.End()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusOK, gin.H{"message": "OK"})
+		}
+	}
+}
+
+func ReplaceDrillBit(store asteroid_tycoon.Store) func(*gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+
+		shipId, err := context.GetInt64("id", c)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		if err := authShip(c, store); err != nil {
+			return
+		}
+
+		txn := nrgin.Transaction(c)
+		seg := newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_ships",
+			Operation:  "REPLACE DRILLBIT",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		err = store.ReplaceDrillBit(shipId)
+		seg.End()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusOK, gin.H{"message": "OK"})
+		}
+	}
+}
+
 func GetStatus(store asteroid_tycoon.Store) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var err error
