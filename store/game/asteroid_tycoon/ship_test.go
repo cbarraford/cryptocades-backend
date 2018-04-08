@@ -117,6 +117,24 @@ func (s *ShipSuite) TestUpdate(c *C) {
 	c.Check(originalUpdateTime.UnixNano(), Not(Equals), ship.UpdatedTime.UnixNano())
 }
 
+func (s *ShipSuite) TestHeal(c *C) {
+	ship := Ship{AccountId: s.account.Id, Health: 50}
+	c.Assert(s.store.CreateShip(&ship), IsNil)
+
+	c.Assert(s.store.Heal(ship.Id), ErrorMatches, "Insufficient funds.")
+	c.Assert(s.store.AddAccountCredits(s.account.Id, 100), IsNil)
+	c.Assert(s.store.Heal(ship.Id), IsNil)
+}
+
+func (s *ShipSuite) TestReplaceDrillBit(c *C) {
+	ship := Ship{AccountId: s.account.Id, Health: 50}
+	c.Assert(s.store.CreateShip(&ship), IsNil)
+
+	c.Assert(s.store.ReplaceDrillBit(ship.Id), ErrorMatches, "Insufficient funds.")
+	c.Assert(s.store.AddAccountCredits(s.account.Id, 100), IsNil)
+	c.Assert(s.store.ReplaceDrillBit(ship.Id), IsNil)
+}
+
 func (s *ShipSuite) TestAddShipResources(c *C) {
 	var err error
 	ship := Ship{AccountId: s.account.Id, TotalAsteroids: 3, TotalResources: 445}

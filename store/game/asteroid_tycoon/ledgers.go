@@ -12,6 +12,8 @@ const (
 	sessionsTable        string = "g2_sessions"
 	ResourceToShareRatio int    = 100
 	ResourcesForCredits  int    = 1000
+	HealthForCredits     int    = 10
+	DrillBitCost         int    = 10
 )
 
 type Ledger struct {
