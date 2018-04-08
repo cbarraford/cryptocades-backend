@@ -2,6 +2,7 @@ package asteroid_tycoon
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/cbarraford/cryptocades-backend/util"
@@ -84,6 +85,16 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 		return fmt.Errorf("Need a new drillbit")
 	}
 
+	// get the asteroid so we know the max damage
+	var asteroid Asteroid
+	query = db.sqlx.Rebind(fmt.Sprintf(`
+		SELECT * FROM %s WHERE ship_id = ?
+	`, asteroidsTable))
+	err = tx.Get(&asteroid, query, ship.Id)
+	if err != nil {
+		return err
+	}
+
 	var updated time.Time
 	query = db.sqlx.Rebind(fmt.Sprintf(`
 		SELECT updated_time FROM %s WHERE session_id = ?
@@ -104,14 +115,18 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 		return err
 	}
 
-	query = db.sqlx.Rebind(fmt.Sprintf(`
+	shipStatus := db.GetStatus(asteroid)
+	if shipStatus.RemainingTime > 0 {
+		elapsedTime := math.Min(float64(time.Now().Unix()-updated.Unix()), float64(shipStatus.TravelTime))
+		query = db.sqlx.Rebind(fmt.Sprintf(`
 		UPDATE %s AS ships SET
 			health = health - ?,
 			drill_bit = drill_bit - ?
 		FROM %s AS ast
 		WHERE ast.session_id = ? AND ast.ship_id = ships.id
 	`, shipsTable, asteroidsTable))
-	_, err = tx.Exec(query, (time.Now().Unix()-updated.Unix())*damagePerSec, shares*ResourceToShareRatio, sessionId)
+		_, err = tx.Exec(query, int64(elapsedTime)*damagePerSec, shares*ResourceToShareRatio, sessionId)
+	}
 
 	return err
 }

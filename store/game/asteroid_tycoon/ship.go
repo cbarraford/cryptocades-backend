@@ -30,6 +30,7 @@ type Ship struct {
 type ShipStatus struct {
 	Status        string   `json:"status"`
 	RemainingTime int      `json:"remaining_time"`
+	TravelTime    int      `json:"travel_time"`
 	Asteroid      Asteroid `json:"asteroid"`
 }
 
@@ -263,12 +264,12 @@ func (db *store) GetStatus(ast Asteroid) (status ShipStatus) {
 		return
 	}
 
-	travelTime := status.Asteroid.Distance
+	status.TravelTime = status.Asteroid.Distance
 	if status.Asteroid.ShipSpeed > 0 {
-		travelTime = status.Asteroid.Distance / status.Asteroid.ShipSpeed
+		status.TravelTime = status.Asteroid.Distance / status.Asteroid.ShipSpeed
 	}
 	diffTime := time.Now().Unix() - status.Asteroid.UpdatedTime.Unix()
-	status.RemainingTime = travelTime - int(diffTime)
+	status.RemainingTime = status.TravelTime - int(diffTime)
 	if status.Asteroid.Remaining > 0 && status.Asteroid.Remaining < status.Asteroid.Total {
 		status.Status = "Mining"
 		return
