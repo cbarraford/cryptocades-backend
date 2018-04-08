@@ -1,6 +1,8 @@
 package asteroid_tycoon
 
 import (
+	"fmt"
+
 	. "gopkg.in/check.v1"
 )
 
@@ -9,6 +11,11 @@ type AccountSuite struct {
 }
 
 var _ = Suite(&AccountSuite{})
+
+func (s *AccountSuite) TearDownTest(c *C) {
+	_, err := s.store.sqlx.Exec(fmt.Sprintf("Truncate %s CASCADE", accountsTable))
+	c.Assert(err, IsNil)
+}
 
 func (s *AccountSuite) TestCreateRequirements(c *C) {
 	acct := Account{}

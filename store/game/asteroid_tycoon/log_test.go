@@ -1,6 +1,7 @@
 package asteroid_tycoon
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -20,7 +21,7 @@ type LogSuite struct {
 
 var _ = Suite(&LogSuite{})
 
-func (s *LogSuite) SetUpTest(c *C) {
+func (s *LogSuite) SetUpSuite(c *C) {
 	db := test.EphemeralPostgresStore(c)
 	s.store = store{sqlx: db}
 	s.users = user.NewStore(db)
@@ -47,6 +48,11 @@ func (s *LogSuite) TearDownSuite(c *C) {
 		_, err := s.store.sqlx.Exec("Truncate users CASCADE")
 		c.Assert(err, IsNil)
 	}
+}
+
+func (s *LogSuite) TearDownTest(c *C) {
+	_, err := s.store.sqlx.Exec(fmt.Sprintf("TRUNCATE %s", logsTable))
+	c.Assert(err, IsNil)
 }
 
 func (s *LogSuite) TestCreateLogRequirements(c *C) {

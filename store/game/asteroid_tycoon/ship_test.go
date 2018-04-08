@@ -1,6 +1,7 @@
 package asteroid_tycoon
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -19,7 +20,7 @@ type ShipSuite struct {
 
 var _ = Suite(&ShipSuite{})
 
-func (s *ShipSuite) SetUpTest(c *C) {
+func (s *ShipSuite) SetUpSuite(c *C) {
 	db := test.EphemeralPostgresStore(c)
 	s.store = store{sqlx: db}
 	s.users = user.NewStore(db)
@@ -44,6 +45,8 @@ func (s *ShipSuite) TearDownSuite(c *C) {
 }
 
 func (s *ShipSuite) TearDownTest(c *C) {
+	_, err := s.store.sqlx.Exec(fmt.Sprintf("TRUNCATE %s CASCADE", shipsTable))
+	c.Assert(err, IsNil)
 }
 
 func (s *ShipSuite) TestCreateRequirements(c *C) {
@@ -127,6 +130,7 @@ func (s *ShipSuite) TestHeal(c *C) {
 }
 
 func (s *ShipSuite) TestReplaceDrillBit(c *C) {
+	c.Assert(s.store.UpdateAccount(&Account{Id: s.account.Id, Credits: 0}), IsNil)
 	ship := Ship{AccountId: s.account.Id, Health: 50}
 	c.Assert(s.store.CreateShip(&ship), IsNil)
 

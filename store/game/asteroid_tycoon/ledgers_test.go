@@ -16,7 +16,7 @@ type LedgerSuite struct {
 
 var _ = Suite(&LedgerSuite{})
 
-func (s *LedgerSuite) SetUpTest(c *C) {
+func (s *LedgerSuite) SetUpSuite(c *C) {
 	db := test.EphemeralPostgresStore(c)
 	s.store = store{sqlx: db}
 	s.users = user.NewStore(db)

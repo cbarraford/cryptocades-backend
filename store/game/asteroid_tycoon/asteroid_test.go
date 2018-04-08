@@ -1,6 +1,7 @@
 package asteroid_tycoon
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/cbarraford/cryptocades-backend/store/user"
@@ -16,7 +17,7 @@ type AsteroidSuite struct {
 
 var _ = Suite(&AsteroidSuite{})
 
-func (s *AsteroidSuite) SetUpTest(c *C) {
+func (s *AsteroidSuite) SetUpSuite(c *C) {
 	db := test.EphemeralPostgresStore(c)
 	s.store = store{sqlx: db}
 	s.users = user.NewStore(db)
@@ -38,6 +39,11 @@ func (s *AsteroidSuite) SetUpTest(c *C) {
 		DrillBit:  1000,
 	}
 	c.Assert(s.store.CreateShip(&s.ship), IsNil)
+}
+
+func (s *AsteroidSuite) TearDownTest(c *C) {
+	_, err := s.store.sqlx.Exec(fmt.Sprintf("DELETE FROM %s", asteroidsTable))
+	c.Assert(err, IsNil)
 }
 
 func (s *AsteroidSuite) TestCreateAsteroid(c *C) {

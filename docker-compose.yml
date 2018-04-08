@@ -60,6 +60,8 @@ services:
       - "5432:5432"
     expose:
       - "5432"
+    tmpfs:
+      - /var/lib/postgresql/data:rw
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password

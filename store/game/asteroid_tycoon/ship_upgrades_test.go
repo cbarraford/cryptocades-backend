@@ -14,7 +14,7 @@ type ShipUpgradeSuite struct {
 
 var _ = Suite(&ShipUpgradeSuite{})
 
-func (s *ShipUpgradeSuite) SetUpTest(c *C) {
+func (s *ShipUpgradeSuite) SetUpSuite(c *C) {
 	db := test.EphemeralPostgresStore(c)
 	s.store = store{sqlx: db}
 	s.users = user.NewStore(db)
@@ -29,6 +29,11 @@ func (s *ShipUpgradeSuite) SetUpTest(c *C) {
 		UserId: s.user.Id,
 	}
 	c.Assert(s.store.CreateAccount(&s.account), IsNil)
+}
+
+func (s *ShipUpgradeSuite) TearDownTest(c *C) {
+	//_, err := s.store.sqlx.Exec(fmt.Sprintf("DELETE FROM %s", asteroidsTable))
+	//c.Assert(err, IsNil)
 }
 
 func (s *ShipUpgradeSuite) TestCreateRequirements(c *C) {
