@@ -77,12 +77,12 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 	if err != nil {
 		return err
 	}
-	// ensure we can't mine when our health or drillbit is zero or below
+	// ensure we can't mine when our health or drill bit is zero or below
 	if ship.Health <= 0 {
 		return fmt.Errorf("Unable to mine while the ship's health is zero")
 	}
 	if ship.DrillBit <= 0 {
-		return fmt.Errorf("Need a new drillbit")
+		return fmt.Errorf("Need a new drill bit")
 	}
 
 	// get the asteroid so we know the max damage
@@ -116,17 +116,15 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 	}
 
 	shipStatus := db.GetStatus(asteroid)
-	if shipStatus.RemainingTime > 0 {
-		elapsedTime := math.Min(float64(time.Now().Unix()-updated.Unix()), float64(shipStatus.TravelTime))
-		query = db.sqlx.Rebind(fmt.Sprintf(`
+	elapsedTime := math.Min(float64(time.Now().Unix()-updated.Unix()), float64(shipStatus.TravelTime*2))
+	query = db.sqlx.Rebind(fmt.Sprintf(`
 		UPDATE %s AS ships SET
 			health = health - ?,
 			drill_bit = drill_bit - ?
 		FROM %s AS ast
 		WHERE ast.session_id = ? AND ast.ship_id = ships.id
 	`, shipsTable, asteroidsTable))
-		_, err = tx.Exec(query, int64(elapsedTime)*damagePerSec, shares*ResourceToShareRatio, sessionId)
-	}
+	_, err = tx.Exec(query, int64(elapsedTime)*damagePerSec, shares*ResourceToShareRatio, sessionId)
 
 	return err
 }
