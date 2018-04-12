@@ -5,9 +5,12 @@ import (
 
 	. "gopkg.in/check.v1"
 
+	"github.com/cbarraford/cryptocades-backend/store/boost"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/matchup"
 	"github.com/cbarraford/cryptocades-backend/store/user"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 )
 
 func TestPackage(t *testing.T) { TestingT(t) }
@@ -150,4 +153,43 @@ func (s *ManagerSuite) TestFindWinner(c *C) {
 	c.Check(findWinner(records, 8).UserId, Equals, int64(13))
 	c.Check(findWinner(records, 9).UserId, Equals, int64(14))
 	c.Check(findWinner(records, 1000).UserId, Equals, int64(0))
+}
+
+type mockBoostStore struct {
+	boost.Dummy
+	created bool
+	userId  int64
+}
+
+func (m *mockBoostStore) Create(record *boost.Record) error {
+	m.created = true
+	m.userId = record.UserId
+	return nil
+}
+
+type mockMatchupsStore struct {
+	matchup.Dummy
+}
+
+func (m *mockMatchupsStore) GetTopPerformers(match string, offset, top int) (records []matchup.Record, err error) {
+	return []matchup.Record{
+		{UserId: 5},
+	}, nil
+}
+
+func (s *ManagerSuite) TestRewardPerformers(c *C) {
+	matchupStore := &mockMatchupsStore{}
+	boostStore := &mockBoostStore{}
+	userStore := &mockUserStore{}
+
+	em, err := email.DefaultEmailer("..")
+	c.Assert(err, IsNil)
+
+	c.Assert(RewardPerformers(1, matchupStore, boostStore, userStore, em), IsNil)
+	c.Check(boostStore.created, Equals, false)
+	c.Check(boostStore.userId, Equals, int64(0))
+
+	c.Assert(RewardPerformers(0, matchupStore, boostStore, userStore, em), IsNil)
+	c.Check(boostStore.created, Equals, true)
+	c.Check(boostStore.userId, Equals, int64(5))
 }

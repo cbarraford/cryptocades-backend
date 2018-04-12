@@ -34,6 +34,8 @@ func NewEmailer(domain, apikey, publicKey, projectRoot string, printOnly bool) (
 		path.Join(projectRoot, "/util/email/templates/confirm.txt"),
 		path.Join(projectRoot, "/util/email/templates/password_reset.html"),
 		path.Join(projectRoot, "/util/email/templates/password_reset.txt"),
+		path.Join(projectRoot, "/util/email/templates/daily-dominance.html"),
+		path.Join(projectRoot, "/util/email/templates/daily-dominance.txt"),
 	)
 	if err != nil {
 		return Emailer{}, err
