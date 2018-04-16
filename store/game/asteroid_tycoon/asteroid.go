@@ -82,7 +82,8 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 		return fmt.Errorf("Unable to mine while the ship's health is zero")
 	}
 	if ship.DrillBit <= 0 {
-		return fmt.Errorf("Need a new drill bit")
+		// TODO: uncomment to enforce drill bit limitation
+		// return fmt.Errorf("Need a new drill bit")
 	}
 
 	// get the asteroid so we know the max damage
