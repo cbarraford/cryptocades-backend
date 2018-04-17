@@ -44,15 +44,15 @@ func main() {
 
 	cstore := store.GetStore(db, red)
 
-	manager.Start(cstore)
-
-	captcha, err := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"))
+	emailer, err := email.DefaultEmailer(".")
 	if err != nil {
 		rollbar.Error(rollbar.ERR, err)
 		log.Fatal(err)
 	}
 
-	emailer, err := email.DefaultEmailer(".")
+	manager.Start(cstore, emailer)
+
+	captcha, err := recaptcha.NewReCAPTCHA(os.Getenv("RECAPTCHA_SECRET"))
 	if err != nil {
 		rollbar.Error(rollbar.ERR, err)
 		log.Fatal(err)

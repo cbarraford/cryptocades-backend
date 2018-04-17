@@ -11,10 +11,13 @@ import (
 	coinApi "github.com/miguelmota/go-coinmarketcap"
 
 	"github.com/cbarraford/cryptocades-backend/store"
+	"github.com/cbarraford/cryptocades-backend/store/boost"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
+	"github.com/cbarraford/cryptocades-backend/store/matchup"
 	"github.com/cbarraford/cryptocades-backend/store/user"
 	"github.com/cbarraford/cryptocades-backend/util"
+	"github.com/cbarraford/cryptocades-backend/util/email"
 )
 
 const MAX_JACKPOTS = 1
@@ -30,10 +33,11 @@ func init() {
 	}
 }
 
-func Start(store store.Store) {
+func Start(store store.Store, emailer email.Emailer) {
 	// spawn jackpot(s)
 	tickJack := time.NewTicker(5 * time.Second)
 	tickScores := time.NewTicker(10 * time.Second)
+	tickDailyDom := time.NewTicker(1 * time.Hour)
 	quit := make(chan struct{})
 	go func() {
 		for {
@@ -48,6 +52,11 @@ func Start(store store.Store) {
 					// TODO: we should alert on this error
 					log.Printf("Update Scores Error: %+v", err)
 				}
+			case <-tickDailyDom.C:
+				// now := time.Now().UTC()
+				if err := RewardPerformers(0, store.Matchups, store.Boosts, store.Users, emailer); err != nil {
+					log.Printf("Reward Top Performer Error: %+v", err)
+				}
 			case <-quit:
 				tickJack.Stop()
 				tickScores.Stop()
@@ -55,6 +64,31 @@ func Start(store store.Store) {
 			}
 		}
 	}()
+}
+
+func RewardPerformers(hour int, store matchup.Store, boostStore boost.Store, userStore user.Store, emailer email.Emailer) error {
+	if hour == 0 {
+		perfs, err := store.GetTopPerformers("daily", -1, 1)
+		if err != nil {
+			return err
+		}
+		err = boostStore.Create(&boost.Record{
+			UserId: perfs[0].UserId,
+		})
+		if err != nil {
+			return err
+		}
+
+		user, err := userStore.Get(perfs[0].UserId)
+		err = emailer.SendHTML(
+			user.Email,
+			"noreply@cryptocades.com",
+			"Daily Dominance Winner!",
+			"daily-dominance",
+			email.EmailTemplate{},
+		)
+	}
+	return nil
 }
 
 func ManageJackpots(store jackpot.Store, entryStore entry.Store, userStore user.Store) error {
