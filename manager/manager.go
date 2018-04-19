@@ -53,8 +53,8 @@ func Start(store store.Store, emailer email.Emailer) {
 					log.Printf("Update Scores Error: %+v", err)
 				}
 			case <-tickDailyDom.C:
-				// now := time.Now().UTC()
-				if err := RewardPerformers(0, store.Matchups, store.Boosts, store.Users, emailer); err != nil {
+				now := time.Now().UTC()
+				if err := RewardPerformers(now.Hour(), store.Matchups, store.Boosts, store.Users, emailer); err != nil {
 					log.Printf("Reward Top Performer Error: %+v", err)
 				}
 			case <-quit:
