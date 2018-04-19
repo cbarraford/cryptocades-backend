@@ -1,6 +1,7 @@
 package tycoon
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -417,7 +418,7 @@ func GetStatus(store asteroid_tycoon.Store) func(*gin.Context) {
 		seg.StartTime = newrelic.StartSegmentNow(txn)
 		asteroid, err := store.OwnedAsteroid(shipId)
 		seg.End()
-		if err != nil {
+		if err != nil && err != sql.ErrNoRows {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
