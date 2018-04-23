@@ -15,7 +15,8 @@ import (
 )
 
 type inputShip struct {
-	Name string `json:"name" db:"name"`
+	Name      string `json:"name"`
+	SessionId string `json:"session_id"`
 }
 
 type inputUpgrade struct {
@@ -175,7 +176,13 @@ func UpdateShip(store asteroid_tycoon.Store) func(*gin.Context) {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
-		ship.Name = json.Name
+
+		if json.Name != "" {
+			ship.Name = json.Name
+		}
+		if json.SessionId != "" {
+			ship.SessionId = json.SessionId
+		}
 
 		seg = newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,
@@ -422,6 +429,19 @@ func GetStatus(store asteroid_tycoon.Store) func(*gin.Context) {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
-		c.JSON(http.StatusOK, store.GetStatus(asteroid))
+
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_ships",
+			Operation:  "GET",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		ship, err := store.GetShip(shipId)
+		seg.End()
+		if err != nil && err != sql.ErrNoRows {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusOK, store.GetStatus(ship, asteroid))
 	}
 }

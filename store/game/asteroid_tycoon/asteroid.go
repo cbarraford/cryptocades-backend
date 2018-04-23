@@ -1,7 +1,9 @@
 package asteroid_tycoon
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"math"
 	"time"
 
@@ -15,7 +17,8 @@ const (
 	maxDistance    int    = 10000
 	minTotal       int    = 100
 	maxTotal       int    = 500
-	damagePerSec   int64  = 10
+	damagePerSec   int64  = 1
+	healPerSec     int64  = 3
 )
 
 type Asteroid struct {
@@ -25,7 +28,6 @@ type Asteroid struct {
 	Distance    int       `json:"distance" db:"distance"`
 	ShipId      int64     `json:"ship_id" db:"ship_id"`
 	ShipSpeed   int       `json:"ship_speed" db:"ship_speed"`
-	SessionId   string    `json:"-" db:"session_id"`
 	SolarSystem int       `json:"solar_system" db:"solar_system"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
@@ -49,6 +51,10 @@ func (db *store) CreateAsteroid(ast *Asteroid) error {
 		ast.Total = util.Random(minTotal, maxTotal)
 	}
 
+	if ast.Remaining == 0 {
+		ast.Remaining = ast.Total
+	}
+
 	query := fmt.Sprintf(`
 		INSERT INTO %s
 			(total, remaining, distance, updated_time, created_time)
@@ -69,21 +75,15 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 
 	var ship Ship
 	query := db.sqlx.Rebind(fmt.Sprintf(`
-		SELECT ships.* 
-		FROM %s AS ships JOIN %s ast ON ast.ship_id = ships.id 
-		WHERE ast.session_id = ?
-	`, shipsTable, asteroidsTable))
+		SELECT * FROM %s WHERE session_id = ?
+	`, shipsTable))
 	err = tx.Get(&ship, query, sessionId)
 	if err != nil {
 		return err
 	}
-	// ensure we can't mine when our health or drill bit is zero or below
-	if ship.Health <= 0 {
-		return fmt.Errorf("Unable to mine while the ship's health is zero")
-	}
-	if ship.DrillBit <= 0 {
-		// TODO: uncomment to enforce drill bit limitation
-		// return fmt.Errorf("Need a new drill bit")
+	err = db.ExpandShip(&ship)
+	if err != nil {
+		return err
 	}
 
 	// get the asteroid so we know the max damage
@@ -92,40 +92,64 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 		SELECT * FROM %s WHERE ship_id = ?
 	`, asteroidsTable))
 	err = tx.Get(&asteroid, query, ship.Id)
+
+	shipStatus := db.GetStatus(ship, asteroid)
+	var elapsedTime float64
+	if shipStatus.TravelTime == 0 {
+		elapsedTime = float64(time.Now().Unix() - asteroid.UpdatedTime.Unix())
+	} else {
+		elapsedTime = math.Min(float64(time.Now().Unix()-asteroid.UpdatedTime.Unix()), float64(shipStatus.TravelTime*2))
+	}
 	if err != nil {
+		if err == sql.ErrNoRows {
+			incr := int64(math.Min(float64(100-ship.Health), elapsedTime*float64(healPerSec)))
+			if incr > 0 {
+				query = db.sqlx.Rebind(fmt.Sprintf(`
+				UPDATE %s SET
+					health = health + ?,
+					drill_bit = drill_bit + ?
+				WHERE id = ?
+				`, shipsTable))
+				_, err = tx.Exec(query, incr, 0, ship.Id)
+			}
+			return err
+		}
 		return err
 	}
 
-	var updated time.Time
-	query = db.sqlx.Rebind(fmt.Sprintf(`
-		SELECT updated_time FROM %s WHERE session_id = ?
-	`, asteroidsTable))
-	err = tx.Get(&updated, query, sessionId)
-	if err != nil {
-		return err
+	// ensure we can't mine when our health or drill bit is zero or below
+	if ship.Health <= 0 {
+		err = db.CompletedAsteroid(asteroid)
+		if err != nil {
+			log.Printf("Error completing asteroid: %+v", err)
+		}
+		return fmt.Errorf("Unable to mine while the ship's health is zero")
+	}
+	if ship.DrillBit <= 0 {
+		// TODO: uncomment to enforce drill bit limitation
+		// return fmt.Errorf("Need a new drill bit")
 	}
 
 	query = db.sqlx.Rebind(fmt.Sprintf(`
 		UPDATE %s SET
 			remaining = remaining - ?,
 			updated_time = now()
-		WHERE session_id = ?
+		WHERE id = ?
 	`, asteroidsTable))
-	_, err = tx.Exec(query, shares*ResourceToShareRatio, sessionId)
+	_, err = tx.Exec(query, shares*ResourceToShareRatio, asteroid.Id)
 	if err != nil {
 		return err
 	}
 
-	shipStatus := db.GetStatus(asteroid)
-	elapsedTime := math.Min(float64(time.Now().Unix()-updated.Unix()), float64(shipStatus.TravelTime*2))
 	query = db.sqlx.Rebind(fmt.Sprintf(`
 		UPDATE %s AS ships SET
 			health = health - ?,
 			drill_bit = drill_bit - ?
 		FROM %s AS ast
-		WHERE ast.session_id = ? AND ast.ship_id = ships.id
+		WHERE ast.id = ? AND ast.ship_id = ships.id
 	`, shipsTable, asteroidsTable))
-	_, err = tx.Exec(query, int64(elapsedTime)*damagePerSec, shares*ResourceToShareRatio, sessionId)
+	incr := int64(math.Min(float64(ship.Health), elapsedTime*float64(damagePerSec)))
+	_, err = tx.Exec(query, incr, 0, asteroid.Id)
 
 	return err
 }
@@ -145,7 +169,7 @@ func (db *store) AvailableAsteroids() ([]Asteroid, error) {
 	return asteroids, err
 }
 
-func (db *store) AssignAsteroid(id int64, sessionId string, ship Ship) error {
+func (db *store) AssignAsteroid(id int64, ship Ship) error {
 	tx, err := db.sqlx.Beginx()
 	if err != nil {
 		return err
@@ -169,11 +193,10 @@ func (db *store) AssignAsteroid(id int64, sessionId string, ship Ship) error {
         UPDATE %s AS ast SET
             ship_id         = ?,
 			ship_speed		= ?,
-			session_id		= ?,
             updated_time    = now()
         WHERE ast.id = ? AND ast.ship_id = 0`,
 		asteroidsTable))
-	_, err = tx.Exec(query, ship.Id, ship.Speed, sessionId, id)
+	_, err = tx.Exec(query, ship.Id, ship.Speed, id)
 	if err != nil {
 		tx.Rollback()
 		return err

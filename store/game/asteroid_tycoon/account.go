@@ -15,6 +15,7 @@ type Account struct {
 	Id          int64     `json:"id" db:"id"`
 	UserId      int64     `json:"user_id" db:"user_id"`
 	Credits     int       `json:"credits" db:"credits"`
+	Resources   int       `json:"resources"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime time.Time `json:"updated_time" db:"updated_time"`
 }
@@ -45,6 +46,11 @@ func (db *store) CreateAccount(acct *Account) error {
 func (db *store) GetAccountByUserId(userId int64) (acct Account, err error) {
 	query := db.sqlx.Rebind(fmt.Sprintf("SELECT * FROM %s WHERE user_id = ?", accountsTable))
 	err = db.sqlx.Get(&acct, query, userId)
+	if err != nil {
+		return acct, err
+	}
+
+	acct.Resources, err = db.ResourceBalance(acct.Id)
 	return acct, err
 }
 

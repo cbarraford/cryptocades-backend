@@ -33,7 +33,12 @@ func (db *store) CompletedAsteroid(ast Asteroid) error {
 		amount = amount - ast.Remaining
 	}
 
-	status := db.GetStatus(ast)
+	ship, err := db.GetShip(ast.ShipId)
+	if err != nil {
+		return err
+	}
+
+	status := db.GetStatus(ship, ast)
 	if status.Status != "Docked" {
 		return fmt.Errorf("Cannot collect resource while the ship is not docked")
 	}
@@ -43,13 +48,10 @@ func (db *store) CompletedAsteroid(ast Asteroid) error {
 		return err
 	}
 
-	ship, err := db.GetShip(ast.ShipId)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	query := db.sqlx.Rebind(fmt.Sprintf(`
+	var query string
+	// only complete asteroid if ship isn't destroyed
+	if ship.Health > 0 {
+		query = db.sqlx.Rebind(fmt.Sprintf(`
 		INSERT INTO %s
 		   (account_id, session_id, amount, description)
 	    VALUES
@@ -57,10 +59,11 @@ func (db *store) CompletedAsteroid(ast Asteroid) error {
 		ON CONFLICT (account_id, session_id) 
 		DO UPDATE SET amount = %s.amount + ?
 	`, ledgersTable, ledgersTable))
-	_, err = tx.Exec(query, ship.AccountId, ast.SessionId, amount, description, amount)
-	if err != nil {
-		tx.Rollback()
-		return err
+		_, err = tx.Exec(query, ship.AccountId, ship.SessionId, amount, description, amount)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	query = db.sqlx.Rebind(
@@ -72,13 +75,15 @@ func (db *store) CompletedAsteroid(ast Asteroid) error {
 		return err
 	}
 
-	query = db.sqlx.Rebind(fmt.Sprintf(
-		"UPDATE %s SET total_asteroids = total_asteroids + ?, total_resources = total_resources + ? WHERE id = ?", shipsTable,
-	))
-	_, err = tx.Exec(query, 1, amount, ship.Id)
-	if err != nil {
-		tx.Rollback()
-		return err
+	if ship.Health > 0 {
+		query = db.sqlx.Rebind(fmt.Sprintf(
+			"UPDATE %s SET total_asteroids = total_asteroids + ?, total_resources = total_resources + ? WHERE id = ?", shipsTable,
+		))
+		_, err = tx.Exec(query, 1, amount, ship.Id)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit()

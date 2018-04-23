@@ -40,7 +40,6 @@ func (s *AsteroidSuite) TestAssignAsteroid(c *check.C) {
 	c.Check(store.created, check.Equals, true)
 	c.Check(store.shipId, check.Equals, int64(5))
 	c.Check(store.asteroidId, check.Equals, int64(4))
-	c.Check(store.sessionId, check.Equals, "abcde")
 }
 
 func (s *AsteroidSuite) TestAvailableAsteroids(c *check.C) {

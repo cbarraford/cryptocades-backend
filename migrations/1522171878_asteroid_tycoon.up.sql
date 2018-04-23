@@ -13,6 +13,7 @@ CREATE TABLE g2_ships(
     total_asteroids INTEGER NOT NULL DEFAULT 0,
     total_resources INTEGER NOT NULL DEFAULT 0,
     account_id INTEGER REFERENCES g2_accounts(id) ON DELETE CASCADE,
+    session_id VARCHAR(12) DEFAULT '',
     health INTEGER NOT NULL DEFAULT 0,
     drill_bit INTEGER NOT NULL DEFAULT 0,
     solar_system INTEGER NOT NULL DEFAULT 0,
@@ -37,7 +38,6 @@ CREATE TABLE g2_asteroids(
     ship_id INTEGER NOT NULL DEFAULT 0,
     ship_speed INTEGER NOT NULL DEFAULT 1 CHECK (ship_speed > 0),
     solar_system INTEGER NOT NULL DEFAULT 0,
-    session_id VARCHAR(12) DEFAULT '',
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -140,22 +140,22 @@ INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
     (3, 10, 100, 100);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 1, 100, 100);
+    (4, 1, 200, 100);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 2, 200, 200);
+    (4, 2, 400, 200);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 3, 300, 300);
+    (4, 3, 600, 300);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 4, 400, 400);
+    (4, 4, 800, 400);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 5, 500, 500);
+    (4, 5, 1000, 500);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 6, 600, 600);
+    (4, 6, 1200, 600);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 7, 700, 700);
+    (4, 7, 1400, 700);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 8, 800, 800);
+    (4, 8, 1600, 800);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 9, 900, 900);
+    (4, 9, 1800, 900);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (4, 10, 1000, 1000);
+    (4, 10, 2000, 1000);

@@ -91,11 +91,25 @@ func AssignAsteroid(store asteroid_tycoon.Store) func(*gin.Context) {
 
 		seg = newrelic.DatastoreSegment{
 			Product:    newrelic.DatastorePostgres,
+			Collection: "g2_ships",
+			Operation:  "UPDATE",
+		}
+		seg.StartTime = newrelic.StartSegmentNow(txn)
+		ship.SessionId = json.SessionId
+		err = store.UpdateShip(&ship)
+		seg.End()
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		seg = newrelic.DatastoreSegment{
+			Product:    newrelic.DatastorePostgres,
 			Collection: "g2_asteroids",
 			Operation:  "ASSIGN",
 		}
 		seg.StartTime = newrelic.StartSegmentNow(txn)
-		err = store.AssignAsteroid(json.AsteroidId, json.SessionId, ship)
+		err = store.AssignAsteroid(json.AsteroidId, ship)
 		seg.End()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)

@@ -23,6 +23,7 @@ type Ship struct {
 	Hull           int       `json:"hull" db:"hull"`
 	Cargo          int       `json:"cargo" db:"cargo"`
 	Drill          int       `json:"drill" db:"drill"`
+	SessionId      string    `json:"-" db:"session_id"`
 	CreatedTime    time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime    time.Time `json:"updated_time" db:"updated_time"`
 }
@@ -32,6 +33,7 @@ type ShipStatus struct {
 	RemainingTime int      `json:"remaining_time"`
 	TravelTime    int      `json:"travel_time"`
 	Asteroid      Asteroid `json:"asteroid"`
+	Ship          Ship     `json:"ship"`
 }
 
 func (db *store) CreateShip(ship *Ship) error {
@@ -49,6 +51,10 @@ func (db *store) CreateShip(ship *Ship) error {
 		ship.Name = "Eros 433"
 	}
 
+	if ship.Health == 0 {
+		ship.Health = 100
+	}
+
 	query := fmt.Sprintf(`
 		INSERT INTO %s
 			(account_id, name, total_asteroids, total_resources, health, drill_bit, created_time)
@@ -62,7 +68,12 @@ func (db *store) CreateShip(ship *Ship) error {
 		return err
 	}
 
-	return db.InitShip(ship.Id)
+	err = db.InitShip(ship.Id)
+	if err != nil {
+		return err
+	}
+
+	return db.ExpandShip(ship)
 }
 
 func (db *store) GetShipsByAccountId(accountId int64) ([]Ship, error) {
@@ -114,6 +125,7 @@ func (db *store) UpdateShip(ship *Ship) error {
 			total_resources = :total_resources,
 			health			= :health,
 			drill_bit		= :drill_bit,
+			session_id		= :session_id,
 			solar_system	= :solar_system,
             updated_time    = :updated_time
         WHERE id = :id`, shipsTable)
@@ -257,8 +269,9 @@ func (db *store) DeleteShip(id int64) error {
 	return err
 }
 
-func (db *store) GetStatus(ast Asteroid) (status ShipStatus) {
+func (db *store) GetStatus(ship Ship, ast Asteroid) (status ShipStatus) {
 	status.Asteroid = ast
+	status.Ship = ship
 	status.Status = "Docked"
 	if ast.Id == 0 {
 		return
@@ -270,6 +283,11 @@ func (db *store) GetStatus(ast Asteroid) (status ShipStatus) {
 	}
 	diffTime := time.Now().Unix() - status.Asteroid.UpdatedTime.Unix()
 	status.RemainingTime = status.TravelTime - int(diffTime)
+
+	if ship.Id == 0 || ship.Health <= 0 {
+		return
+	}
+
 	if status.Asteroid.Remaining > 0 && status.Asteroid.Remaining < status.Asteroid.Total {
 		status.Status = "Mining"
 		return

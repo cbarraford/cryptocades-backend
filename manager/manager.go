@@ -13,6 +13,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/store"
 	"github.com/cbarraford/cryptocades-backend/store/boost"
 	"github.com/cbarraford/cryptocades-backend/store/entry"
+	"github.com/cbarraford/cryptocades-backend/store/game/asteroid_tycoon"
 	"github.com/cbarraford/cryptocades-backend/store/jackpot"
 	"github.com/cbarraford/cryptocades-backend/store/matchup"
 	"github.com/cbarraford/cryptocades-backend/store/user"
@@ -36,12 +37,17 @@ func init() {
 func Start(store store.Store, emailer email.Emailer) {
 	// spawn jackpot(s)
 	tickJack := time.NewTicker(5 * time.Second)
+	tickAsteroids := time.NewTicker(30 * time.Second)
 	tickScores := time.NewTicker(10 * time.Second)
 	tickDailyDom := time.NewTicker(1 * time.Hour)
 	quit := make(chan struct{})
 	go func() {
 		for {
 			select {
+			case <-tickAsteroids.C:
+				if err := SpawnAsteroids(store.TycoonGame); err != nil {
+					log.Printf("Spawning Asteroids Error: %+v", err)
+				}
 			case <-tickJack.C:
 				if err := ManageJackpots(store.Jackpots, store.Entries, store.Users); err != nil {
 					// TODO: we should alert on this error
@@ -87,6 +93,24 @@ func RewardPerformers(hour int, store matchup.Store, boostStore boost.Store, use
 			"daily-dominance",
 			email.EmailTemplate{},
 		)
+	}
+	return nil
+}
+
+func SpawnAsteroids(store asteroid_tycoon.Store) error {
+	minAsteroids := 300
+	avail, err := store.AvailableAsteroids()
+	if err != nil {
+		return err
+	}
+	if len(avail) < minAsteroids {
+		count := minAsteroids - len(avail)
+		for i := 1; i <= count; i++ {
+			err := store.CreateAsteroid(&asteroid_tycoon.Asteroid{})
+			if err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

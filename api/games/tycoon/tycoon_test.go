@@ -98,15 +98,14 @@ func (m *mockStore) GetUpgrade(c, a int) (asteroid_tycoon.ShipUpgrade, error) {
 	}, nil
 }
 
-func (m *mockStore) AssignAsteroid(id int64, sessionId string, ship asteroid_tycoon.Ship) error {
+func (m *mockStore) AssignAsteroid(id int64, ship asteroid_tycoon.Ship) error {
 	m.created = true
 	m.shipId = ship.Id
 	m.asteroidId = id
-	m.sessionId = sessionId
 	return nil
 }
 
-func (m *mockStore) GetStatus(asteroid asteroid_tycoon.Asteroid) asteroid_tycoon.ShipStatus {
+func (m *mockStore) GetStatus(ship asteroid_tycoon.Ship, asteroid asteroid_tycoon.Asteroid) asteroid_tycoon.ShipStatus {
 	return asteroid_tycoon.ShipStatus{
 		Status:        "Docked",
 		RemainingTime: 0,

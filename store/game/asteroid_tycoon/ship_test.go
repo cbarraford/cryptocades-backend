@@ -105,6 +105,7 @@ func (s *ShipSuite) TestUpdate(c *C) {
 	ship.Health = 45
 	ship.DrillBit = 4478
 	ship.SolarSystem = 3
+	ship.SessionId = "boo boo"
 	c.Assert(s.store.UpdateShip(&ship), IsNil)
 	ships, err := s.store.GetShipsByAccountId(s.account.Id)
 	c.Assert(err, IsNil)
@@ -117,6 +118,7 @@ func (s *ShipSuite) TestUpdate(c *C) {
 	c.Check(ship.Health, Equals, 45)
 	c.Check(ship.DrillBit, Equals, 4478)
 	c.Check(ship.SolarSystem, Equals, 3)
+	c.Check(ship.SessionId, Equals, "boo boo")
 	c.Check(originalUpdateTime.UnixNano(), Not(Equals), ship.UpdatedTime.UnixNano())
 }
 
@@ -183,31 +185,31 @@ func (s *ShipSuite) TestDelete(c *C) {
 }
 
 func (s *ShipSuite) TestGetStatus(c *C) {
-	status := s.store.GetStatus(Asteroid{})
+	status := s.store.GetStatus(Ship{}, Asteroid{})
 	c.Assert(status.Status, Equals, "Docked")
 
 	ast := Asteroid{Id: 1, Distance: 1000, ShipSpeed: 100, Total: 5000, Remaining: 5000, UpdatedTime: time.Now()}
-	status = s.store.GetStatus(ast)
+	status = s.store.GetStatus(Ship{Id: 1, Health: 100}, ast)
 	c.Assert(status.Status, Equals, "Approaching Asteroid", Commentf("Status: %+v", status))
 	c.Assert(status.RemainingTime, Equals, 10)
 
 	ast = Asteroid{Id: 1, Distance: 1000, ShipSpeed: 100, Total: 5000, Remaining: 5000, UpdatedTime: time.Now().Add(-100 * time.Second)}
-	status = s.store.GetStatus(ast)
+	status = s.store.GetStatus(Ship{Id: 1, Health: 100}, ast)
 	c.Assert(status.Status, Equals, "Mining", Commentf("Status: %+v", status))
 	c.Assert(status.RemainingTime, Equals, -90)
 
 	ast = Asteroid{Id: 1, Distance: 2000, ShipSpeed: 100, Total: 5000, Remaining: 400, UpdatedTime: time.Now()}
-	status = s.store.GetStatus(ast)
+	status = s.store.GetStatus(Ship{Id: 1, Health: 100}, ast)
 	c.Assert(status.Status, Equals, "Mining")
 	c.Assert(status.RemainingTime, Equals, 20)
 
 	ast = Asteroid{Id: 1, Distance: 2000, ShipSpeed: 100, Total: 5000, Remaining: 0, UpdatedTime: time.Now()}
-	status = s.store.GetStatus(ast)
+	status = s.store.GetStatus(Ship{Id: 1, Health: 100}, ast)
 	c.Assert(status.Status, Equals, "Approaching Space Station")
 	c.Assert(status.RemainingTime, Equals, 20)
 
 	ast = Asteroid{Id: 1, Distance: 2000, ShipSpeed: 100, Total: 5000, Remaining: 0, UpdatedTime: time.Now().Add(-100 * time.Second)}
-	status = s.store.GetStatus(ast)
+	status = s.store.GetStatus(Ship{Id: 1, Health: 100}, ast)
 	c.Assert(status.Status, Equals, "Docked")
 	c.Assert(status.RemainingTime, Equals, -80)
 }
