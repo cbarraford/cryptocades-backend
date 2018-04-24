@@ -98,7 +98,7 @@ func RewardPerformers(hour int, store matchup.Store, boostStore boost.Store, use
 }
 
 func SpawnAsteroids(store asteroid_tycoon.Store) error {
-	minAsteroids := 300
+	minAsteroids := 100
 	avail, err := store.AvailableAsteroids()
 	if err != nil {
 		return err
