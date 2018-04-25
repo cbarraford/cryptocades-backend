@@ -73,16 +73,6 @@ func (m *mockStore) GetShipLogs(shipId int64) ([]asteroid_tycoon.Log, error) {
 	}, nil
 }
 
-func (m *mockStore) ReplaceDrillBit(shipId int64) error {
-	m.updated = true
-	return nil
-}
-
-func (m *mockStore) Heal(shipId int64) error {
-	m.updated = true
-	return nil
-}
-
 func (m *mockStore) ApplyUpgrade(shipId int64, upgrade asteroid_tycoon.ShipUpgrade) error {
 	m.updated = true
 	m.categoryId = upgrade.CategoryId

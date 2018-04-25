@@ -3,6 +3,7 @@ package tycoon
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -72,6 +73,15 @@ func GetAccount(store asteroid_tycoon.Store) func(*gin.Context) {
 	}
 }
 
+func Exchange() func(*gin.Context) {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"credits": asteroid_tycoon.ResourcesForCredits,
+			"plays":   asteroid_tycoon.CreditsForPlays,
+		})
+	}
+}
+
 type tradeInput struct {
 	Amount int `json:"amount"`
 }
@@ -134,6 +144,7 @@ func TradeForPlays(store asteroid_tycoon.Store) func(*gin.Context) {
 		var json tradeInput
 		err = c.BindJSON(&json)
 		if err != nil {
+			log.Printf("bad parse")
 			c.AbortWithError(http.StatusBadRequest, errors.New("Could not parse json body"))
 			return
 		}
@@ -148,6 +159,7 @@ func TradeForPlays(store asteroid_tycoon.Store) func(*gin.Context) {
 		account, err := store.GetAccountByUserId(userId)
 		seg.End()
 		if err != nil {
+			log.Printf("account get: %+v", err)
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
@@ -161,6 +173,7 @@ func TradeForPlays(store asteroid_tycoon.Store) func(*gin.Context) {
 		err = store.TradeForPlays(account.Id, json.Amount)
 		seg.End()
 		if err != nil {
+			log.Printf("trade: %+v", err)
 			c.JSON(http.StatusInternalServerError, err)
 		} else {
 			c.JSON(http.StatusOK, gin.H{"message": "OK"})

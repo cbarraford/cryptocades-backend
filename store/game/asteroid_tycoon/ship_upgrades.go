@@ -10,9 +10,8 @@ import (
 type ShipUpgrade struct {
 	CategoryId  int       `json:"category_id" db:"category_id"`
 	AssetId     int       `json:"asset_id" db:"asset_id"`
-	Value       int       `json:"value"`
-	Name        string    `json:"name"`
-	Cost        int       `json:"cost"`
+	Value       int       `json:"value" db:"value"`
+	Cost        int       `json:"cost" db:"cost"`
 	Id          int64     `json:"id" db:"id"`
 	ShipId      int64     `json:"ship_id" db:"ship_id"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`

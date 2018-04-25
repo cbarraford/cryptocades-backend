@@ -104,7 +104,7 @@ func (s *ShipSuite) TestShipLogs(c *check.C) {
 	w := httptest.NewRecorder()
 	req.Header.Set("Masquerade", "12")
 	r.ServeHTTP(w, req)
-	c.Assert(w.Code, check.Equals, 200)
+	c.Assert(w.Code, check.Equals, 100)
 
 	var lines []asteroid_tycoon.Log
 	c.Assert(json.Unmarshal(w.Body.Bytes(), &lines), check.IsNil)
@@ -158,50 +158,6 @@ func (s *ShipSuite) TestMyAsteroids(c *check.C) {
 	var asteroid asteroid_tycoon.Asteroid
 	c.Assert(json.Unmarshal(w.Body.Bytes(), &asteroid), check.IsNil)
 	c.Check(asteroid.ShipId, check.Equals, int64(8))
-}
-
-func (s *ShipSuite) TestHeal(c *check.C) {
-	gin.SetMode(gin.ReleaseMode)
-	store := &mockStore{
-		userId: 12,
-	}
-
-	r := gin.New()
-	r.Use(middleware.TestSuite())
-	r.Use(middleware.Masquerade())
-	r.Use(middleware.AuthRequired())
-	r.GET("/games/2/ships/:id/heal", Heal(store))
-
-	// happy path
-	req, _ := http.NewRequest("GET", "/games/2/ships/8/heal", nil)
-	w := httptest.NewRecorder()
-	req.Header.Set("Masquerade", "12")
-	r.ServeHTTP(w, req)
-	c.Assert(w.Code, check.Equals, 200)
-
-	c.Check(store.updated, check.Equals, true)
-}
-
-func (s *ShipSuite) TestReplaceDrillBit(c *check.C) {
-	gin.SetMode(gin.ReleaseMode)
-	store := &mockStore{
-		userId: 12,
-	}
-
-	r := gin.New()
-	r.Use(middleware.TestSuite())
-	r.Use(middleware.Masquerade())
-	r.Use(middleware.AuthRequired())
-	r.GET("/games/2/ships/:id/replace_drill", ReplaceDrillBit(store))
-
-	// happy path
-	req, _ := http.NewRequest("GET", "/games/2/ships/8/replace_drill", nil)
-	w := httptest.NewRecorder()
-	req.Header.Set("Masquerade", "12")
-	r.ServeHTTP(w, req)
-	c.Assert(w.Code, check.Equals, 200)
-
-	c.Check(store.updated, check.Equals, true)
 }
 
 func (s *ShipSuite) TestGetStatus(c *check.C) {
