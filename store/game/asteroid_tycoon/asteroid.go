@@ -100,7 +100,7 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 			if incr > 0 {
 				query = db.sqlx.Rebind(fmt.Sprintf(`
 				UPDATE %s SET
-					health = health + ?,
+					health = health + ?
 				WHERE id = ?
 				`, shipsTable))
 				_, err = tx.Exec(query, incr, ship.Id)
