@@ -8,7 +8,7 @@ const (
 	maxDistance          int = 10000
 	minTotal             int = 100
 	maxTotal             int = 3000
-	ResourceToShareRatio int = 500
+	ResourceToShareRatio int = 200
 
 	// Ship
 	damagePerSec int64 = 1
