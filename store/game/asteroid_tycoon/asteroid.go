@@ -96,7 +96,7 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {
-			incr := int64(math.Min(float64(100-ship.Health), elapsedTime*float64(ship.Repair)))
+			incr := int64(math.Min(float64(ship.Hull-ship.Health), elapsedTime*float64(ship.Repair)))
 			if incr > 0 {
 				query = db.sqlx.Rebind(fmt.Sprintf(`
 				UPDATE %s SET
