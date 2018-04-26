@@ -128,6 +128,8 @@ func (db *store) UpdateShip(ship *Ship) error {
 }
 
 func (db *store) ExpandShip(ship *Ship) error {
+	// TODO: Build cache here, since the data here doesn't change after boot,
+	// no need to keep querying the db and add additional load
 	var err error
 	query := db.sqlx.Rebind(fmt.Sprintf(`
 		SELECT list.value FROM %s AS ups JOIN %s AS list ON list.category_id = ups.category_id AND list.asset_id = ups.asset_id AND ups.ship_id = ? AND ups.category_id = ?`, upgradesTable, listUpgradesTable))
