@@ -96,32 +96,27 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {
-			incr := int64(math.Min(float64(100-ship.Health), elapsedTime*float64(healPerSec)))
+			incr := int64(math.Min(float64(100-ship.Health), elapsedTime*float64(ship.Repair)))
 			if incr > 0 {
 				query = db.sqlx.Rebind(fmt.Sprintf(`
 				UPDATE %s SET
 					health = health + ?,
-					drill_bit = drill_bit + ?
 				WHERE id = ?
 				`, shipsTable))
-				_, err = tx.Exec(query, incr, 0, ship.Id)
+				_, err = tx.Exec(query, incr, ship.Id)
 			}
 			return err
 		}
 		return err
 	}
 
-	// ensure we can't mine when our health or drill bit is zero or below
+	// ensure we can't mine when our health zero or below
 	if ship.Health <= 0 {
 		err = db.CompletedAsteroid(asteroid)
 		if err != nil {
 			log.Printf("Error completing asteroid: %+v", err)
 		}
 		return fmt.Errorf("Unable to mine while the ship's health is zero")
-	}
-	if ship.DrillBit <= 0 {
-		// TODO: uncomment to enforce drill bit limitation
-		// return fmt.Errorf("Need a new drill bit")
 	}
 
 	query = db.sqlx.Rebind(fmt.Sprintf(`
@@ -137,13 +132,12 @@ func (db *store) Mined(sessionId string, shares int, userId int64, tx *sqlx.Tx) 
 
 	query = db.sqlx.Rebind(fmt.Sprintf(`
 		UPDATE %s AS ships SET
-			health = health - ?,
-			drill_bit = drill_bit - ?
+			health = health - ?
 		FROM %s AS ast
 		WHERE ast.id = ? AND ast.ship_id = ships.id
 	`, shipsTable, asteroidsTable))
 	incr := int64(math.Min(float64(ship.Health), elapsedTime*float64(damagePerSec)))
-	_, err = tx.Exec(query, incr, 0, asteroid.Id)
+	_, err = tx.Exec(query, incr, asteroid.Id)
 
 	return err
 }

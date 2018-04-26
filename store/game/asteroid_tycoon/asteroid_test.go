@@ -36,7 +36,6 @@ func (s *AsteroidSuite) SetUpSuite(c *C) {
 	s.ship = Ship{
 		AccountId: s.account.Id,
 		Health:    100,
-		DrillBit:  1000,
 	}
 	c.Assert(s.store.CreateShip(&s.ship), IsNil)
 }
@@ -74,7 +73,6 @@ func (s *AsteroidSuite) TestMined(c *C) {
 	ship, err = s.store.GetShip(s.ship.Id)
 	c.Assert(err, IsNil)
 	//c.Check(ship.Health, Equals, 50)
-	//c.Check(ship.DrillBit, Equals, 900)
 
 	tx, err = s.store.sqlx.Beginx()
 	defer tx.Commit()

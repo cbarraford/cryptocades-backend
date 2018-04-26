@@ -30,10 +30,6 @@ func (*Dummy) GetShipUserId(id int64) (int64, error)                 { return 0,
 func (*Dummy) GetShip(id int64) (Ship, error)                        { return Ship{}, kaboom }
 func (*Dummy) GetStatus(ship Ship, ast Asteroid) (status ShipStatus) { return ShipStatus{} }
 func (*Dummy) UpdateShip(ship *Ship) error                           { return kaboom }
-func (*Dummy) Heal(shipId int64) error                               { return kaboom }
-func (*Dummy) ReplaceDrillBit(shipId int64) error                    { return kaboom }
-func (*Dummy) AddShipResources(a, r int) error                       { return kaboom }
-func (*Dummy) AddShipDamage(h, d int) error                          { return kaboom }
 func (*Dummy) DeleteShip(id int64) error                             { return kaboom }
 
 // Upgrades

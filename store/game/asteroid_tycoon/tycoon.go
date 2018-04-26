@@ -12,7 +12,6 @@ const (
 
 	// Ship
 	damagePerSec int64 = 1
-	healPerSec   int64 = 3
 
 	// Trade
 	ResourcesForCredits int = 100
@@ -38,10 +37,6 @@ type Store interface {
 	GetShipUserId(id int64) (int64, error)
 	GetShip(id int64) (Ship, error)
 	UpdateShip(ship *Ship) error
-	Heal(shipId int64) error
-	ReplaceDrillBit(shipId int64) error
-	AddShipResources(a, r int) error
-	AddShipDamage(h, d int) error
 	DeleteShip(id int64) error
 	GetStatus(ship Ship, ast Asteroid) (status ShipStatus)
 

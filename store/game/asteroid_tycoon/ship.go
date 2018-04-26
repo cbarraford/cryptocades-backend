@@ -11,16 +11,14 @@ type Ship struct {
 	Id             int64     `json:"id" db:"id"`
 	AccountId      int64     `json:"account_id" db:"account_id"`
 	Name           string    `json:"name" db:"name"`
-	State          int       `json:"-" db:"state"`
 	TotalAsteroids int       `json:"total_asteroids" db:"total_asteroids"`
 	TotalResources int       `json:"total_resources" db:"total_resources"`
 	Health         int       `json:"health" db:"health"`
-	DrillBit       int       `json:"drill_bit" db:"drill_bit"`
 	SolarSystem    int       `json:"-" db:"solar_system"`
-	Speed          int       `json:"speed" db:"speed"`
-	Hull           int       `json:"hull" db:"hull"`
-	Cargo          int       `json:"cargo" db:"cargo"`
-	Drill          int       `json:"drill" db:"drill"`
+	Speed          int       `json:"speed" db:"-"`
+	Hull           int       `json:"hull" db:"-"`
+	Cargo          int       `json:"cargo" db:"-"`
+	Repair         int       `json:"repair" db:"-"`
 	SessionId      string    `json:"-" db:"session_id"`
 	CreatedTime    time.Time `json:"created_time" db:"created_time"`
 	UpdatedTime    time.Time `json:"updated_time" db:"updated_time"`
@@ -55,9 +53,9 @@ func (db *store) CreateShip(ship *Ship) error {
 
 	query := fmt.Sprintf(`
 		INSERT INTO %s
-			(account_id, name, total_asteroids, total_resources, health, drill_bit, created_time)
+			(account_id, name, total_asteroids, total_resources, health, created_time)
 		VALUES
-			(:account_id, :name, :total_asteroids, :total_resources, :health, :drill_bit, :created_time) RETURNING id
+			(:account_id, :name, :total_asteroids, :total_resources, :health, :created_time) RETURNING id
 	`, shipsTable)
 
 	stmt, err := db.sqlx.PrepareNamed(query)
@@ -118,32 +116,14 @@ func (db *store) UpdateShip(ship *Ship) error {
 	query := fmt.Sprintf(`
         UPDATE %s SET
             name			= :name,
-            state			= :state,
 			total_asteroids = :total_asteroids,
 			total_resources = :total_resources,
 			health			= :health,
-			drill_bit		= :drill_bit,
 			session_id		= :session_id,
 			solar_system	= :solar_system,
             updated_time    = :updated_time
         WHERE id = :id`, shipsTable)
 	_, err := db.sqlx.NamedExec(query, ship)
-	return err
-}
-
-func (db *store) AddShipResources(asteroids, resources int) error {
-	query := db.sqlx.Rebind(fmt.Sprintf(
-		"UPDATE %s SET total_asteroids = total_asteroids + ?, total_resources = total_resources + ?", shipsTable,
-	))
-	_, err := db.sqlx.Exec(query, asteroids, resources)
-	return err
-}
-
-func (db *store) AddShipDamage(health, drillbit int) error {
-	query := db.sqlx.Rebind(fmt.Sprintf(
-		"UPDATE %s SET health = health - ?, drill_bit = drill_bit - ?", shipsTable,
-	))
-	_, err := db.sqlx.Exec(query, health, drillbit)
 	return err
 }
 
@@ -159,7 +139,7 @@ func (db *store) ExpandShip(ship *Ship) error {
 	if err != nil {
 		return err
 	}
-	err = db.sqlx.Get(&ship.Drill, query, ship.Id, 3)
+	err = db.sqlx.Get(&ship.Repair, query, ship.Id, 3)
 	if err != nil {
 		return err
 	}

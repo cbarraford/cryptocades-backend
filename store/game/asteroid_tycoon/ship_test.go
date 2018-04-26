@@ -87,7 +87,7 @@ func (s *ShipSuite) TestGetShip(c *C) {
 	c.Assert(err, IsNil)
 	c.Check(ship.Speed, Equals, 100)
 	c.Check(ship.Cargo, Equals, 500)
-	c.Check(ship.Drill, Equals, 10)
+	c.Check(ship.Repair, Equals, 1)
 	c.Check(ship.Hull, Equals, 200)
 }
 
@@ -99,11 +99,9 @@ func (s *ShipSuite) TestUpdate(c *C) {
 	originalUpdateTime := ship.UpdatedTime
 
 	ship.Name = "Forerunner"
-	ship.State = 2
 	ship.TotalAsteroids = 4
 	ship.TotalResources = 50987
 	ship.Health = 45
-	ship.DrillBit = 4478
 	ship.SolarSystem = 3
 	ship.SessionId = "boo boo"
 	c.Assert(s.store.UpdateShip(&ship), IsNil)
@@ -112,42 +110,12 @@ func (s *ShipSuite) TestUpdate(c *C) {
 	c.Assert(ships, HasLen, 1)
 	ship = ships[0]
 	c.Check(ship.Name, Equals, "Forerunner")
-	c.Check(ship.State, Equals, 2)
 	c.Check(ship.TotalAsteroids, Equals, 4)
 	c.Check(ship.TotalResources, Equals, 50987)
 	c.Check(ship.Health, Equals, 45)
-	c.Check(ship.DrillBit, Equals, 4478)
 	c.Check(ship.SolarSystem, Equals, 3)
 	c.Check(ship.SessionId, Equals, "boo boo")
 	c.Check(originalUpdateTime.UnixNano(), Not(Equals), ship.UpdatedTime.UnixNano())
-}
-
-func (s *ShipSuite) TestAddShipResources(c *C) {
-	var err error
-	ship := Ship{AccountId: s.account.Id, TotalAsteroids: 3, TotalResources: 445}
-	c.Assert(s.store.CreateShip(&ship), IsNil)
-
-	c.Assert(s.store.AddShipResources(2, 44), IsNil)
-	ships, err := s.store.GetShipsByAccountId(s.account.Id)
-	c.Assert(err, IsNil)
-	c.Assert(ships, HasLen, 1)
-	ship = ships[0]
-	c.Check(ship.TotalAsteroids, Equals, 5)
-	c.Check(ship.TotalResources, Equals, 489)
-}
-
-func (s *ShipSuite) TestAddShipDamage(c *C) {
-	var err error
-	ship := Ship{AccountId: s.account.Id, Health: 100, DrillBit: 500}
-	c.Assert(s.store.CreateShip(&ship), IsNil)
-
-	c.Assert(s.store.AddShipDamage(40, 60), IsNil)
-	ships, err := s.store.GetShipsByAccountId(s.account.Id)
-	c.Assert(err, IsNil)
-	c.Assert(ships, HasLen, 1)
-	ship = ships[0]
-	c.Check(ship.Health, Equals, 60)
-	c.Check(ship.DrillBit, Equals, 440)
 }
 
 func (s *ShipSuite) TestDelete(c *C) {

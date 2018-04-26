@@ -9,13 +9,11 @@ CREATE TABLE g2_accounts(
 CREATE TABLE g2_ships(
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL DEFAULT '',
-    state INTEGER NOT NULL DEFAULT 0,
     total_asteroids INTEGER NOT NULL DEFAULT 0,
     total_resources INTEGER NOT NULL DEFAULT 0,
     account_id INTEGER REFERENCES g2_accounts(id) ON DELETE CASCADE,
     session_id VARCHAR(12) DEFAULT '',
     health INTEGER NOT NULL DEFAULT 0,
-    drill_bit INTEGER NOT NULL DEFAULT 0,
     solar_system INTEGER NOT NULL DEFAULT 0,
     created_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
@@ -79,6 +77,10 @@ CREATE TABLE g2_ship_upgrades(
 CREATE UNIQUE INDEX g2_ship_upgrades_asset_id_category_id ON g2_ship_upgrades(asset_id, category_id);
 
 
+-- 1 Engine
+-- 2 Cargo
+-- 3 Repair
+-- 4 Hull
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
     (1, 1, 100, 100);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
@@ -120,25 +122,25 @@ INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
     (2, 10, 3000, 1000);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 1, 10, 100);
+    (3, 1, 1, 100);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 2, 20, 200);
+    (3, 2, 2, 200);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 3, 30, 300);
+    (3, 3, 3, 300);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 4, 40, 400);
+    (3, 4, 4, 400);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 5, 50, 500);
+    (3, 5, 5, 500);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 6, 60, 600);
+    (3, 6, 6, 600);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 7, 70, 700);
+    (3, 7, 7, 700);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 8, 80, 800);
+    (3, 8, 8, 800);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 9, 90, 900);
+    (3, 9, 9, 900);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 10, 100, 1000);
+    (3, 10, 10, 1000);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
     (4, 1, 200, 100);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
