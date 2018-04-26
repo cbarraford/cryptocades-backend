@@ -54,9 +54,11 @@ func (s *DBSuite) SetUpSuite(c *C) {
 }
 
 func (s *DBSuite) TearDownSuite(c *C) {
-	query := "Truncate users CASCADE"
-	_, err := s.store.sqlx.Exec(query)
-	c.Assert(err, IsNil)
+	if !testing.Short() {
+		query := "Truncate users CASCADE"
+		_, err := s.store.sqlx.Exec(query)
+		c.Assert(err, IsNil)
+	}
 }
 
 func (s *DBSuite) TearDownTest(c *C) {

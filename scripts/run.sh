@@ -7,5 +7,5 @@
 
 docker-compose run -e TARGET=$TARGET --rm "$@"
 exit_code=$?
-docker-compose down
+docker-compose down -v
 exit $exit_code

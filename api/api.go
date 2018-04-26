@@ -18,6 +18,7 @@ import (
 	"github.com/cbarraford/cryptocades-backend/api/context"
 	"github.com/cbarraford/cryptocades-backend/api/facebook"
 	"github.com/cbarraford/cryptocades-backend/api/games"
+	"github.com/cbarraford/cryptocades-backend/api/games/tycoon"
 	"github.com/cbarraford/cryptocades-backend/api/jackpots"
 	"github.com/cbarraford/cryptocades-backend/api/matchups"
 	"github.com/cbarraford/cryptocades-backend/api/middleware"
@@ -86,8 +87,6 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		usersGroup.GET("/:id", users.Get(store.Users))
 	}
 
-	r.GET("/games", games.List(store.Games))
-
 	jackpotsGroup := r.Group("/jackpots")
 	{
 		jackpotsGroup.GET("/", jackpots.List(store.Jackpots))
@@ -107,6 +106,29 @@ func GetAPIService(store store.Store, agent newrelic.Application, captcha recapt
 		adminGroup.GET("/users/active/total", admins.TotalActiveUsers(store.Admins))
 		adminGroup.GET("/users/live/total", admins.TotalLiveUsers(store.Admins))
 		adminGroup.POST("/users/plays/free", admins.AwardPlays(store.Admins))
+	}
+
+	// Games
+	r.GET("/games", games.List(store.Games))
+	tycoonGroup := r.Group("/games/2")
+	{
+		tycoonGroup.GET("/account", tycoon.GetAccount(store.TycoonGame))
+		tycoonGroup.POST("/account", tycoon.CreateAccount(store.TycoonGame))
+		tycoonGroup.GET("/ships", tycoon.GetShips(store.TycoonGame))
+		tycoonGroup.POST("/ships", tycoon.CreateShip(store.TycoonGame))
+		tycoonGroup.PUT("/ships/:id", tycoon.UpdateShip(store.TycoonGame))
+		tycoonGroup.GET("/ships/:id/logs", tycoon.GetShipLogs(store.TycoonGame))
+		tycoonGroup.GET("/ships/:id/upgrades", tycoon.GetShipUpgrades(store.TycoonGame))
+		tycoonGroup.PUT("/ships/:id/upgrade", tycoon.ApplyUpgrade(store.TycoonGame))
+		tycoonGroup.GET("/ships/:id/asteroids", tycoon.GetMyAsteroids(store.TycoonGame))
+		tycoonGroup.GET("/ships/:id/status", tycoon.GetStatus(store.TycoonGame))
+		tycoonGroup.GET("/upgrades", tycoon.GetUpgrades(store.TycoonGame))
+		tycoonGroup.GET("/asteroids/available", tycoon.GetAvailableAsteroids(store.TycoonGame))
+		tycoonGroup.POST("/asteroids/assign", tycoon.AssignAsteroid(store.TycoonGame))
+		tycoonGroup.POST("/asteroids/completed", tycoon.CompletedAsteroid(store.TycoonGame))
+		tycoonGroup.GET("/exchange", tycoon.Exchange())
+		tycoonGroup.POST("/trade/credits", tycoon.TradeForCredits(store.TycoonGame))
+		tycoonGroup.POST("/trade/plays", tycoon.TradeForPlays(store.TycoonGame))
 	}
 
 	return r

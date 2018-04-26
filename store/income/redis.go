@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cbarraford/cryptocades-backend/store/game/asteroid_tycoon"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -82,7 +83,7 @@ func (db *store) zpop(key string) (scores []Record, err error) {
 	return
 }
 
-func (db *store) UpdateScores() error {
+func (db *store) UpdateScores(ty asteroid_tycoon.Store) error {
 	records, err := db.zpop("shares")
 	if err != nil {
 		return err
@@ -94,10 +95,19 @@ func (db *store) UpdateScores() error {
 	}
 
 	for _, record := range records {
-		err := db.CreateWithinTransaction(&record, tx)
-		if err != nil {
-			tx.Rollback()
-			return err
+		if record.GameId == 2 {
+			// Specific to Asteroid Tycoon
+			err := ty.Mined(record.SessionId, record.PartialAmount, record.UserId, tx)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		} else {
+			err := db.CreateWithinTransaction(&record, tx)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
 		}
 	}
 
