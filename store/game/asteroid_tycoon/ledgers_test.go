@@ -43,6 +43,7 @@ func (s *LedgerSuite) TestCompletedAsteroid(c *C) {
 	var balance int
 
 	ast := Asteroid{
+		Total:       500,
 		ShipId:      s.ship.Id,
 		UpdatedTime: time.Now().Add(-100000 * time.Hour),
 	}

@@ -9,7 +9,6 @@ import (
 )
 
 const accountsTable string = "g2_accounts"
-const CreditsForPlays int = 100
 
 type Account struct {
 	Id          int64     `json:"id" db:"id"`

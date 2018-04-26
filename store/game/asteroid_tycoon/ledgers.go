@@ -8,12 +8,8 @@ import (
 )
 
 const (
-	ledgersTable         string = "g2_ledgers"
-	sessionsTable        string = "g2_sessions"
-	ResourceToShareRatio int    = 100
-	ResourcesForCredits  int    = 100
-	HealthForCredits     int    = 10
-	DrillBitCost         int    = 10
+	ledgersTable  string = "g2_ledgers"
+	sessionsTable string = "g2_sessions"
 )
 
 type Ledger struct {

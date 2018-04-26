@@ -3,8 +3,6 @@ package asteroid_tycoon
 import (
 	"fmt"
 	"time"
-
-	"github.com/lib/pq"
 )
 
 const shipsTable string = "g2_ships"
@@ -131,97 +129,6 @@ func (db *store) UpdateShip(ship *Ship) error {
         WHERE id = :id`, shipsTable)
 	_, err := db.sqlx.NamedExec(query, ship)
 	return err
-}
-
-func (db *store) Heal(shipId int64) error {
-	ship, err := db.GetShip(shipId)
-	if err != nil {
-		return err
-	}
-
-	creditNeeded := (ship.Hull - ship.Health) / HealthForCredits
-
-	tx, err := db.sqlx.Beginx()
-
-	query := db.sqlx.Rebind(fmt.Sprintf(`
-        UPDATE %s SET
-			credits			= credits - ?,
-            updated_time    = now()
-        WHERE id = ?`, accountsTable))
-	_, err = tx.Exec(query, creditNeeded, ship.AccountId)
-	if serr, ok := err.(*pq.Error); ok {
-		// https://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
-		if serr.Code.Name() == "check_violation" {
-			tx.Rollback()
-			return fmt.Errorf("Insufficient funds.")
-		}
-	}
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	query = db.sqlx.Rebind(fmt.Sprintf(`
-        UPDATE %s SET
-			health			= ?,
-            updated_time    = now()
-        WHERE id = ?`, shipsTable))
-	_, err = tx.Exec(query, ship.Hull, ship.Id)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit()
-}
-
-func (db *store) ReplaceDrillBit(shipId int64) error {
-	ship, err := db.GetShip(shipId)
-	if err != nil {
-		return err
-	}
-
-	var drillCost int
-	query := db.sqlx.Rebind(fmt.Sprintf(`
-		SELECT list.cost FROM %s AS ups JOIN %s AS list ON list.category_id = ups.category_id AND list.asset_id = ups.asset_id AND ups.ship_id = ? AND ups.category_id = ?`, upgradesTable, listUpgradesTable))
-	err = db.sqlx.Get(&drillCost, query, ship.Id, 3)
-	if err != nil {
-		return err
-	}
-	creditNeeded := drillCost / DrillBitCost
-
-	tx, err := db.sqlx.Beginx()
-
-	query = db.sqlx.Rebind(fmt.Sprintf(`
-        UPDATE %s SET
-			credits			= credits - ?,
-            updated_time    = now()
-        WHERE id = ?`, accountsTable))
-	_, err = tx.Exec(query, creditNeeded, ship.AccountId)
-	if serr, ok := err.(*pq.Error); ok {
-		// https://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
-		if serr.Code.Name() == "check_violation" {
-			tx.Rollback()
-			return fmt.Errorf("Insufficient funds.")
-		}
-	}
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	query = db.sqlx.Rebind(fmt.Sprintf(`
-        UPDATE %s SET
-			drill_bit		= ?,
-            updated_time    = now()
-        WHERE id = ?`, shipsTable))
-	_, err = tx.Exec(query, ship.Drill, ship.Id)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit()
 }
 
 func (db *store) AddShipResources(asteroids, resources int) error {

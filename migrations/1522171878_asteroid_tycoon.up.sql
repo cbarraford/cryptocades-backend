@@ -102,43 +102,43 @@ INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
     (2, 1, 500, 100);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 2, 500, 100);
+    (2, 2, 700, 200);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 3, 500, 100);
+    (2, 3, 1000, 300);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 4, 500, 100);
+    (2, 4, 1200, 400);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 5, 500, 100);
+    (2, 5, 1500, 500);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 6, 500, 100);
+    (2, 6, 2000, 600);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 7, 500, 100);
+    (2, 7, 2300, 700);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 8, 500, 100);
+    (2, 8, 2500, 800);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 9, 500, 100);
+    (2, 9, 2700, 900);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (2, 10, 500, 100);
+    (2, 10, 3000, 1000);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
     (3, 1, 10, 100);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 2, 20, 100);
+    (3, 2, 20, 200);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 3, 30, 100);
+    (3, 3, 30, 300);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 4, 40, 100);
+    (3, 4, 40, 400);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 5, 50, 100);
+    (3, 5, 50, 500);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 6, 60, 100);
+    (3, 6, 60, 600);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 7, 70, 100);
+    (3, 7, 70, 700);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 8, 80, 100);
+    (3, 8, 80, 800);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 9, 90, 100);
+    (3, 9, 90, 900);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
-    (3, 10, 100, 100);
+    (3, 10, 100, 1000);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 
     (4, 1, 200, 100);
 INSERT INTO g2_ship_upgrades (category_id, asset_id, value, cost) VALUES 

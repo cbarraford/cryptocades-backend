@@ -2,6 +2,23 @@ package asteroid_tycoon
 
 import "github.com/jmoiron/sqlx"
 
+const (
+	// Asteroid
+	minDistance          int = 1000
+	maxDistance          int = 10000
+	minTotal             int = 100
+	maxTotal             int = 3000
+	ResourceToShareRatio int = 500
+
+	// Ship
+	damagePerSec int64 = 1
+	healPerSec   int64 = 3
+
+	// Trade
+	ResourcesForCredits int = 100
+	CreditsForPlays     int = 100
+)
+
 type Store interface {
 	// Account
 	CreateAccount(acct *Account) error

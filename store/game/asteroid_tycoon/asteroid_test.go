@@ -84,7 +84,7 @@ func (s *AsteroidSuite) TestMined(c *C) {
 }
 
 func (s *AsteroidSuite) TestAssign(c *C) {
-	ast := Asteroid{}
+	ast := Asteroid{Total: 500}
 	c.Assert(s.store.CreateAsteroid(&ast), IsNil)
 
 	ship, err := s.store.GetShip(s.ship.Id)
@@ -102,6 +102,7 @@ func (s *AsteroidSuite) TestAvailableAsteroids(c *C) {
 	c.Assert(s.store.CreateAsteroid(&ast), IsNil)
 
 	ast2 := Asteroid{
+		Total:     500,
 		Remaining: 0,
 	}
 	c.Assert(s.store.CreateAsteroid(&ast2), IsNil)

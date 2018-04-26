@@ -100,7 +100,7 @@ func (s *AccountSuite) TestTradeForCredits(c *C) {
 	c.Assert(s.store.CreateAccount(&acct), IsNil)
 
 	c.Assert(s.store.TradeForCredits(acct.Id, 1000), ErrorMatches, "Insufficient funds.")
-	c.Assert(s.store.AddEntry(acct.Id, 5000, "test"), IsNil)
+	c.Assert(s.store.AddEntry(acct.Id, 500, "test"), IsNil)
 	c.Assert(s.store.TradeForCredits(acct.Id, 5), IsNil)
 	c.Assert(s.store.TradeForCredits(acct.Id, 1), ErrorMatches, "Insufficient funds.")
 }

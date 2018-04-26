@@ -104,7 +104,7 @@ func (s *ShipSuite) TestShipLogs(c *check.C) {
 	w := httptest.NewRecorder()
 	req.Header.Set("Masquerade", "12")
 	r.ServeHTTP(w, req)
-	c.Assert(w.Code, check.Equals, 100)
+	c.Assert(w.Code, check.Equals, 200)
 
 	var lines []asteroid_tycoon.Log
 	c.Assert(json.Unmarshal(w.Body.Bytes(), &lines), check.IsNil)

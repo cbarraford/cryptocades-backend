@@ -13,12 +13,6 @@ import (
 
 const (
 	asteroidsTable string = "g2_asteroids"
-	minDistance    int    = 1000
-	maxDistance    int    = 10000
-	minTotal       int    = 100
-	maxTotal       int    = 500
-	damagePerSec   int64  = 1
-	healPerSec     int64  = 3
 )
 
 type Asteroid struct {

@@ -88,7 +88,7 @@ func (s *ShipSuite) TestGetShip(c *C) {
 	c.Check(ship.Speed, Equals, 100)
 	c.Check(ship.Cargo, Equals, 500)
 	c.Check(ship.Drill, Equals, 10)
-	c.Check(ship.Hull, Equals, 100)
+	c.Check(ship.Hull, Equals, 200)
 }
 
 func (s *ShipSuite) TestUpdate(c *C) {
@@ -120,25 +120,6 @@ func (s *ShipSuite) TestUpdate(c *C) {
 	c.Check(ship.SolarSystem, Equals, 3)
 	c.Check(ship.SessionId, Equals, "boo boo")
 	c.Check(originalUpdateTime.UnixNano(), Not(Equals), ship.UpdatedTime.UnixNano())
-}
-
-func (s *ShipSuite) TestHeal(c *C) {
-	ship := Ship{AccountId: s.account.Id, Health: 50}
-	c.Assert(s.store.CreateShip(&ship), IsNil)
-
-	c.Assert(s.store.Heal(ship.Id), ErrorMatches, "Insufficient funds.")
-	c.Assert(s.store.AddAccountCredits(s.account.Id, 100), IsNil)
-	c.Assert(s.store.Heal(ship.Id), IsNil)
-}
-
-func (s *ShipSuite) TestReplaceDrillBit(c *C) {
-	c.Assert(s.store.UpdateAccount(&Account{Id: s.account.Id, Credits: 0}), IsNil)
-	ship := Ship{AccountId: s.account.Id, Health: 50}
-	c.Assert(s.store.CreateShip(&ship), IsNil)
-
-	c.Assert(s.store.ReplaceDrillBit(ship.Id), ErrorMatches, "Insufficient funds.")
-	c.Assert(s.store.AddAccountCredits(s.account.Id, 100), IsNil)
-	c.Assert(s.store.ReplaceDrillBit(ship.Id), IsNil)
 }
 
 func (s *ShipSuite) TestAddShipResources(c *C) {
