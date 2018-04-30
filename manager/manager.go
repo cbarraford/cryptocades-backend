@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 
@@ -97,6 +98,17 @@ func RewardPerformers(hour int, store matchup.Store, boostStore boost.Store, use
 	return nil
 }
 
+func contains(arr []int, i int) bool {
+	for _, a := range arr {
+		if a == i {
+			return true
+		} else if a > i {
+			return false
+		}
+	}
+	return false
+}
+
 func SpawnAsteroids(store asteroid_tycoon.Store) error {
 	minAsteroids := 100
 	avail, err := store.AvailableAsteroids()
@@ -104,11 +116,25 @@ func SpawnAsteroids(store asteroid_tycoon.Store) error {
 		return err
 	}
 	if len(avail) < minAsteroids {
-		count := minAsteroids - len(avail)
-		for i := 1; i <= count; i++ {
-			err := store.CreateAsteroid(&asteroid_tycoon.Asteroid{})
-			if err != nil {
-				return err
+
+		availSizes := make([]int, len(avail))
+		for _, s := range avail {
+			availSizes = append(availSizes, s.Total)
+		}
+		sort.Ints(availSizes)
+
+		incr := (asteroid_tycoon.MaxTotal - asteroid_tycoon.MinTotal) / minAsteroids
+
+		for i := 0; i <= minAsteroids; i++ {
+			targetSize := (i * incr) + asteroid_tycoon.MinTotal
+			if !contains(availSizes, targetSize) {
+				ast := asteroid_tycoon.Asteroid{
+					Total: targetSize,
+				}
+				err := store.CreateAsteroid(&ast)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

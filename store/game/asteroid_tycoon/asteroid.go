@@ -38,11 +38,11 @@ func (db *store) CreateAsteroid(ast *Asteroid) error {
 	}
 
 	if ast.Distance == 0 {
-		ast.Distance = util.Random(minDistance, maxDistance)
+		ast.Distance = util.Random(MinDistance, MaxDistance)
 	}
 
 	if ast.Total == 0 {
-		ast.Total = util.Random(minTotal, maxTotal)
+		ast.Total = util.Random(MinTotal, MaxTotal)
 	}
 
 	if ast.Remaining == 0 {

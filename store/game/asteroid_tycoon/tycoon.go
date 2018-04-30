@@ -4,10 +4,10 @@ import "github.com/jmoiron/sqlx"
 
 const (
 	// Asteroid
-	minDistance          int = 1000
-	maxDistance          int = 10000
-	minTotal             int = 100
-	maxTotal             int = 3000
+	MinDistance          int = 1000
+	MaxDistance          int = 10000
+	MinTotal             int = 100
+	MaxTotal             int = 3000
 	ResourceToShareRatio int = 200
 
 	// Ship
